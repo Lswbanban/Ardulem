@@ -8,12 +8,25 @@ class Lem
 {
 public:
 	Lem();
-	void Draw(char y);
+	void Update(char y);
 
 private:
-	char mPosX;
-	char mPosY;
-	char mCurrentFrame;
+	enum AnimId
+	{
+		WALK = 0,
+		NUM_LEM_ANIM
+	};
+
+	// position
+	char		mPosX;
+	char		mPosY;
+	
+	// animation
+	char		mCurrentFrame;
+	AnimId		mCurrentAnimId;
+	
+	void DrawCurrentAnimFrame();
+	void SetCurrentAnimId(AnimId animId);
 };
 
 #endif
