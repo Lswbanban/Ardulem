@@ -4,7 +4,7 @@
 /**
  * Animation for the lems
  */
-static const unsigned int ANIM_LEM_WALK_FRAME_COUNT = 3;
+const unsigned int ANIM_LEM_WALK_FRAME_COUNT = 4;
 extern const unsigned char anim_LemWalk[][ANIM_LEM_WALK_FRAME_COUNT];
 
 #endif

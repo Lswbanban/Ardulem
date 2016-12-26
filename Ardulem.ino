@@ -10,7 +10,7 @@
  */
 
 #include "Ardulem.h"
-#include "LemAI.h"
+#include "LemManager.h"
 
 // instance of the arduboy class
 Arduboy arduboy;
@@ -31,7 +31,7 @@ void loop()
 	arduboy.clear();
 
 	// update the various managers
-	LemAI::Update();
+	LemManager::Update();
 	
 	// draw the frame buffer
 	arduboy.display();
