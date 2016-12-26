@@ -8,15 +8,12 @@
  * If you want to report bugs or feature request, please do it through the bitbucket project page were
  * this code is hosted. However, there's no guaranty that I will fix them.
  */
-#include <Arduboy.h>
 
-const unsigned char lemming[][3] PROGMEM  = {{0x00, 0xf8, 0x00, },{0x80, 0xf8, 0xa0, },{0xa0, 0x78, 0xa0, }, {0x80, 0xf8, 0xa0, }};
-                      
+#include "Ardulem.h"
+#include "LemAI.h"
+
 // instance of the arduboy class
 Arduboy arduboy;
-
-int index = 0;
-int time = 0;
 
 void setup()
 {
@@ -26,13 +23,16 @@ void setup()
 
 void loop()
 {
-  arduboy.clear();
+	// early exit if the frame is not ready
+	if (!arduboy.nextFrame())
+		return;
 
-  time++;
-  if ((time % 100) == 0)
-    index++;
-  
-  //Draw player sprite
-  arduboy.drawBitmap(index%WIDTH, 10, lemming[index%4], 3, 8, WHITE);
-  arduboy.display();
+	// clear the screen
+	arduboy.clear();
+
+	// update the various managers
+	LemAI::Update();
+	
+	// draw the frame buffer
+	arduboy.display();
 }
