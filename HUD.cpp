@@ -1,5 +1,6 @@
 #include "Ardulem.h"
 #include "HUD.h"
+#include "SpriteData.h"
 
 namespace HUD
 {
@@ -84,12 +85,14 @@ void HUD::UpdateLemCounter()
 	
 	// draw the number out with the icon
 	int x = START_COUNTER_X;
+	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, WHITE);
 	x = PrintNumber(x, y, 100, 3, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
 	// draw the number in with the icon
 	x = START_COUNTER_X;
 	y += COUNTER_HEIGHT;
+	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, WHITE);
 	x = PrintNumber(x, y, 82, 3, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
@@ -99,6 +102,9 @@ void HUD::UpdateLemCounter()
 	// draw the required number with the icon
 	x = START_COUNTER_X;
 	y += COUNTER_HEIGHT;
+	if (color == BLACK)
+		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
+	arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
 	x = PrintNumber(x, y, 0, 3, color);
 	PrintChar(x, y, '%', color);
 }
