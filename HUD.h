@@ -6,6 +6,9 @@
 
 namespace HUD
 {
+	// constants
+	const unsigned int HUD_WIDTH = 30;
+	
 	// the total remaining time for the game in second
 	extern int GameRemainingTimeInSecond;
 	
