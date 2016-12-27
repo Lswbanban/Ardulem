@@ -11,6 +11,7 @@
 
 #include "Ardulem.h"
 #include "LemManager.h"
+#include "HUD.h"
 
 // instance of the arduboy class
 Arduboy arduboy;
@@ -31,7 +32,8 @@ void loop()
 	arduboy.clear();
 
 	// update the various managers
-	LemManager::Update();
+	HUD::Update();
+	//LemManager::Update();
 	
 	// draw the frame buffer
 	arduboy.display();
