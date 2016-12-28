@@ -12,6 +12,9 @@ extern const unsigned char sprite_HUDFlagDown[];
 //const unsigned int ANIM_HUD_FLAG_FRAME_COUNT = 4;
 //extern const unsigned char anim_HUDFlag[][ANIM_HUD_FLAG_FRAME_COUNT];
  
+const unsigned int SPRITE_TINY_NUMBERS_COUNT = 14;
+extern const unsigned char sprite_TinyNumbers[][SPRITE_TINY_NUMBERS_COUNT];
+
 /*
  * Animation for the lems
  */

@@ -15,7 +15,8 @@ namespace HUD
 	void UpdateLemCounter();
 	
 	int PrintChar(int x, int y, unsigned char c, char color);
-	int PrintNumber(int x, int y, int number, int numDigits, char color);
+	int PrintTinyDigit(int x, int y, int digit, char color, int charWidth = 3, int charHeight = 5);
+	int PrintNumber(int x, int y, int number, int numDigits, char color, bool useTinyFont = false);
 }
 
 /*
@@ -67,6 +68,8 @@ void HUD::UpdateButton()
 	arduboy.drawFastVLine(CELL_WIDTH+BUTTON_WIDTH, START_Y, GRID_HEIGHT, WHITE);
 	arduboy.drawFastHLine(0, START_Y+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
 	arduboy.drawFastHLine(0, START_Y+CELL_HEIGHT+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
+	
+	PrintTinyDigit(0, START_Y, 3, WHITE);
 }
 
 void HUD::UpdateDropVelocity()
@@ -116,25 +119,42 @@ int HUD::PrintChar(int x, int y, unsigned char c, char color)
 	return x + 6;
 }
 
-int HUD::PrintNumber(int x, int y, int number, int numDigits, char color)
+int HUD::PrintTinyDigit(int x, int y, int digit, char color, int charWidth, int charHeight)
 {
+	char bgColor = (color == WHITE) ? BLACK : WHITE;
+	arduboy.fillRect(x, y, charWidth, charHeight, bgColor);
+	if (digit >= 0)
+		arduboy.drawBitmap(x, y, sprite_TinyNumbers[digit], charWidth, charHeight, color);
+	return x + charWidth;
+}
+
+int HUD::PrintNumber(int x, int y, int number, int numDigits, char color, bool useTinyFont)
+{
+	// compute the starting x, because we will draw the digit from right to left
+	int charWidth = useTinyFont ? 4 : 6;
+	int reverseX = x + ((numDigits - 1) * charWidth);
 	// then iterate to draw them
-	int reverseX = x + ((numDigits - 1) * 6);
 	for (int i = 0; i < numDigits; ++i)
 	{
 		if ((number > 0) || (i == 0))
 		{
 			int digit = number % 10;
 			number /= 10;
-			PrintChar(reverseX, y, (char)('0' + digit), color);
+			if (useTinyFont)
+				PrintTinyDigit(reverseX, y, digit, color, charWidth);
+			else
+				PrintChar(reverseX, y, (char)('0' + digit), color);
 		}
 		else
 		{
-			PrintChar(reverseX, y, ' ', color);
+			if (useTinyFont)
+				PrintTinyDigit(reverseX, y, -1, color, charWidth);
+			else
+				PrintChar(reverseX, y, ' ', color);
 		}
-		reverseX -= 6;
+		reverseX -= charWidth;
 	}
 	
 	// return the new cursor position
-	return x + (numDigits * 6);
+	return x + (numDigits * charWidth);
 }
