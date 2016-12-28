@@ -12,14 +12,16 @@
 #include "Ardulem.h"
 #include "LemManager.h"
 #include "HUD.h"
+#include "Input.h"
 
 // instance of the arduboy class
 Arduboy arduboy;
 
 void setup()
 {
-  arduboy.begin();
-  arduboy.clear();
+	arduboy.beginNoLogo();
+//	arduboy.begin();
+	arduboy.clear();
 }
 
 void loop()
@@ -32,6 +34,7 @@ void loop()
 	arduboy.clear();
 
 	// update the various managers
+	Input::Update();
 	HUD::Update();
 	//LemManager::Update();
 	
