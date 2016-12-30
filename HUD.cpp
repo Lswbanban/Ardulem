@@ -8,7 +8,7 @@ namespace HUD
 {
 	// instantiate the variable of the HUD
 	Button SelectedButton = Button::TIMER;
-	int GameRemainingTimeInSecond = 72;
+	int FrameNumberOfTheGameEnd = 4320;
 
 	//------------- private part -------------------------------
 	enum InputAction
@@ -23,7 +23,7 @@ namespace HUD
 	
 	// forward declaration of the private function
 	void UpdateInput();
-	void DrawTimer();
+	void DrawTimer(int frameNumber);
 	void DrawLemButton(Button button, int startY, int width, int height);
 	void DrawLemButtons();
 	void DrawDropVelocity();
@@ -32,7 +32,7 @@ namespace HUD
 	char GetButtonColor(Button button);
 	int PrintChar(int x, int y, unsigned char c, char color);
 	int PrintTinyDigit(int x, int y, int digit, char color, int charWidth = 3, int charHeight = 5);
-	int PrintNumber(int x, int y, int number, int numDigits, char color, bool useTinyFont = false);
+	int PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZerosInFront, char color, bool useTinyFont = false);
 	
 	// private variables
 	bool WasArrowButtonUsedInHUD = false;
@@ -47,7 +47,7 @@ void HUD::Update(int frameNumber)
 	UpdateInput();
 	
 	// draw the various HUD elements
-	DrawTimer();
+	DrawTimer(frameNumber);
 	DrawLemButtons();
 	DrawDropVelocity();
 	DrawLemCounter();
@@ -150,22 +150,32 @@ void HUD::UpdateInput()
  * Draw the timer on the top of the bar, that display the remaining time of the game.
  * The timer can be selected and clicked to pause the game.
  */ 
-void HUD::DrawTimer()
+void HUD::DrawTimer(int frameNumber)
 {
-	// compute the minute from the seconds
-	int remainingMinutes = GameRemainingTimeInSecond / 60;
+	// get the number of frame the game will continue to play
+	int remainingTimeInSecond = 0;
+	if (frameNumber < FrameNumberOfTheGameEnd)
+		remainingTimeInSecond = (FrameNumberOfTheGameEnd - frameNumber) / 60; //divide by the FPS
+
+	// compute the minute from the seconds (there's 60 seconds in one minute)
+	int remainingMinutes = remainingTimeInSecond / 60;
 	
 	// choose the corect color depending if the timer is selected
 	char color = GetButtonColor(Button::TIMER);
 	
 	// init the cursor at the correct position
+	bool isLessThan10Minutes = (remainingMinutes < 10);
 	int y = 0;
-	int x = 0;
+	int x = isLessThan10Minutes ? 3 : 0;
+	
+	// if less than 10 minutes and the timer is selected, draw a white rectangle bacground
+	if (isLessThan10Minutes && (color == BLACK))
+		arduboy.fillRect(0, 0, HUD_WIDTH, 8, WHITE);
 	
 	// print the minute, the two dots and the seconds
-	x = PrintNumber(x, y, remainingMinutes, 2, color);
+	x = PrintNumber(x, y, remainingMinutes, isLessThan10Minutes ? 1 : 2, false, color);
 	x = PrintChar(x, y, ':', color);
-	PrintNumber(x, y, GameRemainingTimeInSecond - (remainingMinutes * 60), 2, color);
+	PrintNumber(x, y, remainingTimeInSecond - (remainingMinutes * 60), 2, true, color);
 }
 
 void HUD::DrawLemButton(Button button, int startY, int width, int height)
@@ -282,7 +292,7 @@ void HUD::DrawLemCounter()
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
 	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 100, 3, color);
+	x = PrintNumber(x, y, 100, 3, false, color);
 	PrintChar(x, y, '%', color);
 	
 	// draw the number in with the icon
@@ -291,7 +301,7 @@ void HUD::DrawLemCounter()
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
 	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 82, 3, color);
+	x = PrintNumber(x, y, 82, 3, false, color);
 	PrintChar(x, y, '%', color);
 	
 	// draw the required number with the icon
@@ -300,7 +310,7 @@ void HUD::DrawLemCounter()
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
 	arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 0, 3, color);
+	x = PrintNumber(x, y, 0, 3, false, color);
 	PrintChar(x, y, '%', color);
 }
 
@@ -325,7 +335,7 @@ int HUD::PrintTinyDigit(int x, int y, int digit, char color, int charWidth, int 
 	return x + charWidth;
 }
 
-int HUD::PrintNumber(int x, int y, int number, int numDigits, char color, bool useTinyFont)
+int HUD::PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZerosInFront, char color, bool useTinyFont)
 {
 	// compute the starting x, because we will draw the digit from right to left
 	int charWidth = useTinyFont ? 4 : 6;
@@ -345,9 +355,9 @@ int HUD::PrintNumber(int x, int y, int number, int numDigits, char color, bool u
 		else
 		{
 			if (useTinyFont)
-				PrintTinyDigit(reverseX, y, -1, color, charWidth);
+				PrintTinyDigit(reverseX, y, shouldAddZerosInFront ? 0 : -1, color, charWidth);
 			else
-				PrintChar(reverseX, y, ' ', color);
+				PrintChar(reverseX, y, shouldAddZerosInFront ? '0' : ' ', color);
 		}
 		reverseX -= charWidth;
 	}

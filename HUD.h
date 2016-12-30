@@ -28,9 +28,6 @@ namespace HUD
 	// the button currently selected in the HUD
 	extern Button SelectedButton;
 	
-	// the total remaining time for the game in second
-	extern int GameRemainingTimeInSecond;
-	
 	extern void Update(int frameNumber);
 }
 
