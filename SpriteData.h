@@ -26,4 +26,8 @@ const unsigned int ANIM_LEM_HEIGHT = 8;
 const unsigned int ANIM_LEM_WALK_FRAME_COUNT = 4;
 extern const unsigned char anim_LemWalk[][ANIM_LEM_WALK_FRAME_COUNT];
 
+// STAIR
+const unsigned int ANIM_LEM_STAIR_FRAME_COUNT = 6;
+extern const unsigned char anim_LemStair[][ANIM_LEM_STAIR_FRAME_COUNT];
+
 #endif
