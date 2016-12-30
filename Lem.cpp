@@ -18,9 +18,6 @@ void Lem::Update(int frameNumber)
 
 void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 {
-	int xMove = 0;
-	int yMove = 0;
-
 	// increase the frame counter (will be modulo depending on the anim)
 	if (shouldChangeFrame)
 		mCurrentFrame++;
@@ -29,44 +26,54 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 	{
 		case AnimId::WALK:
 			mCurrentFrame %= ANIM_LEM_WALK_FRAME_COUNT;
-			arduboy.drawBitmap(mPosX, mPosY, anim_LemWalk[mCurrentFrame], sizeof(anim_LemWalk[0]), 5, WHITE);
-			GetMoveFromAnimFrame(xMove, yMove, anim_LemWalk[mCurrentFrame], sizeof(anim_LemWalk[0]));
+			DrawOneAnimFrame(anim_LemWalk[mCurrentFrame], sizeof(anim_LemWalk[0]), shouldChangeFrame);
 			break;
 		case AnimId::STAIR:
 			mCurrentFrame %= ANIM_LEM_STAIR_FRAME_COUNT;
-			arduboy.drawBitmap(mPosX, mPosY, anim_LemStair[mCurrentFrame], sizeof(anim_LemStair[0]), 7, WHITE);
-			GetMoveFromAnimFrame(xMove, yMove, anim_LemStair[mCurrentFrame], sizeof(anim_LemStair[0]));
+			DrawOneAnimFrame(anim_LemStair[mCurrentFrame], sizeof(anim_LemStair[0]), shouldChangeFrame);
 			break;
-	}
-	
-	if (shouldChangeFrame)
-	{
-		// move the lem position according to the move found in the animation
-		mPosX = (mPosX + xMove) % WIDTH;
-		mPosY += yMove;
 	}
 }
 
-
 /*
- * This function set the move in pixel that should be applied to the lem position, based on 
- * the information stored in the last row of the animation frame. Each pixel set have this meaning:
+ * This function draw the specified frame, and may move the lem if we found some data pixel
+ * inside the last row of the frame. The movement is based on the information stored in the last row of the animation frame.
+ * Each pixel set have this meaning:
  * +-----+-----+-----+-----+
  * | x+1 | x+2 | y+1 | y-1 |   (y+1) = down   and   (y-1) = up
  * +-----+-----+-----+-----+
  * All the animation are stored with a movement to the right. If the Lem is walking to the left,
  * The move x should be reversed.
  */
-void Lem::GetMoveFromAnimFrame(int &x, int &y, const unsigned char animFrame[], int frameWidth)
+void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
 {
-	if (pgm_read_byte_near(animFrame) & 0x80)
-		x += 1;
-	if (pgm_read_byte_near(animFrame + 1) & 0x80)
-		x += 2;
-	if (pgm_read_byte_near(animFrame + 2) & 0x80)
-		y += 1;
-	if ((frameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
-		y -= 1;
+	// copy the frame into a temp buffer by removing the move information of the last row
+	unsigned char maskedAnimFrame[animFrameWidth];
+	for (int i = 0 ; i < animFrameWidth; ++i)
+		maskedAnimFrame[i] = pgm_read_byte_near(animFrame + i) & 0x7F;
+	
+	// then draw the frame
+	arduboy.drawBitmapFromRAM(mPosX, mPosY, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, WHITE);
+	
+	// move the lem after drawing the frame if it's time to move
+	if (shouldApplyMovement)
+	{
+		// first get the move from the animation frame
+		int xMove = 0;
+		int yMove = 0;
+		if (pgm_read_byte_near(animFrame) & 0x80)
+			xMove += 1;
+		if (pgm_read_byte_near(animFrame + 1) & 0x80)
+			xMove += 2;
+		if (pgm_read_byte_near(animFrame + 2) & 0x80)
+			yMove += 1;
+		if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
+			yMove -= 1;
+
+		// then move the lem position according to the move found in the animation
+		mPosX = (mPosX + xMove) % WIDTH;
+		mPosY += yMove;
+	}
 }
 
 void Lem::SetCurrentAnimId(AnimId animId)

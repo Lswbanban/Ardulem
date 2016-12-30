@@ -15,7 +15,7 @@
 #include "Input.h"
 
 // instance of the arduboy class
-Arduboy arduboy;
+CustomArduboy arduboy;
 int frameNumber = 0;
 
 void setup()

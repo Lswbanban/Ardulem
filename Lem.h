@@ -28,7 +28,7 @@ private:
 	
 	void	DrawCurrentAnimFrame(bool shouldChangeFrame);
 	void	SetCurrentAnimId(AnimId animId);
-	void	GetMoveFromAnimFrame(int &x, int &y, const unsigned char animFrame[], int frameWidth);
+	void	DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement);
 };
 
 #endif
