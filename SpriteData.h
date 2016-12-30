@@ -30,6 +30,10 @@ extern const unsigned char anim_LemWalk[][3];
 const unsigned int ANIM_LEM_BLOCKER_FRAME_COUNT = 1;
 extern const unsigned char anim_LemBlocker[][5];
 
+// BOMB
+const unsigned int ANIM_LEM_BOMB_FRAME_COUNT = 7;
+extern const unsigned char anim_LemBomb[][4];
+
 // DIG DIAGONAL
 const unsigned int ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT = 6;
 extern const unsigned char anim_LemDigDiagonal[][5];
@@ -45,5 +49,9 @@ extern const unsigned char anim_LemDigVertical[][5];
 // STAIR
 const unsigned int ANIM_LEM_STAIR_FRAME_COUNT = 6;
 extern const unsigned char anim_LemStair[][5];
+
+// CLIMB
+const unsigned int ANIM_LEM_CLIMB_FRAME_COUNT = 3;
+extern const unsigned char anim_LemClimb[][2];
 
 #endif

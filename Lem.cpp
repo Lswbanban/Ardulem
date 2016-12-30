@@ -7,7 +7,7 @@ Lem::Lem()
 	mPosX = 50;
 	mPosY = 40;
 	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::DIG_VERT;
+	mCurrentAnimId = AnimId::CLIMB;
 }
 
 void Lem::Update(int frameNumber)
@@ -33,8 +33,8 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 			DrawOneAnimFrame(anim_LemBlocker[mCurrentFrame], sizeof(anim_LemBlocker[0]), shouldChangeFrame);
 			break;
 		case AnimId::BOMB:
-//			mCurrentFrame %= ANIM_LEM_BOMB_FRAME_COUNT;
-//			DrawOneAnimFrame(anim_LemBomb[mCurrentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
+			mCurrentFrame %= ANIM_LEM_BOMB_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemBomb[mCurrentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
 			break;
 		case AnimId::DIG_DIAG:
 			mCurrentFrame %= ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
@@ -52,6 +52,10 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 			mCurrentFrame %= ANIM_LEM_STAIR_FRAME_COUNT;
 			DrawOneAnimFrame(anim_LemStair[mCurrentFrame], sizeof(anim_LemStair[0]), shouldChangeFrame);
 			break;
+		case AnimId::CLIMB:
+			mCurrentFrame %= ANIM_LEM_CLIMB_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemClimb[mCurrentFrame], sizeof(anim_LemClimb[0]), shouldChangeFrame);
+			break;
 	}
 }
 
@@ -60,7 +64,7 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
  * inside the last row of the frame. The movement is based on the information stored in the last row of the animation frame.
  * Each pixel set have this meaning:
  * +-----+-----+-----+-----+
- * | x+1 | x+2 | y+1 | y-1 |   (y+1) = down   and   (y-1) = up
+ * | x+1 | y-1 | y+1 | x+2 |   (y+1) = down   and   (y-1) = up
  * +-----+-----+-----+-----+
  * All the animation are stored with a movement to the right. If the Lem is walking to the left,
  * The move x should be reversed.
@@ -84,11 +88,11 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		if (pgm_read_byte_near(animFrame) & 0x80)
 			xMove += 1;
 		if (pgm_read_byte_near(animFrame + 1) & 0x80)
-			xMove += 2;
-		if (pgm_read_byte_near(animFrame + 2) & 0x80)
+			yMove -= 1;
+		if ((animFrameWidth > 1) && pgm_read_byte_near(animFrame + 2) & 0x80)
 			yMove += 1;
 		if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
-			yMove -= 1;
+			xMove += 2;
 
 		// then move the lem position according to the move found in the animation
 		mPosX = (mPosX + xMove) % WIDTH;
