@@ -9,7 +9,7 @@ namespace LemManager
 	// the maximum of Lem that can be spawn in a level
 	static const unsigned int MAX_LEM_COUNT = 1;
 	
-	extern void Update();
+	extern void Update(int frameNumber);
 }
 
 #endif

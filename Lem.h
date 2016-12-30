@@ -8,7 +8,7 @@ class Lem
 {
 public:
 	Lem();
-	void Update();
+	void Update(int frameNumber);
 
 private:
 	enum AnimId
@@ -26,7 +26,7 @@ private:
 	char	mCurrentFrame;
 	char	mCurrentAnimId; // of type AnimId
 	
-	void	DrawCurrentAnimFrame();
+	void	DrawCurrentAnimFrame(bool shouldChangeFrame);
 	void	SetCurrentAnimId(AnimId animId);
 	void	GetMoveFromAnimFrame(int &x, int &y, const unsigned char animFrame[], int frameWidth);
 };

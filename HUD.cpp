@@ -40,7 +40,7 @@ namespace HUD
 /*
  * General update method for HUD, that will update all the HUD
  */
-void HUD::Update()
+void HUD::Update(int frameNumber)
 {
 	// update the inputs related to the HUD
 	UpdateInput();

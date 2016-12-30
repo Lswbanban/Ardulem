@@ -16,6 +16,7 @@
 
 // instance of the arduboy class
 Arduboy arduboy;
+int frameNumber = 0;
 
 void setup()
 {
@@ -33,10 +34,13 @@ void loop()
 	// clear the screen
 	arduboy.clear();
 
+	// increase the frame counter to pass it to the managers
+	frameNumber++;
+	
 	// update the various managers
-	Input::Update();
-	HUD::Update();
-	LemManager::Update();
+	Input::Update(frameNumber);
+	HUD::Update(frameNumber);
+	LemManager::Update(frameNumber);
 	
 	// draw the frame buffer
 	arduboy.display();

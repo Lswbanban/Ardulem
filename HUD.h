@@ -31,7 +31,7 @@ namespace HUD
 	// the total remaining time for the game in second
 	extern int GameRemainingTimeInSecond;
 	
-	extern void Update();
+	extern void Update(int frameNumber);
 }
 
 #endif

@@ -7,22 +7,23 @@ Lem::Lem()
 	mPosX = 50;
 	mPosY = 40;
 	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::STAIR;
+	mCurrentAnimId = AnimId::WALK;
 }
 
-void Lem::Update()
+void Lem::Update(int frameNumber)
 {
 	//Draw the lem sprite
-	DrawCurrentAnimFrame();
+	DrawCurrentAnimFrame(!(frameNumber % 10));
 }
 
-void Lem::DrawCurrentAnimFrame()
+void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 {
 	int xMove = 0;
 	int yMove = 0;
 
 	// increase the frame counter (will be modulo depending on the anim)
-	mCurrentFrame++;
+	if (shouldChangeFrame)
+		mCurrentFrame++;
 	
 	switch (mCurrentAnimId)
 	{
@@ -38,10 +39,14 @@ void Lem::DrawCurrentAnimFrame()
 			break;
 	}
 	
-	// move the lem position according to the move found in the animation
-	mPosX = (mPosX + xMove) % WIDTH;
-	mPosY += yMove;
+	if (shouldChangeFrame)
+	{
+		// move the lem position according to the move found in the animation
+		mPosX = (mPosX + xMove) % WIDTH;
+		mPosY += yMove;
+	}
 }
+
 
 /*
  * This function set the move in pixel that should be applied to the lem position, based on 

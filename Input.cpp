@@ -11,7 +11,7 @@ unsigned int NumberOfFrameSinceLastChange = 0;
 /*
  * Call this update function at the end of the loop, so that it can reset internal states.
  */
-void Input::Update()
+void Input::Update(int frameNumber)
 {
 	// save the previous state and record the new state
 	PreviousButtonState = CurrentButtonState; 
@@ -22,13 +22,6 @@ void Input::Update()
 		NumberOfFrameSinceLastChange++;
 	else
 		NumberOfFrameSinceLastChange = 0;
-	
-	arduboy.setCursor(50,10);
-	arduboy.println(PreviousButtonState, BIN);
-	arduboy.setCursor(50,20);
-	arduboy.println(CurrentButtonState, BIN);
-	arduboy.setCursor(50,30);
-	arduboy.println(NumberOfFrameSinceLastChange, DEC);
 }
 
 bool Input::IsJustPressed(unsigned char buttons)
