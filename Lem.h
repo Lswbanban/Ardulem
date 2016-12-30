@@ -14,7 +14,14 @@ private:
 	enum AnimId
 	{
 		WALK = 0,
+		BLOCKER,
+		BOMB,
+		DIG_DIAG,
+		DIG_HORIZ,
+		DIG_VERT,
 		STAIR,
+		CLIMB,
+		PARACHUTE,
 		NUM_LEM_ANIM
 	};
 

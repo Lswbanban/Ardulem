@@ -7,7 +7,7 @@ Lem::Lem()
 	mPosX = 50;
 	mPosY = 40;
 	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::WALK;
+	mCurrentAnimId = AnimId::DIG_VERT;
 }
 
 void Lem::Update(int frameNumber)
@@ -27,6 +27,26 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 		case AnimId::WALK:
 			mCurrentFrame %= ANIM_LEM_WALK_FRAME_COUNT;
 			DrawOneAnimFrame(anim_LemWalk[mCurrentFrame], sizeof(anim_LemWalk[0]), shouldChangeFrame);
+			break;
+		case AnimId::BLOCKER:
+			mCurrentFrame %= ANIM_LEM_BLOCKER_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemBlocker[mCurrentFrame], sizeof(anim_LemBlocker[0]), shouldChangeFrame);
+			break;
+		case AnimId::BOMB:
+//			mCurrentFrame %= ANIM_LEM_BOMB_FRAME_COUNT;
+//			DrawOneAnimFrame(anim_LemBomb[mCurrentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
+			break;
+		case AnimId::DIG_DIAG:
+			mCurrentFrame %= ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemDigDiagonal[mCurrentFrame], sizeof(anim_LemDigDiagonal[0]), shouldChangeFrame);
+			break;
+		case AnimId::DIG_HORIZ:
+			mCurrentFrame %= ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemDigHorizontal[mCurrentFrame], sizeof(anim_LemDigHorizontal[0]), shouldChangeFrame);
+			break;
+		case AnimId::DIG_VERT:
+			mCurrentFrame %= ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemDigVertical[mCurrentFrame], sizeof(anim_LemDigVertical[0]), shouldChangeFrame);
 			break;
 		case AnimId::STAIR:
 			mCurrentFrame %= ANIM_LEM_STAIR_FRAME_COUNT;
