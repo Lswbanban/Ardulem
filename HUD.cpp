@@ -2,6 +2,7 @@
 #include "HUD.h"
 #include "SpriteData.h"
 #include "Input.h"
+#include "Lem.h"
 
 namespace HUD
 {
@@ -175,10 +176,44 @@ void HUD::DrawLemButton(Button button, int startY, int width, int height)
 	int y = startY + (row * (height + 1));
 	char color = GetButtonColor(button);
 	
+	// draw the white background if the button is selected
 	if (color == BLACK)
 		arduboy.fillRect(x, y, width, height, WHITE);
 	
-	PrintTinyDigit(x + 5, y + 2, 3, color);
+	// draw the correct icon
+	switch (button)
+	{
+		case Button::LEM_WALK:
+			Lem::DrawOneAnimFrame(x, y, anim_LemWalk[2], sizeof(anim_LemWalk[0]), color);
+			break;
+		case Button::LEM_BLOCKER:
+			Lem::DrawOneAnimFrame(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), color);
+			break;
+		case Button::LEM_BOMB:
+			// TODO need a special explosion sprite
+			break;
+		case Button::LEM_DIG_DIAG:
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigDiagonal[3], sizeof(anim_LemDigDiagonal[0]), color);
+			break;
+		case Button::LEM_DIG_HORIZ:
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigHorizontal[1], sizeof(anim_LemDigHorizontal[0]), color);
+			break;
+		case Button::LEM_DIG_VERT:
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigVertical[0], sizeof(anim_LemDigVertical[0]), color);
+			break;
+		case Button::LEM_STAIR:
+			Lem::DrawOneAnimFrame(x, y, anim_LemStair[1], sizeof(anim_LemStair[0]), color);
+			break;
+		case Button::LEM_CLIMB:
+			Lem::DrawOneAnimFrame(x, y, anim_LemClimb[0], sizeof(anim_LemClimb[0]), color);
+			break;
+		case Button::LEM_PARACHUTE:
+			// TODO, waiting for anim or need a special sprite
+			//Lem::DrawOneAnimFrame(x, y, anim_LemParachute[0], sizeof(anim_LemParachute[0]), color);
+			break;
+	}
+	
+	PrintTinyDigit(x+5, y+1, 3, color);
 }
 
 /*

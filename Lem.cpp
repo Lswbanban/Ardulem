@@ -13,7 +13,19 @@ Lem::Lem()
 void Lem::Update(int frameNumber)
 {
 	//Draw the lem sprite
-	DrawCurrentAnimFrame(!(frameNumber % 10));
+	DrawCurrentAnimFrame(!(frameNumber % GetFrameRateForCurrentAnim()));
+}
+
+/*
+ * Get the frame rate for the current anim id
+ */
+int Lem::GetFrameRateForCurrentAnim()
+{
+	switch (mCurrentAnimId)
+	{
+		case AnimId::FALL: return 2;
+		default: return 10;
+	}
 }
 
 void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
@@ -102,14 +114,23 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		mPosX = (mPosX + xMove) % WIDTH;
 		mPosY += yMove;
 	}
+	
+	// call the static function to draw the frame
+	DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, WHITE);
+}
 
+/*
+ * Draw a specific frame of a lem animation at the specified position and with the specified color
+ */
+void Lem::DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, char color)
+{
 	// copy the frame into a temp buffer by removing the move information of the last row
 	unsigned char maskedAnimFrame[animFrameWidth];
 	for (int i = 0 ; i < animFrameWidth; ++i)
 		maskedAnimFrame[i] = pgm_read_byte_near(animFrame + i) & 0x7F;
 	
 	// then draw the frame
-	arduboy.drawBitmapFromRAM(mPosX, mPosY, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, WHITE);
+	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
 }
 
 void Lem::SetCurrentAnimId(AnimId animId)

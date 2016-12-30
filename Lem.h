@@ -9,6 +9,8 @@ class Lem
 public:
 	Lem();
 	void Update(int frameNumber);
+	
+	static void DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, char color);
 
 private:
 	enum AnimId
@@ -39,6 +41,7 @@ private:
 	void	DrawCurrentAnimFrame(bool shouldChangeFrame);
 	void	SetCurrentAnimId(AnimId animId);
 	void	DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement);
+	int		GetFrameRateForCurrentAnim();
 };
 
 #endif
