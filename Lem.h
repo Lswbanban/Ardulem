@@ -21,6 +21,9 @@ private:
 		DIG_VERT,
 		STAIR,
 		CLIMB,
+		CLIMB_TOP,
+		START_FALL,
+		FALL,
 		PARACHUTE,
 		NUM_LEM_ANIM
 	};

@@ -54,4 +54,16 @@ extern const unsigned char anim_LemStair[][5];
 const unsigned int ANIM_LEM_CLIMB_FRAME_COUNT = 3;
 extern const unsigned char anim_LemClimb[][2];
 
+// CLIMB TOP
+const unsigned int ANIM_LEM_CLIMB_TOP_FRAME_COUNT = 4;
+extern const unsigned char anim_LemClimbTop[][4];
+
+// START FALL
+const unsigned int ANIM_LEM_START_FALL_FRAME_COUNT = 3;
+extern const unsigned char anim_LemStartFall[][5];
+
+// FALL
+const unsigned int ANIM_LEM_FALL_FRAME_COUNT = 4;
+extern const unsigned char anim_LemFall[][5];
+
 #endif

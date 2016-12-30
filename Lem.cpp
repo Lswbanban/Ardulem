@@ -7,7 +7,7 @@ Lem::Lem()
 	mPosX = 50;
 	mPosY = 40;
 	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::CLIMB;
+	mCurrentAnimId = AnimId::FALL;
 }
 
 void Lem::Update(int frameNumber)
@@ -56,6 +56,18 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
 			mCurrentFrame %= ANIM_LEM_CLIMB_FRAME_COUNT;
 			DrawOneAnimFrame(anim_LemClimb[mCurrentFrame], sizeof(anim_LemClimb[0]), shouldChangeFrame);
 			break;
+		case AnimId::CLIMB_TOP:
+			mCurrentFrame %= ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemClimbTop[mCurrentFrame], sizeof(anim_LemClimbTop[0]), shouldChangeFrame);
+			break;
+		case AnimId::START_FALL:
+			mCurrentFrame %= ANIM_LEM_START_FALL_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemStartFall[mCurrentFrame], sizeof(anim_LemStartFall[0]), shouldChangeFrame);
+			break;
+		case AnimId::FALL:
+			mCurrentFrame %= ANIM_LEM_FALL_FRAME_COUNT;
+			DrawOneAnimFrame(anim_LemFall[mCurrentFrame], sizeof(anim_LemFall[0]), shouldChangeFrame);
+			break;
 	}
 }
 
@@ -71,15 +83,7 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
  */
 void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
 {
-	// copy the frame into a temp buffer by removing the move information of the last row
-	unsigned char maskedAnimFrame[animFrameWidth];
-	for (int i = 0 ; i < animFrameWidth; ++i)
-		maskedAnimFrame[i] = pgm_read_byte_near(animFrame + i) & 0x7F;
-	
-	// then draw the frame
-	arduboy.drawBitmapFromRAM(mPosX, mPosY, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, WHITE);
-	
-	// move the lem after drawing the frame if it's time to move
+	// move the lem before drawing the frame if it's time to move
 	if (shouldApplyMovement)
 	{
 		// first get the move from the animation frame
@@ -98,6 +102,14 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		mPosX = (mPosX + xMove) % WIDTH;
 		mPosY += yMove;
 	}
+
+	// copy the frame into a temp buffer by removing the move information of the last row
+	unsigned char maskedAnimFrame[animFrameWidth];
+	for (int i = 0 ; i < animFrameWidth; ++i)
+		maskedAnimFrame[i] = pgm_read_byte_near(animFrame + i) & 0x7F;
+	
+	// then draw the frame
+	arduboy.drawBitmapFromRAM(mPosX, mPosY, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, WHITE);
 }
 
 void Lem::SetCurrentAnimId(AnimId animId)
