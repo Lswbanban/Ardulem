@@ -27,6 +27,7 @@ namespace HUD
 	
 	// the button currently selected in the HUD
 	extern Button SelectedButton;
+	extern int GetLemDropFrameRate();
 	
 	extern void Update(int frameNumber);
 }

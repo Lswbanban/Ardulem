@@ -8,6 +8,7 @@
 extern const unsigned char sprite_HUDEnter[];
 extern const unsigned char sprite_HUDExit[];
 extern const unsigned char sprite_HUDFlagDown[];
+extern const unsigned char sprite_HUDVelocityCursor[];
  
 const unsigned int ANIM_HUD_FLAG_FRAME_COUNT = 4;
 extern const unsigned char anim_HUDFlag[][6];

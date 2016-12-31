@@ -6,10 +6,18 @@
 
 namespace HUD
 {
-	// instantiate the variable of the HUD
+	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
+	
+	// The frame number (time) when the game will end.
 	int FrameNumberOfTheGameEnd = 4320;
-
+	
+	// the position of the cursor of the drop velocity bar, and a multiplier to get the frame rate drop velocity
+	const int BAR_CURSOR_TO_FRAMERATE_MULTIPLIER = 6;
+	const int VELOCITY_BAR_WIDTH = HUD_WIDTH - 3;
+	int LemDropBarCursorInPixel = 15; 
+	int GetLemDropFrameRate() { return (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * BAR_CURSOR_TO_FRAMERATE_MULTIPLIER; }
+	
 	//------------- private part -------------------------------
 	enum InputAction
 	{
@@ -26,7 +34,7 @@ namespace HUD
 	void DrawTimer(int frameNumber);
 	void DrawLemButton(int frameNumber, Button button, int startY, int width, int height);
 	void DrawLemButtons(int frameNumber);
-	void DrawDropVelocity();
+	void DrawDropVelocity(int frameNumber);
 	void DrawLemCounter();
 	
 	char GetButtonColor(Button button);
@@ -52,7 +60,7 @@ void HUD::Update(int frameNumber)
 	// draw the various HUD elements
 	DrawTimer(frameNumber);
 	DrawLemButtons(frameNumber);
-	DrawDropVelocity();
+	DrawDropVelocity(frameNumber);
 	DrawLemCounter();
 	
 	// draw the vertical line that separate the hud bar from the game area
@@ -113,6 +121,8 @@ void HUD::UpdateInput()
 			else if (SelectedButton == Button::LEM_STAIR) SelectedButton = Button::LEM_PARACHUTE;
 			else if ((SelectedButton > Button::LEM_WALK) && (SelectedButton < Button::DROP_SPEED))
 				SelectedButton = (Button)(SelectedButton - 1);
+			else if ((SelectedButton == Button::DROP_SPEED) && LemDropBarCursorInPixel > 1)
+				LemDropBarCursorInPixel--;
 			break;
 			
 		case InputAction::RIGHT:
@@ -121,6 +131,8 @@ void HUD::UpdateInput()
 			else if (SelectedButton == Button::LEM_PARACHUTE) SelectedButton = Button::LEM_STAIR;
 			else if ((SelectedButton >= Button::LEM_WALK) && (SelectedButton < Button::LEM_PARACHUTE))
 				SelectedButton = (Button)(SelectedButton + 1);
+			else if ((SelectedButton == Button::DROP_SPEED) && LemDropBarCursorInPixel < VELOCITY_BAR_WIDTH-2)
+				LemDropBarCursorInPixel++;
 			break;
 
 		case InputAction::UP:
@@ -266,16 +278,32 @@ void HUD::DrawLemButtons(int frameNumber)
 /*
  * Draw the drop velocity bar. The bar show the speed at which the lem will drop
  */
-void HUD::DrawDropVelocity()
+void HUD::DrawDropVelocity(int frameNumber)
 {
-	const int START_Y = 32;
+	const int START_Y = 31;
 	const int DROP_VELOCITY_HEIGHT = 8;
+	const int VELOCITY_BAR_HEIGHT = DROP_VELOCITY_HEIGHT-2;
+	const int VELOCITY_BAR_INNER_WIDTH = VELOCITY_BAR_WIDTH-2;
 	
 	// choose the corect color depending if the required number is selected
 	char color = GetButtonColor(Button::DROP_SPEED);
 	
+	// draw a white bacground if this button is selected
 	if (color == BLACK)
 		arduboy.fillRect(0, START_Y, HUD_WIDTH, DROP_VELOCITY_HEIGHT, WHITE);
+	
+	// Draw a rect around the velocity widget
+	arduboy.drawRect(1, START_Y+1, VELOCITY_BAR_WIDTH, VELOCITY_BAR_HEIGHT, color);
+	
+	// compute the cursor position and draw it
+	int cursorBitmapPosition = LemDropBarCursorInPixel;
+	arduboy.drawBitmap(cursorBitmapPosition, START_Y+4, sprite_HUDVelocityCursor, 3, 2, color);
+	
+	// draw the animated cursor
+	int normalizedFrameNumberInsideFrameRate = frameNumber % GetLemDropFrameRate();
+	int animatedCursorPosition = 2 + ((normalizedFrameNumberInsideFrameRate * VELOCITY_BAR_INNER_WIDTH) / GetLemDropFrameRate());
+	arduboy.drawPixel(animatedCursorPosition, START_Y+2, color);
+	arduboy.drawPixel(animatedCursorPosition, START_Y+3, color);
 }
 
 /*
