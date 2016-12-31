@@ -10,7 +10,7 @@ public:
 	Lem();
 	void Update(int frameNumber);
 	
-	static void DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, char color);
+	static void DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
 	enum AnimId

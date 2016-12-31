@@ -24,8 +24,8 @@ namespace HUD
 	// forward declaration of the private function
 	void UpdateInput();
 	void DrawTimer(int frameNumber);
-	void DrawLemButton(Button button, int startY, int width, int height);
-	void DrawLemButtons();
+	void DrawLemButton(int frameNumber, Button button, int startY, int width, int height);
+	void DrawLemButtons(int frameNumber);
 	void DrawDropVelocity();
 	void DrawLemCounter();
 	
@@ -46,11 +46,15 @@ void HUD::Update(int frameNumber)
 	// update the inputs related to the HUD
 	UpdateInput();
 	
+	// draw a black background (to hide the lems moving toward the HUD, and to avoid complex computation of drawing partial lems)
+	arduboy.fillRect(0, 0, HUD_WIDTH, HEIGHT, BLACK);
+	
 	// draw the various HUD elements
 	DrawTimer(frameNumber);
-	DrawLemButtons();
+	DrawLemButtons(frameNumber);
 	DrawDropVelocity();
 	DrawLemCounter();
+	
 	// draw the vertical line that separate the hud bar from the game area
 	arduboy.drawFastVLine(HUD_WIDTH - 1, 0, HEIGHT, WHITE);
 }
@@ -178,7 +182,7 @@ void HUD::DrawTimer(int frameNumber)
 	PrintNumber(x, y, remainingTimeInSecond - (remainingMinutes * 60), 2, true, color);
 }
 
-void HUD::DrawLemButton(Button button, int startY, int width, int height)
+void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width, int height)
 {
 	int col = (button - Button::LEM_WALK) % 3;
 	int row = (button - Button::LEM_WALK) / 3;
@@ -194,28 +198,28 @@ void HUD::DrawLemButton(Button button, int startY, int width, int height)
 	switch (button)
 	{
 		case Button::LEM_WALK:
-			Lem::DrawOneAnimFrame(x, y, anim_LemWalk[2], sizeof(anim_LemWalk[0]), color);
+			Lem::DrawOneAnimFrame(x+1, y, anim_LemWalk[animFrameIndex%ANIM_LEM_WALK_FRAME_COUNT], sizeof(anim_LemWalk[0]), false, color);
 			break;
 		case Button::LEM_BLOCKER:
-			Lem::DrawOneAnimFrame(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), false, color);
 			break;
 		case Button::LEM_BOMB:
 			// TODO need a special explosion sprite
 			break;
 		case Button::LEM_DIG_DIAG:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigDiagonal[3], sizeof(anim_LemDigDiagonal[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigDiagonal[animFrameIndex%ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT], sizeof(anim_LemDigDiagonal[0]), false, color);
 			break;
 		case Button::LEM_DIG_HORIZ:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigHorizontal[1], sizeof(anim_LemDigHorizontal[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigHorizontal[animFrameIndex%ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT], sizeof(anim_LemDigHorizontal[0]), false, color);
 			break;
 		case Button::LEM_DIG_VERT:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigVertical[0], sizeof(anim_LemDigVertical[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_LemDigVertical[animFrameIndex%ANIM_LEM_DIG_VERTICAL_FRAME_COUNT], sizeof(anim_LemDigVertical[0]), false, color);
 			break;
 		case Button::LEM_STAIR:
-			Lem::DrawOneAnimFrame(x, y, anim_LemStair[1], sizeof(anim_LemStair[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_LemStair[animFrameIndex%ANIM_LEM_STAIR_FRAME_COUNT], sizeof(anim_LemStair[0]), false, color);
 			break;
 		case Button::LEM_CLIMB:
-			Lem::DrawOneAnimFrame(x, y, anim_LemClimb[0], sizeof(anim_LemClimb[0]), color);
+			Lem::DrawOneAnimFrame(x+1, y, anim_LemClimb[animFrameIndex%ANIM_LEM_CLIMB_FRAME_COUNT], sizeof(anim_LemClimb[0]), false, color);
 			break;
 		case Button::LEM_PARACHUTE:
 			// TODO, waiting for anim or need a special sprite
@@ -229,7 +233,7 @@ void HUD::DrawLemButton(Button button, int startY, int width, int height)
 /*
  * Draw the 3x3 matrix of the 9 button that allow to give an order to a Lem
  */
-void HUD::DrawLemButtons()
+void HUD::DrawLemButtons(int frameNumber)
 {
 	const int START_Y = 8;
 	const int BUTTON_WIDTH = 9;
@@ -244,16 +248,19 @@ void HUD::DrawLemButtons()
 	arduboy.drawFastHLine(0, START_Y+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
 	arduboy.drawFastHLine(0, START_Y+CELL_HEIGHT+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
 	
+	// compute the curren anim Frame index from the frame number, divided by the wanted FPS of the animation
+	int animFrameIndex = frameNumber / 10;
+	
 	// draw the 9 buttons
-	DrawLemButton(Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_BLOCKER, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_BOMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_DIG_DIAG, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_DIG_HORIZ, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_DIG_VERT, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_STAIR, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_CLIMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(Button::LEM_PARACHUTE, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_BLOCKER, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_BOMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_DIAG, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_HORIZ, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_VERT, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_STAIR, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_CLIMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_PARACHUTE, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
 }
 
 /*

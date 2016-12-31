@@ -7,7 +7,7 @@ Lem::Lem()
 	mPosX = 50;
 	mPosY = 40;
 	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::FALL;
+	mCurrentAnimId = AnimId::DIG_DIAG;
 }
 
 void Lem::Update(int frameNumber)
@@ -95,6 +95,8 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
  */
 void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
 {
+	bool isMirrored = true;
+	
 	// move the lem before drawing the frame if it's time to move
 	if (shouldApplyMovement)
 	{
@@ -111,23 +113,26 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 			xMove += 2;
 
 		// then move the lem position according to the move found in the animation
-		mPosX = (mPosX + xMove) % WIDTH;
+		if (isMirrored)
+			mPosX = (mPosX - xMove) % WIDTH;
+		else
+			mPosX = (mPosX + xMove) % WIDTH;
 		mPosY += yMove;
 	}
 	
 	// call the static function to draw the frame
-	DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, WHITE);
+	DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
 }
 
 /*
  * Draw a specific frame of a lem animation at the specified position and with the specified color
  */
-void Lem::DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, char color)
+void Lem::DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
 {
-	// copy the frame into a temp buffer by removing the move information of the last row
+	// copy the frame into a temp buffer by removing according to the mask
 	unsigned char maskedAnimFrame[animFrameWidth];
 	for (int i = 0 ; i < animFrameWidth; ++i)
-		maskedAnimFrame[i] = pgm_read_byte_near(animFrame + i) & 0x7F;
+		maskedAnimFrame[drawMirrored ? animFrameWidth - 1 - i : i] = pgm_read_byte_near(animFrame + i) & 0x7F;
 	
 	// then draw the frame
 	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);

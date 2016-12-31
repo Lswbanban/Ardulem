@@ -39,8 +39,8 @@ void loop()
 	
 	// update the various managers
 	Input::Update(frameNumber);
-	HUD::Update(frameNumber);
 	LemManager::Update(frameNumber);
+	HUD::Update(frameNumber);
 	
 	// draw the frame buffer
 	arduboy.display();
