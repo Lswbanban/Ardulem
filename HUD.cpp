@@ -168,6 +168,8 @@ void HUD::UpdateInput()
  */ 
 void HUD::DrawTimer(int frameNumber)
 {
+	const int START_Y = 24;
+
 	// get the number of frame the game will continue to play
 	int remainingTimeInSecond = 0;
 	if (frameNumber < FrameNumberOfTheGameEnd)
@@ -181,17 +183,16 @@ void HUD::DrawTimer(int frameNumber)
 	
 	// init the cursor at the correct position
 	bool isLessThan10Minutes = (remainingMinutes < 10);
-	int y = 0;
 	int x = isLessThan10Minutes ? 3 : 0;
 	
 	// if less than 10 minutes and the timer is selected, draw a white rectangle bacground
 	if (isLessThan10Minutes && (color == BLACK))
-		arduboy.fillRect(0, 0, HUD_WIDTH, 8, WHITE);
+		arduboy.fillRect(0, START_Y, HUD_WIDTH, 8, WHITE);
 	
 	// print the minute, the two dots and the seconds
-	x = PrintNumber(x, y, remainingMinutes, isLessThan10Minutes ? 1 : 2, false, color);
-	x = PrintChar(x, y, ':', color);
-	PrintNumber(x, y, remainingTimeInSecond - (remainingMinutes * 60), 2, true, color);
+	x = PrintNumber(x, START_Y, remainingMinutes, isLessThan10Minutes ? 1 : 2, false, color);
+	x = PrintChar(x, START_Y, ':', color);
+	PrintNumber(x, START_Y, remainingTimeInSecond - (remainingMinutes * 60), 2, true, color);
 }
 
 void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width, int height)
@@ -247,7 +248,7 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
  */
 void HUD::DrawLemButtons(int frameNumber)
 {
-	const int START_Y = 8;
+	const int START_Y = 33;
 	const int BUTTON_WIDTH = 9;
 	const int BUTTON_HEIGHT = 7;
 	const int CELL_WIDTH = BUTTON_WIDTH + 1;
@@ -280,7 +281,7 @@ void HUD::DrawLemButtons(int frameNumber)
  */
 void HUD::DrawDropVelocity(int frameNumber)
 {
-	const int START_Y = 31;
+	const int START_Y = 56;
 	const int DROP_VELOCITY_HEIGHT = 8;
 	const int VELOCITY_BAR_HEIGHT = DROP_VELOCITY_HEIGHT-2;
 	const int VELOCITY_BAR_INNER_WIDTH = VELOCITY_BAR_WIDTH-2;
@@ -312,7 +313,7 @@ void HUD::DrawDropVelocity(int frameNumber)
  */
 void HUD::DrawLemCounter()
 {
-	const int START_Y = 40;
+	const int START_Y = 0;
 	const int COUNTER_HEIGHT = 8;
 	const int START_COUNTER_X = 6;
 
@@ -324,20 +325,16 @@ void HUD::DrawLemCounter()
 	
 	// draw the number out with the icon
 	int x = START_COUNTER_X;
-	if (color == BLACK)
-		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
-	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 100, 3, false, color);
-	PrintChar(x, y, '%', color);
+	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, WHITE);
+	x = PrintNumber(x, y, 100, 3, false, WHITE);
+	PrintChar(x, y, '%', WHITE);
 	
 	// draw the number in with the icon
 	x = START_COUNTER_X;
 	y += COUNTER_HEIGHT;
-	if (color == BLACK)
-		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
-	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 82, 3, false, color);
-	PrintChar(x, y, '%', color);
+	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, WHITE);
+	x = PrintNumber(x, y, 82, 3, false, WHITE);
+	PrintChar(x, y, '%', WHITE);
 	
 	// draw the required number with the icon
 	x = START_COUNTER_X;
