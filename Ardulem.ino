@@ -13,6 +13,7 @@
 #include "LemManager.h"
 #include "HUD.h"
 #include "Input.h"
+#include "MapManager.h"
 
 // instance of the arduboy class
 CustomArduboy arduboy;
@@ -23,6 +24,9 @@ void setup()
 	arduboy.beginNoLogo();
 //	arduboy.begin();
 	arduboy.clear();
+	
+	// create the map
+	MapManager::InitMap(0);
 }
 
 void loop()
@@ -39,6 +43,7 @@ void loop()
 	
 	// update the various managers
 	Input::Update(frameNumber);
+	MapManager::Update(frameNumber);
 	LemManager::Update(frameNumber);
 	HUD::Update(frameNumber);
 	
