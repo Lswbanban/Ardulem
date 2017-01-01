@@ -50,12 +50,12 @@ namespace MapManager
 
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
-	char GetPixelOutsideScreen(unsigned char x, unsigned char y);
+	char GetPixelOutsideScreen(int x, int y);
 	
 	void ClearModificationList();
 	void ApplyModifications();
-	void InsertModification(int insertIndex, unsigned char x, char pixels);
-	void Modify8Pixels(unsigned char x, unsigned char lineY, char pixels);
+	void InsertModification(int insertIndex, int x, char pixels);
+	void Modify8Pixels(int x, int lineY, char pixels);
 }
 
 void MapManager::InitMap(int mapId)
@@ -188,14 +188,24 @@ void MapManager::DrawMap()
 }
 
 /*
- * Tell if the specific x position (in map coordinate) is currently visible on screen
+ * Tells if the specific x position (in map coordinate) is currently visible on screen
  */
-bool MapManager::IsOnScreen(unsigned char x)
+bool MapManager::IsOnScreen(int x)
 {
 	return (x >= ScrollValue) && (x < ScrollValue + MAP_SCREEN_WIDTH);
 }
 
-char MapManager::GetPixelOutsideScreen(unsigned char x, unsigned char y)
+/*
+ * Tells if the specified world coordinate is inside the world
+ */
+bool MapManager::IsInMapBoundary(int x, int y)
+{
+	// for the y, the map is 64 pixel + 5 pixel height of the lem itself
+	return (y < 69) && (x >= 0) && (x < (CurrentMapDescription.SpriteColumnCount << 3));
+}
+
+
+char MapManager::GetPixelOutsideScreen(int x, int y)
 {
 	// compute the sprite row and column from the x and y pixel coord
 	unsigned char col = x >> 3;
@@ -237,7 +247,7 @@ char MapManager::GetPixelOutsideScreen(unsigned char x, unsigned char y)
  * assume that the map is drawn first before anything else, so only the map data cover the screen
  * at that point). Otherwise, if the pixel is outside the screen, we will compute it directly.
  */
-char MapManager::GetPixel(unsigned char x, unsigned char y)
+char MapManager::GetPixel(int x, int y)
 {
 	// first check if the pixel is inside the screen or not.
 	if (IsOnScreen(x))
@@ -246,7 +256,7 @@ char MapManager::GetPixel(unsigned char x, unsigned char y)
 		return GetPixelOutsideScreen(x, y);
 }
 
-void MapManager::SetPixel(unsigned char x, unsigned char y, bool isAdded)
+void MapManager::SetPixel(int x, int y, bool isAdded)
 {
 	
 }
@@ -255,7 +265,7 @@ void MapManager::ApplyModifications()
 {
 }
 
-void MapManager::Modify8Pixels(unsigned char x, unsigned char lineY, char pixels)
+void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 {
 	// first search in the where to start in the modification list according to y
 	int lineIndex = ModificationListLineIndex[lineY];
@@ -285,7 +295,7 @@ void MapManager::Modify8Pixels(unsigned char x, unsigned char lineY, char pixels
 	}
 }
 
-void MapManager::InsertModification(int insertIndex, unsigned char x, char pixels)
+void MapManager::InsertModification(int insertIndex, int x, char pixels)
 {
 	// push all the modification (that keep the order)
 	for (int i = MODIFICATION_LIST_SIZE-1; i > insertIndex; --i)

@@ -166,11 +166,30 @@ bool Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		hasMoved = (xMove != 0) || (yMove != 0);
 		
 		// then move the lem position according to the move found in the animation
-		if (isMirrored)
-			mPosX = (mPosX - xMove) % WIDTH;
-		else
-			mPosX = (mPosX + xMove) % WIDTH;
+		// move the y first (because we will ask if the lem is still inside the world)
 		mPosY += yMove;
+
+		// first move the x
+		bool isInsideMap = true;
+		if (isMirrored)
+		{
+			// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
+			isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)mPosY);
+			mPosX -= xMove;
+		}
+		else
+		{
+			// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
+			isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY);
+			mPosX += xMove;
+		}
+		
+		// if the position are outside the boundary of the Map, the lem is dead
+		if (!isInsideMap)
+		{
+			SetCurrentStateId(StateId::DEAD);
+			return false;
+		}
 	}
 	
 	// call the static function to draw the anim frame if not ouside the screen
