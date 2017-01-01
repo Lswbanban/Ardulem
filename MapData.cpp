@@ -26,8 +26,8 @@ const unsigned char MapData::PillarWorldRemapTable[] PROGMEM = {0,1,2,3,4,5,6,7,
 const unsigned char Map01Loca[] PROGMEM = { 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xf0, 0xf0, 0x80, 0x80, 0xe0, 0x80, 0x00, 0x40, 0x40, 0x40, 0x00, 0x10, 0x1c, 0x10, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x80, 0x80, 0x40, 0x40, 0x78, };
 const unsigned char Map01IdList[] PROGMEM = {
 	LOCID(0,2), LOCID(3,2), LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3), LOCID(0,1), LOCID(2,3),
-	LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,0), LOCID(2,3), LOCID(3,3), LOCID(3,3), LOCID(3,3),
-	LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3)};
+	LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,3),
+	LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3)};
 
 /*
  * The various maps
@@ -38,7 +38,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		11, //StartY
 		80, //HomeX
 		50, //HomeY
-		20, //TimeInMultipleOf10s
+		20, //Time In Multiple Of 10 seconds
 		1, //MinDropSpeed
 		100, //AvailableLemCount
 		10, //RequiredLemCount
@@ -46,6 +46,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		PACK_BUTTON_CONFIG(8,0,1,3), //Nb of Lem per button: Dig vertical, Stair, Climb, Parachute
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
+		sizeof(Map01Loca), // size of the Map in number of sprite columns
 		(const unsigned char *)Map01IdList //SpriteLocalIdList
 	},
 };

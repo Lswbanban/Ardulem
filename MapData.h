@@ -47,6 +47,9 @@ namespace MapData
 		// you will need 25 chars
 		const unsigned char * SpriteLocalization;
 		
+		// The number of column of sprite that this map has. Basically it's the size of SpriteLocalization
+		unsigned char SpriteColumnCount;
+		
 		// the list of all the local id (from 0 to 15) of sprite as the set bit appear in the SpriteLocalization
 		// list. These ids should be converted to global ids before being used get the sprite from the MapSprite.
 		// You should use the StriteIDRemapingTable to convert them. Since the local ids only takes 4 bits,

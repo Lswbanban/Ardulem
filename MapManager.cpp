@@ -2,6 +2,7 @@
 #include "MapManager.h"
 #include "MapData.h"
 #include "HUD.h"
+#include "Input.h"
 
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
@@ -38,10 +39,11 @@ namespace MapManager
 	MapData::MapDescription CurrentMapDescription;
 	
 	// this variable store the current scrolling value of the map on the screen
-	int ScrollValue = 30;
+	int ScrollValue = 0;
+	int MaxScrollValue = 0;
 	
 	// private functions
-	void UpdateInput(int frameNumber);
+	void UpdateInput();
 	void DrawMap();
 
 	void ClearModificationList();
@@ -68,8 +70,12 @@ void MapManager::InitMap(int mapId)
 		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].StriteIDRemapingTable));
 	CurrentMapDescription.SpriteLocalization = 
 		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalization));
+	CurrentMapDescription.SpriteColumnCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].SpriteColumnCount));
 	CurrentMapDescription.SpriteLocalIdList = 
 		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalIdList));
+	
+	// compute the max scroll value depending on the size of the Map
+	MaxScrollValue = (CurrentMapDescription.SpriteColumnCount << 3) - WIDTH + HUD::HUD_WIDTH;
 	
 	// clear the modification list
 	ClearModificationList();
@@ -89,14 +95,24 @@ void MapManager::ClearModificationList()
 
 void MapManager::Update(int frameNumber)
 {
-	UpdateInput(frameNumber);
+	UpdateInput();
 	DrawMap();
 	ApplyModifications();
 }
 
-void MapManager::UpdateInput(int frameNumber)
+void MapManager::UpdateInput()
 {
-	
+	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
+	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
+
+	if ((ScrollValue > 0) && Input::IsDownModulo(LEFT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		ScrollValue--;
+	}
+	else if ((ScrollValue < MaxScrollValue) && Input::IsDownModulo(RIGHT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		ScrollValue++;
+	}
 }
 
 void MapManager::DrawMap()
@@ -118,10 +134,13 @@ void MapManager::DrawMap()
 	int lastSpriteColumn = firstSpriteColumn + ((WIDTH - HUD::HUD_WIDTH)/8);
 	
 	// now iterate from the first to last column to draw the sprites
-	for (int col = firstSpriteColumn; col < lastSpriteColumn; ++col)
+	for (int col = firstSpriteColumn; col <= lastSpriteColumn; ++col)
 	{
 		// get the column from the map localization
 		char currentSpriteColumnLocalization = pgm_read_byte_near(mapLocalization + col);
+		
+		// compute the current x of this sprite column
+		int spriteColX = HUD::HUD_WIDTH + (col<<3) - ScrollValue;
 		
 		// now iterate on every bit to see if there's a sprite to draw
 		for (int i = 0; i < 8; ++i)
@@ -135,7 +154,7 @@ void MapManager::DrawMap()
 				int currentSpriteGlobalId = pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
 				
 				// now draw the sprite, at the correct position
-				arduboy.drawBitmap(HUD::HUD_WIDTH + ((col - firstSpriteColumn)<<3), i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
+				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
 				
 				// increase the sprite counter
 				currentSpriteDrawn++;
