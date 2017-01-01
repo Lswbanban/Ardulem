@@ -1,5 +1,10 @@
 #include "Ardulem.h"
 #include "MapManager.h"
+#include "MapData.h"
+#include "HUD.h"
+
+// we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
+extern int __builtin_popcount(unsigned int);
 
 namespace MapManager
 {
@@ -29,6 +34,12 @@ namespace MapManager
 	const unsigned int MODIFICATION_LIST_LINE_INDEX_SIZE = 8;
 	unsigned char ModificationListLineIndex[MODIFICATION_LIST_LINE_INDEX_SIZE];
 	
+	// the current map id we are playing
+	int MapId = 0;
+	
+	// this variable store the current scrolling value of the map on the screen
+	int ScrollValue = 0;
+	
 	// private functions
 	void ClearModificationList();
 	void DrawMap();
@@ -38,6 +49,10 @@ namespace MapManager
 
 void MapManager::InitMap(int mapId)
 {
+	// save the MapId
+	MapId = mapId;
+	
+	// clear the modification list
 	ClearModificationList();
 }
 
@@ -61,10 +76,55 @@ void MapManager::Update(int frameNumber)
 
 void MapManager::DrawMap()
 {
+	// get the various pointer on the current map data
+	const MapData::MapDescription & mapDescription = MapData::AllMaps[MapId];
+	const unsigned char * mapLocalization = mapDescription.SpriteLocalization;
+	const unsigned char * mapLocalSpriteIds = mapDescription.SpriteLocalIdList;
+	const unsigned char * mapIDRemapingTable = mapDescription.StriteIDRemapingTable;
+	
+	// find the first map localization pixel from the scrolling value (by dividing by 8)
+	int firstSpriteColumn = ScrollValue >> 3;
+	
+	// iterate on the first columns to count the number of sprites that should be ignored
+	int currentSpriteDrawn = 0;
+	for (int i = 0; i < firstSpriteColumn; ++i)
+		currentSpriteDrawn += __builtin_popcount(pgm_read_byte_near(mapLocalization + i));
+	
+	// compute the last column drawn by adding the number of sprite column visible on the screen
+	int lastSpriteColumn = firstSpriteColumn + ((WIDTH - HUD::HUD_WIDTH)/8);
+	
+	// now iterate from the first to last column to draw the sprites
+	for (int col = firstSpriteColumn; col < lastSpriteColumn; ++col)
+	{
+		// get the column from the map localization
+		char currentSpriteColumnLocalization = pgm_read_byte_near(mapLocalization + col);
+		
+		// now iterat on every bit to see if there's a sprite to draw
+		for (int i = 0; i < 8; ++i)
+			if (currentSpriteColumnLocalization & (1<<i))
+			{
+				// we found a bit set, there's a sprite to draw, get it's local id
+				int currentSpriteLocalId = pgm_read_byte_near(mapLocalSpriteIds + currentSpriteDrawn);
+				
+				// convert the local id to global id
+				int currentSpriteGlobalId = pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
+				
+				// now draw the sprite, at the correct position
+				arduboy.drawBitmap(HUD::HUD_WIDTH + (col<<3), i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
+				
+				// increase the sprite counter
+				currentSpriteDrawn++;
+			}
+	}
 }
 
 void MapManager::ApplyModifications()
 {
+}
+
+void MapManager::ModifyAPixel(int x, int y, bool remove)
+{
+	
 }
 
 void MapManager::Modify8Pixels(int x, int lineY, char pixels)

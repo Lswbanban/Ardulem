@@ -5,9 +5,10 @@
  */
 namespace MapManager
 {
-	void InitMap(int mapId);
-	void Update(int frameNumber);
-	void Modify8Pixels(int x, int lineY, char pixels);
+	extern void InitMap(int mapId);
+	extern void Update(int frameNumber);
+	extern void Modify8Pixels(int x, int lineY, char pixels);
+	extern void ModifyAPixel(int x, int y, bool remove);
 }
 
 #endif
