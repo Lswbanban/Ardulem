@@ -7,8 +7,9 @@ namespace MapManager
 {
 	extern void InitMap(int mapId);
 	extern void Update(int frameNumber);
-	extern void Modify8Pixels(int x, int lineY, char pixels);
-	extern void ModifyAPixel(int x, int y, bool remove);
+
+	extern char GetAPixel(int x, int y);
+	extern void ModifyAPixel(int x, int y, bool isAdded);
 }
 
 #endif

@@ -38,6 +38,9 @@ namespace MapManager
 	// the current map Description we are playing
 	MapData::MapDescription CurrentMapDescription;
 	
+	// a buffer sprite 8x8 that can be modified in memory, used to return a pixel outside the screen
+	unsigned char SpriteBuffer[8];
+	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
 	int MaxScrollValue = 0;
@@ -46,9 +49,14 @@ namespace MapManager
 	void UpdateInput();
 	void DrawMap();
 
+	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
+	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
+	void ComputeSpriteBuffer(int row, int col);
+	
 	void ClearModificationList();
 	void ApplyModifications();
 	void InsertModification(int insertIndex, int x, char pixels);
+	void Modify8Pixels(int x, int lineY, char pixels);
 }
 
 void MapManager::InitMap(int mapId)
@@ -115,6 +123,24 @@ void MapManager::UpdateInput()
 	}
 }
 
+inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)
+{
+	int result = 0;
+	for (int i = 0; i < col; ++i)
+		result += __builtin_popcount(pgm_read_byte_near(mapLocalization + i));
+	return result;
+}
+
+inline int MapManager::GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex)
+{
+	// get the local id of that sprite
+	int TwoPackedLocIds = pgm_read_byte_near(CurrentMapDescription.SpriteLocalIdList + (spriteIndex >> 1));
+	int currentSpriteLocalId = (spriteIndex % 2) ? TwoPackedLocIds >> 4 : TwoPackedLocIds & 0x0F;
+	
+	// convert the local id to global id and return it
+	return pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
+}
+
 void MapManager::DrawMap()
 {
 	// get the various pointer on the current map data
@@ -125,10 +151,8 @@ void MapManager::DrawMap()
 	// find the first map localization pixel from the scrolling value (by dividing by 8)
 	int firstSpriteColumn = ScrollValue >> 3;
 	
-	// iterate on the first columns to count the number of sprites that should be ignored
-	int currentSpriteDrawn = 0;
-	for (int i = 0; i < firstSpriteColumn; ++i)
-		currentSpriteDrawn += __builtin_popcount(pgm_read_byte_near(mapLocalization + i));
+	// get the number of sprites that should be ignored for the not drawn sprite columns
+	int currentSpriteDrawn = GetSpriteCountBeforeColumn(mapLocalization, firstSpriteColumn);
 	
 	// compute the last column drawn by adding the number of sprite column visible on the screen
 	int lastSpriteColumn = firstSpriteColumn + ((WIDTH - HUD::HUD_WIDTH)/8);
@@ -146,12 +170,8 @@ void MapManager::DrawMap()
 		for (int i = 0; i < 8; ++i)
 			if (currentSpriteColumnLocalization & (1<<i))
 			{
-				// we found a bit set, there's a sprite to draw, get it's local id
-				int TwoPackedLocIds = pgm_read_byte_near(mapLocalSpriteIds + (currentSpriteDrawn >> 1));
-				int currentSpriteLocalId = (currentSpriteDrawn % 2) ? TwoPackedLocIds >> 4 : TwoPackedLocIds & 0x0F;
-				
-				// convert the local id to global id
-				int currentSpriteGlobalId = pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
+				// we found a bit set, there's a sprite to draw, get it's global id
+				int currentSpriteGlobalId = GetSpriteGlobalId(mapLocalSpriteIds, mapIDRemapingTable, currentSpriteDrawn);
 				
 				// now draw the sprite, at the correct position
 				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
@@ -162,11 +182,40 @@ void MapManager::DrawMap()
 	}
 }
 
+void MapManager::ComputeSpriteBuffer(int row, int col)
+{
+	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
+	// check if there's a sprite at the specified row and col
+	if (currentSpriteColumnLocalization & (1<<row))
+	{
+		// there's a sprite at the specified location, so count the number of sprite to ignore before that one
+		int spriteIndex = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, col);
+		// and add all the sprite if any before that one (shift the loca char before counting the remaining bits)
+		spriteIndex += __builtin_popcount((unsigned int)((currentSpriteColumnLocalization << (8 - row)) & 0xFF));
+
+		// get the global id of the sprite we need
+		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
+		
+		// then copy the sprite to the buffer
+		memcpy_P(SpriteBuffer, MapData::MapSprite[currentSpriteGlobalId], sizeof(char)*8);
+	}
+	else
+	{
+		//clear the sprite buffer
+		memset(SpriteBuffer, 0, sizeof(SpriteBuffer));
+	}
+}
+
+char MapManager::GetAPixel(int x, int y)
+{
+	
+}
+
 void MapManager::ApplyModifications()
 {
 }
 
-void MapManager::ModifyAPixel(int x, int y, bool remove)
+void MapManager::ModifyAPixel(int x, int y, bool isAdded)
 {
 	
 }
