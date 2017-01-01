@@ -48,6 +48,7 @@ private:
 	void			SetCurrentAnimFrame(unsigned char val)	{ mPackedStateData = (mPackedStateData & 0x80) | val; }
 	bool			IsDirectionMirrored() 					{ return (mPackedStateData & 0x80); }
 	void			SetDirectionMirrored(bool isMirrored)	{ if (isMirrored) mPackedStateData |= 0x80; else mPackedStateData &= 0x7F; }
+	void			ReverseMirroredDirection()				{ if (mPackedStateData & 0x80) mPackedStateData &= 0x7F; else mPackedStateData |= 0x80;}
 	
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
@@ -64,6 +65,10 @@ private:
 	void 	UpdateClimbTop();
 	void 	UpdateStartFall(int frameNumber);
 	void 	UpdateFall();
+	
+	// helper functions for update
+	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
+	int		IsThereAWall(int x, int y);
 	
 	// anim related functions
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);

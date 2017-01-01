@@ -52,13 +52,56 @@ void Lem::UpdateState(int frameNumber)
 	}
 }
 
+bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
+{
+	// pixel under
+	if (MapManager::GetPixel(x, y) == WHITE)
+		return true;
+	
+	// pixel in front
+	if (checkInFront)
+	{
+		if (MapManager::GetPixel(IsDirectionMirrored() ? x-1 : x+1, y) == WHITE)
+			return true;
+	}
+	
+	// pixel behind
+	if (checkBehind)
+	{
+		if (MapManager::GetPixel(IsDirectionMirrored() ? x+1 : x-1, y) == WHITE)
+			return true;
+	}
+	return false;
+}
+
+int Lem::IsThereAWall(int x, int y)
+{
+	int wallHeight = 0;
+	for (int i = 0; i < 5; ++i)
+	{
+		if (MapManager::GetPixel(x, y - i) == WHITE)
+			wallHeight = i+1;
+	}
+	return wallHeight;
+}
+
 void Lem::UpdateWalk()
 {
 	// get the pixel under my feet, if no ground, I start to fall
-	char feetPixel = MapManager::GetPixel(mPosX+1, mPosY+6);
-	if (feetPixel == BLACK)
+	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, false))
+	{
 		SetCurrentStateId(StateId::START_FALL, 0, 1);
+		return;
+	}
 
+	// now check for the stairs (a step of 2 pixel max)
+	int wallHeight = IsThereAWall(IsDirectionMirrored() ? mPosX-1 : mPosX+3, mPosY+5);
+	if (wallHeight < 3)
+		mPosY -= wallHeight;
+	
+	// but if the wall is taller, we need to reverse direction
+	if (wallHeight > 2)
+		ReverseMirroredDirection();
 }
 
 void Lem::UpdateBlocker()
@@ -96,8 +139,7 @@ void Lem::UpdateClimbTop()
 void Lem::UpdateStartFall(int frameNumber)
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY+6);
-	if (feetPixel == WHITE)
+	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 	{
 		SetCurrentStateId(StateId::WALK, 1, 0);
 		return;
@@ -112,8 +154,7 @@ void Lem::UpdateStartFall(int frameNumber)
 void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY+6);
-	if (feetPixel == WHITE)
+	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 		SetCurrentStateId(StateId::WALK, 1, 0);
 }
 
