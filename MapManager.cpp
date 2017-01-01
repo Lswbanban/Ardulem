@@ -180,7 +180,7 @@ void MapManager::DrawMap()
 			}
 	}
 	
-	char pixel = GetPixel(ScrollValue + 10, 50);
+	char pixel = GetPixel(ScrollValue + 108, 50);
 	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
 	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
 	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
@@ -189,16 +189,17 @@ void MapManager::DrawMap()
 char MapManager::GetPixelOutsideScreen(int x, int y)
 {
 	// compute the sprite row and column from the x and y pixel coord
-	int row = x >> 3;
-	int col = y >> 3;
+	unsigned char col = x >> 3;
+	unsigned char row = y >> 3;
 	
 	// start with a default black pixel
 	char pixel = BLACK;
 	
 	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
+	
 	// check if there's a sprite at the specified row and col
-	if (currentSpriteColumnLocalization & (1<<row))
+	if (currentSpriteColumnLocalization & (0x01<<row))
 	{
 		// there's a sprite at the specified location, so count the number of sprite to ignore before that one
 		int spriteIndex = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, col);
@@ -207,7 +208,7 @@ char MapManager::GetPixelOutsideScreen(int x, int y)
 
 		// get the global id of the sprite we need
 		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
-		
+
 		// now get the correct column of the sprite
 		char spriteColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (x % 8));
 		
