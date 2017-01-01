@@ -9,6 +9,8 @@ extern int __builtin_popcount(unsigned int);
 
 namespace MapManager
 {
+	const unsigned int MAP_SCREEN_WIDTH = WIDTH - HUD::HUD_WIDTH;
+	
 	/*
 	 * The modification list will store all the modification made by the Lem to the original map.
 	 * The modifications will be paint with the color INVERT, which means if a bit is set, it is
@@ -38,9 +40,6 @@ namespace MapManager
 	// the current map Description we are playing
 	MapData::MapDescription CurrentMapDescription;
 	
-	// a buffer sprite 8x8 that can be modified in memory, used to return a pixel outside the screen
-	unsigned char SpriteBuffer[8];
-	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
 	int MaxScrollValue = 0;
@@ -51,7 +50,7 @@ namespace MapManager
 
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
-	void ComputeSpriteBuffer(int row, int col);
+	char GetPixelOutsideScreen(int x, int y);
 	
 	void ClearModificationList();
 	void ApplyModifications();
@@ -83,7 +82,7 @@ void MapManager::InitMap(int mapId)
 		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalIdList));
 	
 	// compute the max scroll value depending on the size of the Map
-	MaxScrollValue = (CurrentMapDescription.SpriteColumnCount << 3) - WIDTH + HUD::HUD_WIDTH;
+	MaxScrollValue = (CurrentMapDescription.SpriteColumnCount << 3) - MAP_SCREEN_WIDTH;
 	
 	// clear the modification list
 	ClearModificationList();
@@ -180,10 +179,23 @@ void MapManager::DrawMap()
 				currentSpriteDrawn++;
 			}
 	}
+	
+	char pixel = GetPixel(ScrollValue + 10, 50);
+	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
+	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
+	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
 }
 
-void MapManager::ComputeSpriteBuffer(int row, int col)
+char MapManager::GetPixelOutsideScreen(int x, int y)
 {
+	// compute the sprite row and column from the x and y pixel coord
+	int row = x >> 3;
+	int col = y >> 3;
+	
+	// start with a default black pixel
+	char pixel = BLACK;
+	
+	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
 	// check if there's a sprite at the specified row and col
 	if (currentSpriteColumnLocalization & (1<<row))
@@ -196,28 +208,41 @@ void MapManager::ComputeSpriteBuffer(int row, int col)
 		// get the global id of the sprite we need
 		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
 		
-		// then copy the sprite to the buffer
-		memcpy_P(SpriteBuffer, MapData::MapSprite[currentSpriteGlobalId], sizeof(char)*8);
+		// now get the correct column of the sprite
+		char spriteColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (x % 8));
+		
+		// and get the correct pixel inside that sprite column
+		pixel = (spriteColumn >> (y % 8)) & 0x01;
 	}
-	else
-	{
-		//clear the sprite buffer
-		memset(SpriteBuffer, 0, sizeof(SpriteBuffer));
-	}
+	
+	// now apply the modification of that pixel if needed
+	
+	// and return the final pixel color
+	return pixel;
 }
 
-char MapManager::GetAPixel(int x, int y)
+/*
+ * This function will return the color of the specified pixel in Map coordinate, no matter
+ * if the pixel is on screen or not. If it is on the screen return it directly (of course we
+ * assume that the map is drawn first before anything else, so only the map data cover the screen
+ * at that point). Otherwise, if the pixel is outside the screen, we will compute it directly.
+ */
+char MapManager::GetPixel(int x, int y)
+{
+	// first check if the pixel is inside the screen or not.
+	if ((x >= ScrollValue) && (x < ScrollValue + MAP_SCREEN_WIDTH))
+		return arduboy.getPixel(x - ScrollValue + HUD::HUD_WIDTH, y);
+	else
+		return GetPixelOutsideScreen(x, y);
+}
+
+void MapManager::SetPixel(int x, int y, bool isAdded)
 {
 	
 }
 
 void MapManager::ApplyModifications()
 {
-}
-
-void MapManager::ModifyAPixel(int x, int y, bool isAdded)
-{
-	
 }
 
 void MapManager::Modify8Pixels(int x, int lineY, char pixels)
