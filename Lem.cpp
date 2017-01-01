@@ -38,17 +38,17 @@ void Lem::UpdateState()
 {
 	switch (mCurrentState)
 	{
-		case StateId::WALK: UpdateWalk();
-		case StateId::BLOCKER: UpdateBlocker();
-		case StateId::BOMB: UpdateBomb();
-		case StateId::DIG_DIAG: UpdateDigDiag();
-		case StateId::DIG_HORIZ: UpdateDigHoriz();
-		case StateId::DIG_VERT: UpdateDigVert();
-		case StateId::STAIR: UpdateStair();
-		case StateId::CLIMB: UpdateClimb();
-		case StateId::CLIMB_TOP: UpdateClimbTop();
-		case StateId::START_FALL: UpdateStartFall();
-		case StateId::FALL: UpdateFall();
+		case StateId::WALK: UpdateWalk(); break;
+		case StateId::BLOCKER: UpdateBlocker(); break;
+		case StateId::BOMB: UpdateBomb(); break;
+		case StateId::DIG_DIAG: UpdateDigDiag(); break;
+		case StateId::DIG_HORIZ: UpdateDigHoriz(); break;
+		case StateId::DIG_VERT: UpdateDigVert(); break;
+		case StateId::STAIR: UpdateStair(); break;
+		case StateId::CLIMB: UpdateClimb(); break;
+		case StateId::CLIMB_TOP: UpdateClimbTop(); break;
+		case StateId::START_FALL: UpdateStartFall(); break;
+		case StateId::FALL: UpdateFall(); break;
 	}
 }
 
@@ -103,7 +103,7 @@ void Lem::UpdateFall()
 /*
  * Get the frame rate for the current anim id
  */
-int Lem::GetFrameRateForCurrentAnim()
+unsigned int Lem::GetFrameRateForCurrentAnim()
 {
 	switch (mCurrentState)
 	{
@@ -115,7 +115,7 @@ int Lem::GetFrameRateForCurrentAnim()
 /*
  * Get the number of frame of the current animation
  */
-int Lem::GetFrameCountForCurrentAnim()
+unsigned int Lem::GetFrameCountForCurrentAnim()
 {
 	switch (mCurrentState)
 	{
@@ -143,7 +143,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 	if (!(frameNumber % GetFrameRateForCurrentAnim()))
 	{
 		// get the current frame counter and increase it
-		int currentFrame = (GetCurrentAnimFrame() + 1) % GetFrameCountForCurrentAnim();
+		unsigned char currentFrame = (GetCurrentAnimFrame() + 1) % GetFrameCountForCurrentAnim();
 		SetCurrentAnimFrame(currentFrame);
 		
 		// and find the correct animation frame
@@ -211,9 +211,9 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 		xMove += 1;
 	if (pgm_read_byte_near(animFrame + 1) & 0x80)
 		yMove -= 1;
-	if ((animFrameWidth > 1) && pgm_read_byte_near(animFrame + 2) & 0x80)
+	if ((animFrameWidth > 2) && (pgm_read_byte_near(animFrame + 2) & 0x80))
 		yMove += 1;
-	if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
+	if ((animFrameWidth > 3) && (pgm_read_byte_near(animFrame + 3) & 0x80))
 		xMove += 2;
 
 	// check if there's any movement
@@ -256,7 +256,7 @@ void Lem::Draw()
 	{
 		// get the screen coordinate and the current anim frame
 		unsigned char screenX  = MapManager::ConvertToScreenCoord(mPosX);
-		int currentFrame = GetCurrentAnimFrame();
+		unsigned char currentFrame = GetCurrentAnimFrame();
 		bool isMirrored = IsDirectionMirrored();
 		
 		// and draw the correct animation frame

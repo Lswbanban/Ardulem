@@ -66,9 +66,9 @@ private:
 	void 	UpdateFall();
 	
 	// anim related functions
-	bool	UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
-	int		GetFrameRateForCurrentAnim();
-	int 	GetFrameCountForCurrentAnim();
+	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
+	unsigned int	GetFrameRateForCurrentAnim();
+	unsigned int	GetFrameCountForCurrentAnim();
 };
 
 #endif
