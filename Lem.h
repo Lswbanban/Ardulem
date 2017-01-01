@@ -52,6 +52,17 @@ private:
 	bool	UpdateCurrentAnim(int frameNumber);
 	void	SetCurrentStateId(StateId stateId);
 	void 	UpdateState();
+	void 	UpdateWalk();
+	void 	UpdateBlocker();
+	void 	UpdateBomb();
+	void 	UpdateDigDiag();
+	void 	UpdateDigHoriz();
+	void 	UpdateDigVert();
+	void 	UpdateStair();
+	void 	UpdateClimb();
+	void 	UpdateClimbTop();
+	void 	UpdateStartFall();
+	void 	UpdateFall();
 	
 	// anim related functions
 	bool	DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement);

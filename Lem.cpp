@@ -36,7 +36,68 @@ void Lem::Update(int frameNumber)
 
 void Lem::UpdateState()
 {
-	
+	switch (mCurrentState)
+	{
+		case StateId::WALK: UpdateWalk();
+		case StateId::BLOCKER: UpdateBlocker();
+		case StateId::BOMB: UpdateBomb();
+		case StateId::DIG_DIAG: UpdateDigDiag();
+		case StateId::DIG_HORIZ: UpdateDigHoriz();
+		case StateId::DIG_VERT: UpdateDigVert();
+		case StateId::STAIR: UpdateStair();
+		case StateId::CLIMB: UpdateClimb();
+		case StateId::CLIMB_TOP: UpdateClimbTop();
+		case StateId::START_FALL: UpdateStartFall();
+		case StateId::FALL: UpdateFall();
+	}
+}
+
+void Lem::UpdateWalk()
+{
+}
+
+void Lem::UpdateBlocker()
+{
+}
+
+void Lem::UpdateBomb()
+{
+}
+
+void Lem::UpdateDigDiag()
+{
+}
+
+void Lem::UpdateDigHoriz()
+{
+}
+
+void Lem::UpdateDigVert()
+{
+}
+
+void Lem::UpdateStair()
+{
+}
+
+void Lem::UpdateClimb()
+{
+}
+
+void Lem::UpdateClimbTop()
+{
+}
+
+void Lem::UpdateStartFall()
+{
+}
+
+void Lem::UpdateFall()
+{
+	// get the pixel under my feet, if I touch ground, go back to walk
+	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY + 5);
+	if (feetPixel == WHITE)
+		SetCurrentStateId(StateId::WALK);
 }
 
 /*
@@ -194,7 +255,7 @@ bool Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 	
 	// call the static function to draw the anim frame if not ouside the screen
 	if (MapManager::IsOnScreen(mPosX))
-		DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
+		DrawOneAnimFrame(MapManager::ConvertToScreenCoord(mPosX), mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
 	
 	// return the flag telling if the lem has moved
 	return hasMoved;

@@ -190,26 +190,30 @@ void MapManager::DrawMap()
 /*
  * Tells if the specific x position (in map coordinate) is currently visible on screen
  */
-bool MapManager::IsOnScreen(int x)
+bool MapManager::IsOnScreen(int worldX)
 {
-	return (x >= ScrollValue) && (x < ScrollValue + MAP_SCREEN_WIDTH);
+	return (worldX >= ScrollValue) && (worldX < ScrollValue + MAP_SCREEN_WIDTH);
 }
 
 /*
  * Tells if the specified world coordinate is inside the world
  */
-bool MapManager::IsInMapBoundary(int x, int y)
+bool MapManager::IsInMapBoundary(int worldX, int worldY)
 {
 	// for the y, the map is 64 pixel + 5 pixel height of the lem itself
-	return (y < 69) && (x >= 0) && (x < (CurrentMapDescription.SpriteColumnCount << 3));
+	return (worldY < 69) && (worldX >= 0) && (worldX < (CurrentMapDescription.SpriteColumnCount << 3));
 }
 
+unsigned char MapManager::ConvertToScreenCoord(int worldX)
+{
+	return worldX - ScrollValue + HUD::HUD_WIDTH;
+}
 
-char MapManager::GetPixelOutsideScreen(int x, int y)
+char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
 {
 	// compute the sprite row and column from the x and y pixel coord
-	unsigned char col = x >> 3;
-	unsigned char row = y >> 3;
+	unsigned char col = worldX >> 3;
+	unsigned char row = worldY >> 3;
 	
 	// start with a default black pixel
 	char pixel = BLACK;
@@ -229,10 +233,10 @@ char MapManager::GetPixelOutsideScreen(int x, int y)
 		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
 
 		// now get the correct column of the sprite
-		char spriteColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (x % 8));
+		char spriteColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (worldX % 8));
 		
 		// and get the correct pixel inside that sprite column
-		pixel = (spriteColumn >> (y % 8)) & 0x01;
+		pixel = (spriteColumn >> (worldY % 8)) & 0x01;
 	}
 	
 	// now apply the modification of that pixel if needed
@@ -247,16 +251,16 @@ char MapManager::GetPixelOutsideScreen(int x, int y)
  * assume that the map is drawn first before anything else, so only the map data cover the screen
  * at that point). Otherwise, if the pixel is outside the screen, we will compute it directly.
  */
-char MapManager::GetPixel(int x, int y)
+char MapManager::GetPixel(int worldX, int worldY)
 {
 	// first check if the pixel is inside the screen or not.
-	if (IsOnScreen(x))
-		return arduboy.getPixel(x - ScrollValue + HUD::HUD_WIDTH, y);
+	if (IsOnScreen(worldX))
+		return arduboy.getPixel(ConvertToScreenCoord(worldX), worldY);
 	else
-		return GetPixelOutsideScreen(x, y);
+		return GetPixelOutsideScreen(worldX, worldY);
 }
 
-void MapManager::SetPixel(int x, int y, bool isAdded)
+void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 {
 	
 }

@@ -8,10 +8,14 @@ namespace MapManager
 	extern void InitMap(int mapId);
 	extern void Update(int frameNumber);
 
-	extern bool IsOnScreen(int x);
-	extern bool IsInMapBoundary(int x, int y);
-	extern char GetPixel(int x, int y);
-	extern void SetPixel(int x, int y, bool isAdded);
+	// coordinate helper
+	extern bool IsOnScreen(int worldX);
+	extern bool IsInMapBoundary(int worldX, int worldY);
+	unsigned char ConvertToScreenCoord(int worldX);
+	
+	// pixel helper
+	extern char GetPixel(int worldX, int worldY);
+	extern void SetPixel(int worldX, int worldY, bool isAdded);
 }
 
 #endif
