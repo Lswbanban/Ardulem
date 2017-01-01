@@ -12,7 +12,7 @@ void LemManager::Update(int frameNumber)
 	if (tempNeedSpawn)
 	{
 		tempNeedSpawn = false;
-		lemArray[0].Spawn(20, 10);
+		lemArray[0].Spawn(2, 10);
 	}
 	
 	for (int i = 0; i < MAX_LEM_COUNT; ++i)

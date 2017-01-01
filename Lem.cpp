@@ -30,11 +30,11 @@ void Lem::Update(int frameNumber)
 		
 		// update the ai of the lem depending on the new position if it has moved
 		if (hasMoved)
-			UpdateState();
+			UpdateState(frameNumber);
 	}
 }
 
-void Lem::UpdateState()
+void Lem::UpdateState(int frameNumber)
 {
 	switch (mCurrentState)
 	{
@@ -47,13 +47,18 @@ void Lem::UpdateState()
 		case StateId::STAIR: UpdateStair(); break;
 		case StateId::CLIMB: UpdateClimb(); break;
 		case StateId::CLIMB_TOP: UpdateClimbTop(); break;
-		case StateId::START_FALL: UpdateStartFall(); break;
+		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
 		case StateId::FALL: UpdateFall(); break;
 	}
 }
 
 void Lem::UpdateWalk()
 {
+	// get the pixel under my feet, if no ground, I start to fall
+	char feetPixel = MapManager::GetPixel(mPosX+1, mPosY+6);
+	if (feetPixel == BLACK)
+		SetCurrentStateId(StateId::START_FALL, 0, 1);
+
 }
 
 void Lem::UpdateBlocker()
@@ -88,16 +93,28 @@ void Lem::UpdateClimbTop()
 {
 }
 
-void Lem::UpdateStartFall()
+void Lem::UpdateStartFall(int frameNumber)
 {
+	// get the pixel under my feet, if I touch ground, go back to walk
+	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY+6);
+	if (feetPixel == WHITE)
+	{
+		SetCurrentStateId(StateId::WALK, 1, 0);
+		return;
+	}
+	
+	// and when I have finished the start to Fall anim, I go to Fall
+	if ((GetCurrentAnimFrame() == ANIM_LEM_START_FALL_FRAME_COUNT - 1) &&
+		!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+		SetCurrentStateId(StateId::FALL);
 }
 
 void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY + 5);
+	char feetPixel = MapManager::GetPixel(mPosX+2, mPosY+6);
 	if (feetPixel == WHITE)
-		SetCurrentStateId(StateId::WALK);
+		SetCurrentStateId(StateId::WALK, 1, 0);
 }
 
 /*
@@ -107,6 +124,7 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 {
 	switch (mCurrentState)
 	{
+		case StateId::START_FALL: return 3;
 		case StateId::FALL: return 2;
 		default: return 10;
 	}
@@ -184,6 +202,11 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				hasMoved = UpdateOneAnimFrame(anim_LemFall[currentFrame], sizeof(anim_LemFall[0]));
 				break;
 		}
+	}
+	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
+	else if (!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+	{
+		hasMoved = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL);
 	}
 	
 	// return the flag
@@ -313,9 +336,12 @@ void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char
 	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
 }
 
-void Lem::SetCurrentStateId(StateId stateId)
+void Lem::SetCurrentStateId(StateId stateId, int shiftX, int shiftY)
 {
 	// set the state id and reset the current frame
 	mCurrentState = stateId;
 	SetCurrentAnimFrame(0);
+	// add the shift in x and y when transitionning
+	mPosX += shiftX;
+	mPosY += shiftY;
 }

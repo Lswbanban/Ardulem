@@ -51,8 +51,8 @@ private:
 	
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
-	void	SetCurrentStateId(StateId stateId);
-	void 	UpdateState();
+	void	SetCurrentStateId(StateId stateId, int shiftX = 0, int shiftY = 0);
+	void 	UpdateState(int frameNumber);
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
 	void 	UpdateBomb();
@@ -62,7 +62,7 @@ private:
 	void 	UpdateStair();
 	void 	UpdateClimb();
 	void 	UpdateClimbTop();
-	void 	UpdateStartFall();
+	void 	UpdateStartFall(int frameNumber);
 	void 	UpdateFall();
 	
 	// anim related functions
