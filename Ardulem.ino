@@ -21,6 +21,10 @@ int frameNumber = 0;
 
 void setup()
 {
+	// init the debug serial communication
+//	Serial.begin(9600);
+//	while(!Serial);
+  
 	arduboy.beginNoLogo();
 //	arduboy.begin();
 	arduboy.clear();

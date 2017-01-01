@@ -29,17 +29,18 @@ const unsigned char Map01IdList[] PROGMEM = {
 /*
  * The various maps
  */
-const MapData::MapDescription MapData::AllMaps[] = {
+const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
 		10, //StartX
-		10, //StartY
+		11, //StartY
 		80, //HomeX
 		50, //HomeY
 		20, //TimeInMultipleOf10s
 		1, //MinDropSpeed
 		100, //AvailableLemCount
 		10, //RequiredLemCount
-		0xFFFF, //LemButtonConfig
+		0xFFFF, //LemBlockBombDigdiagDighorizConfig
+		0xFFFF, //LemDigvertStairClimbParaConfig
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		(const unsigned char *)Map01IdList //SpriteLocalIdList

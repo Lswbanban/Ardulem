@@ -34,8 +34,8 @@ namespace MapManager
 	const unsigned int MODIFICATION_LIST_LINE_INDEX_SIZE = 8;
 	unsigned char ModificationListLineIndex[MODIFICATION_LIST_LINE_INDEX_SIZE];
 	
-	// the current map id we are playing
-	int MapId = 0;
+	// the current map Description we are playing
+	MapData::MapDescription CurrentMapDescription;
 	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
@@ -49,8 +49,25 @@ namespace MapManager
 
 void MapManager::InitMap(int mapId)
 {
-	// save the MapId
-	MapId = mapId;
+	// copy the map description of the specified map id into my RAM instance of Map description
+	CurrentMapDescription.StartX = pgm_read_byte_near(&(MapData::AllMaps[mapId].StartX));
+	CurrentMapDescription.StartY = pgm_read_byte_near(&(MapData::AllMaps[mapId].StartY));
+	CurrentMapDescription.HomeX = pgm_read_byte_near(&(MapData::AllMaps[mapId].HomeX));
+	CurrentMapDescription.HomeY = pgm_read_byte_near(&(MapData::AllMaps[mapId].HomeY));
+	CurrentMapDescription.TimeInMultipleOf10s = pgm_read_byte_near(&(MapData::AllMaps[mapId].TimeInMultipleOf10s));
+	CurrentMapDescription.MinDropSpeed = pgm_read_byte_near(&(MapData::AllMaps[mapId].MinDropSpeed));
+	CurrentMapDescription.AvailableLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].AvailableLemCount));
+	CurrentMapDescription.RequiredLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].RequiredLemCount));
+	CurrentMapDescription.LemBlockBombDigdiagDighorizConfig = 
+		pgm_read_word_near(&(MapData::AllMaps[mapId].LemBlockBombDigdiagDighorizConfig));
+	CurrentMapDescription.LemDigvertStairClimbParaConfig =
+		pgm_read_word_near(&(MapData::AllMaps[mapId].LemDigvertStairClimbParaConfig));
+	CurrentMapDescription.StriteIDRemapingTable = 
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].StriteIDRemapingTable));
+	CurrentMapDescription.SpriteLocalization = 
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalization));
+	CurrentMapDescription.SpriteLocalIdList = 
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalIdList));
 	
 	// clear the modification list
 	ClearModificationList();
@@ -77,10 +94,9 @@ void MapManager::Update(int frameNumber)
 void MapManager::DrawMap()
 {
 	// get the various pointer on the current map data
-	const MapData::MapDescription & mapDescription = MapData::AllMaps[MapId];
-	const unsigned char * mapLocalization = mapDescription.SpriteLocalization;
-	const unsigned char * mapLocalSpriteIds = mapDescription.SpriteLocalIdList;
-	const unsigned char * mapIDRemapingTable = mapDescription.StriteIDRemapingTable;
+	const unsigned char * mapLocalization = CurrentMapDescription.SpriteLocalization;
+	const unsigned char * mapLocalSpriteIds = CurrentMapDescription.SpriteLocalIdList;
+	const unsigned char * mapIDRemapingTable = CurrentMapDescription.StriteIDRemapingTable;
 	
 	// find the first map localization pixel from the scrolling value (by dividing by 8)
 	int firstSpriteColumn = ScrollValue >> 3;
