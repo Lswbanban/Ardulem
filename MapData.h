@@ -36,8 +36,8 @@ namespace MapData
 		char RequiredLemCount;
 		
 		// Lems button configuration (how many lem per type, can you use)
-		unsigned short LemBlockBombDigdiagDighorizConfig;
-		unsigned short LemDigvertStairClimbParaConfig;
+		unsigned int LemBlockBombDigdiagDighorizConfig;
+		unsigned int LemDigvertStairClimbParaConfig;
 
 		// pointer on one of the remaping table (a 16 sprite subset of all the sprites)
 		const unsigned char * StriteIDRemapingTable;

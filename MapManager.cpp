@@ -115,12 +115,13 @@ void MapManager::DrawMap()
 		// get the column from the map localization
 		char currentSpriteColumnLocalization = pgm_read_byte_near(mapLocalization + col);
 		
-		// now iterat on every bit to see if there's a sprite to draw
+		// now iterate on every bit to see if there's a sprite to draw
 		for (int i = 0; i < 8; ++i)
 			if (currentSpriteColumnLocalization & (1<<i))
 			{
 				// we found a bit set, there's a sprite to draw, get it's local id
-				int currentSpriteLocalId = pgm_read_byte_near(mapLocalSpriteIds + currentSpriteDrawn);
+				int TwoPackedLocIds = pgm_read_byte_near(mapLocalSpriteIds + (currentSpriteDrawn >> 1));
+				int currentSpriteLocalId = (currentSpriteDrawn % 2) ? TwoPackedLocIds >> 4 : TwoPackedLocIds & 0x0F;
 				
 				// convert the local id to global id
 				int currentSpriteGlobalId = pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);

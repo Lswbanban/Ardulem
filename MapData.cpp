@@ -2,8 +2,10 @@
 #include "MapData.h"
 
 // The LOCID macro is used to pack two local id of the SpriteLocalIdList
-//#define LOCID(id1, id2) (id1 | (id2<<4))
-#define LOCID(id1, id2) id1, id2
+#define LOCID(id1, id2) (id1 | (id2<<4))
+
+// The following macro will pack the lem button config
+#define PACK_BUTTON_CONFIG(count1, count2, count3, count4) ((unsigned int)((count1 << 12) | (count2 << 8) | (count3 << 4) | count4))
 
 /*
  * All the sprite that can be used to create the maps (up to 256, because after that the remaping table cannot handle it)
@@ -39,8 +41,8 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		1, //MinDropSpeed
 		100, //AvailableLemCount
 		10, //RequiredLemCount
-		0xFFFF, //LemBlockBombDigdiagDighorizConfig
-		0xFFFF, //LemDigvertStairClimbParaConfig
+		PACK_BUTTON_CONFIG(4,5,0,9), //Nb of Lem per button: Blocker, Bomb, Dig diagonal, Dig horizontal
+		PACK_BUTTON_CONFIG(8,0,1,3), //Nb of Lem per button: Dig vertical, Stair, Climb, Parachute
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		(const unsigned char *)Map01IdList //SpriteLocalIdList
