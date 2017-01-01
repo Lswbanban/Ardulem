@@ -48,7 +48,7 @@ void loop()
 	// update the various managers
 	Input::Update(frameNumber);
 	MapManager::Update(frameNumber);
-//	LemManager::Update(frameNumber);
+	LemManager::Update(frameNumber);
 	HUD::Update(frameNumber);
 	
 	// draw the frame buffer

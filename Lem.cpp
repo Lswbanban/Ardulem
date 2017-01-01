@@ -1,19 +1,42 @@
 #include "Ardulem.h"
 #include "Lem.h"
 #include "SpriteData.h"
+#include "MapManager.h"
 
 Lem::Lem()
 {
-	mPosX = 50;
-	mPosY = 40;
-	mCurrentFrame = 0;
-	mCurrentAnimId = AnimId::DIG_DIAG;
+	mPosX = 0;
+	mPosY = 0;
+	mCurrentState = StateId::FALL;
+	mPackedStateData = 0;
+}
+
+void Lem::Spawn(unsigned char x, unsigned char y)
+{
+	// set the position
+	mPosX = x;
+	mPosY = y;
+	// reset the state (they all start by falling)
+	SetCurrentStateId(StateId::FALL);
 }
 
 void Lem::Update(int frameNumber)
 {
-	//Draw the lem sprite
-	DrawCurrentAnimFrame(!(frameNumber % GetFrameRateForCurrentAnim()));
+	// do nothing if the Lem is not alive
+	if (mCurrentState > StateId::DEAD)
+	{
+		// update the current animation (which will make the lem position move)
+		bool hasMoved = UpdateCurrentAnim(frameNumber);
+		
+		// update the ai of the lem depending on the new position if it has moved
+		if (hasMoved)
+			UpdateState();
+	}
+}
+
+void Lem::UpdateState()
+{
+	
 }
 
 /*
@@ -21,66 +44,92 @@ void Lem::Update(int frameNumber)
  */
 int Lem::GetFrameRateForCurrentAnim()
 {
-	switch (mCurrentAnimId)
+	switch (mCurrentState)
 	{
-		case AnimId::FALL: return 2;
+		case StateId::FALL: return 2;
 		default: return 10;
 	}
 }
 
-void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
+/*
+ * Get the number of frame of the current animation
+ */
+int Lem::GetFrameCountForCurrentAnim()
 {
-	// increase the frame counter (will be modulo depending on the anim)
-	if (shouldChangeFrame)
-		mCurrentFrame++;
-	
-	switch (mCurrentAnimId)
+	switch (mCurrentState)
 	{
-		case AnimId::WALK:
-			mCurrentFrame %= ANIM_LEM_WALK_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemWalk[mCurrentFrame], sizeof(anim_LemWalk[0]), shouldChangeFrame);
+		case StateId::WALK: return ANIM_LEM_WALK_FRAME_COUNT;
+		case StateId::BLOCKER: return ANIM_LEM_BLOCKER_FRAME_COUNT;
+		case StateId::BOMB: return ANIM_LEM_BOMB_FRAME_COUNT;
+		case StateId::DIG_DIAG: return ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
+		case StateId::DIG_HORIZ: return ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
+		case StateId::DIG_VERT: return ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
+		case StateId::STAIR: return ANIM_LEM_STAIR_FRAME_COUNT;
+		case StateId::CLIMB: return ANIM_LEM_CLIMB_FRAME_COUNT;
+		case StateId::CLIMB_TOP: return ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
+		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
+		case StateId::FALL: return ANIM_LEM_FALL_FRAME_COUNT;
+	}
+	return 1;
+}
+
+bool Lem::UpdateCurrentAnim(int frameNumber)
+{
+	// check if we need to change the animation frame
+	bool shouldChangeFrame = !(frameNumber % GetFrameRateForCurrentAnim());
+	
+	// get the current frame counter
+	int currentFrame = GetCurrentAnimFrame();
+	// increase the frame counter if needed
+	if (shouldChangeFrame)
+	{
+		currentFrame = (currentFrame + 1) % GetFrameCountForCurrentAnim();
+		SetCurrentAnimFrame(currentFrame);
+	}
+	
+	// declare the return value
+	bool hasMoved = false;
+	
+	// and find the correct animation frame
+	switch (mCurrentState)
+	{
+		case StateId::WALK:
+			hasMoved = DrawOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), shouldChangeFrame);
 			break;
-		case AnimId::BLOCKER:
-			mCurrentFrame %= ANIM_LEM_BLOCKER_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemBlocker[mCurrentFrame], sizeof(anim_LemBlocker[0]), shouldChangeFrame);
+		case StateId::BLOCKER:
+			DrawOneAnimFrame(anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), shouldChangeFrame);
+			hasMoved = true; // blocker never move, but we can dig under their feet, so they have to check their state every frame
 			break;
-		case AnimId::BOMB:
-			mCurrentFrame %= ANIM_LEM_BOMB_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemBomb[mCurrentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
+		case StateId::BOMB:
+			hasMoved = DrawOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
 			break;
-		case AnimId::DIG_DIAG:
-			mCurrentFrame %= ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemDigDiagonal[mCurrentFrame], sizeof(anim_LemDigDiagonal[0]), shouldChangeFrame);
+		case StateId::DIG_DIAG:
+			hasMoved = DrawOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), shouldChangeFrame);
 			break;
-		case AnimId::DIG_HORIZ:
-			mCurrentFrame %= ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemDigHorizontal[mCurrentFrame], sizeof(anim_LemDigHorizontal[0]), shouldChangeFrame);
+		case StateId::DIG_HORIZ:
+			hasMoved = DrawOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), shouldChangeFrame);
 			break;
-		case AnimId::DIG_VERT:
-			mCurrentFrame %= ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemDigVertical[mCurrentFrame], sizeof(anim_LemDigVertical[0]), shouldChangeFrame);
+		case StateId::DIG_VERT:
+			hasMoved = DrawOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), shouldChangeFrame);
 			break;
-		case AnimId::STAIR:
-			mCurrentFrame %= ANIM_LEM_STAIR_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemStair[mCurrentFrame], sizeof(anim_LemStair[0]), shouldChangeFrame);
+		case StateId::STAIR:
+			hasMoved = DrawOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), shouldChangeFrame);
 			break;
-		case AnimId::CLIMB:
-			mCurrentFrame %= ANIM_LEM_CLIMB_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemClimb[mCurrentFrame], sizeof(anim_LemClimb[0]), shouldChangeFrame);
+		case StateId::CLIMB:
+			hasMoved = DrawOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), shouldChangeFrame);
 			break;
-		case AnimId::CLIMB_TOP:
-			mCurrentFrame %= ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemClimbTop[mCurrentFrame], sizeof(anim_LemClimbTop[0]), shouldChangeFrame);
+		case StateId::CLIMB_TOP:
+			hasMoved = DrawOneAnimFrame(anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), shouldChangeFrame);
 			break;
-		case AnimId::START_FALL:
-			mCurrentFrame %= ANIM_LEM_START_FALL_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemStartFall[mCurrentFrame], sizeof(anim_LemStartFall[0]), shouldChangeFrame);
+		case StateId::START_FALL:
+			hasMoved = DrawOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), shouldChangeFrame);
 			break;
-		case AnimId::FALL:
-			mCurrentFrame %= ANIM_LEM_FALL_FRAME_COUNT;
-			DrawOneAnimFrame(anim_LemFall[mCurrentFrame], sizeof(anim_LemFall[0]), shouldChangeFrame);
+		case StateId::FALL:
+			hasMoved = DrawOneAnimFrame(anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), shouldChangeFrame);
 			break;
 	}
+	// return the flag
+	return hasMoved;
 }
 
 /*
@@ -93,9 +142,10 @@ void Lem::DrawCurrentAnimFrame(bool shouldChangeFrame)
  * All the animation are stored with a movement to the right. If the Lem is walking to the left,
  * The move x should be reversed.
  */
-void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
+bool Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
 {
-	bool isMirrored = true;
+	bool isMirrored = IsDirectionMirrored();
+	bool hasMoved = false;
 	
 	// move the lem before drawing the frame if it's time to move
 	if (shouldApplyMovement)
@@ -112,6 +162,9 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
 			xMove += 2;
 
+		// check if there's any movement
+		hasMoved = (xMove != 0) || (yMove != 0);
+		
 		// then move the lem position according to the move found in the animation
 		if (isMirrored)
 			mPosX = (mPosX - xMove) % WIDTH;
@@ -120,8 +173,12 @@ void Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, 
 		mPosY += yMove;
 	}
 	
-	// call the static function to draw the frame
-	DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
+	// call the static function to draw the anim frame if not ouside the screen
+	if (MapManager::IsOnScreen(mPosX))
+		DrawOneAnimFrame(mPosX, mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
+	
+	// return the flag telling if the lem has moved
+	return hasMoved;
 }
 
 /*
@@ -138,9 +195,9 @@ void Lem::DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int 
 	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
 }
 
-void Lem::SetCurrentAnimId(AnimId animId)
+void Lem::SetCurrentStateId(StateId stateId)
 {
-	// reset the current frame and set the id
-	mCurrentFrame = 0;
-	mCurrentAnimId = animId;
+	// set the state id and reset the current frame
+	mCurrentState = stateId;
+	SetCurrentAnimFrame(0);
 }

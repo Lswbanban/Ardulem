@@ -50,12 +50,12 @@ namespace MapManager
 
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
-	char GetPixelOutsideScreen(int x, int y);
+	char GetPixelOutsideScreen(unsigned char x, unsigned char y);
 	
 	void ClearModificationList();
 	void ApplyModifications();
-	void InsertModification(int insertIndex, int x, char pixels);
-	void Modify8Pixels(int x, int lineY, char pixels);
+	void InsertModification(int insertIndex, unsigned char x, char pixels);
+	void Modify8Pixels(unsigned char x, unsigned char lineY, char pixels);
 }
 
 void MapManager::InitMap(int mapId)
@@ -105,6 +105,12 @@ void MapManager::Update(int frameNumber)
 	UpdateInput();
 	DrawMap();
 	ApplyModifications();
+	
+/*	char pixel = GetPixel(ScrollValue + 108, 50);
+	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
+	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
+	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
+*/
 }
 
 void MapManager::UpdateInput()
@@ -179,14 +185,17 @@ void MapManager::DrawMap()
 				currentSpriteDrawn++;
 			}
 	}
-	
-	char pixel = GetPixel(ScrollValue + 108, 50);
-	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
-	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
-	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
 }
 
-char MapManager::GetPixelOutsideScreen(int x, int y)
+/*
+ * Tell if the specific x position (in map coordinate) is currently visible on screen
+ */
+bool MapManager::IsOnScreen(unsigned char x)
+{
+	return (x >= ScrollValue) && (x < ScrollValue + MAP_SCREEN_WIDTH);
+}
+
+char MapManager::GetPixelOutsideScreen(unsigned char x, unsigned char y)
 {
 	// compute the sprite row and column from the x and y pixel coord
 	unsigned char col = x >> 3;
@@ -228,16 +237,16 @@ char MapManager::GetPixelOutsideScreen(int x, int y)
  * assume that the map is drawn first before anything else, so only the map data cover the screen
  * at that point). Otherwise, if the pixel is outside the screen, we will compute it directly.
  */
-char MapManager::GetPixel(int x, int y)
+char MapManager::GetPixel(unsigned char x, unsigned char y)
 {
 	// first check if the pixel is inside the screen or not.
-	if ((x >= ScrollValue) && (x < ScrollValue + MAP_SCREEN_WIDTH))
+	if (IsOnScreen(x))
 		return arduboy.getPixel(x - ScrollValue + HUD::HUD_WIDTH, y);
 	else
 		return GetPixelOutsideScreen(x, y);
 }
 
-void MapManager::SetPixel(int x, int y, bool isAdded)
+void MapManager::SetPixel(unsigned char x, unsigned char y, bool isAdded)
 {
 	
 }
@@ -246,7 +255,7 @@ void MapManager::ApplyModifications()
 {
 }
 
-void MapManager::Modify8Pixels(int x, int lineY, char pixels)
+void MapManager::Modify8Pixels(unsigned char x, unsigned char lineY, char pixels)
 {
 	// first search in the where to start in the modification list according to y
 	int lineIndex = ModificationListLineIndex[lineY];
@@ -276,7 +285,7 @@ void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 	}
 }
 
-void MapManager::InsertModification(int insertIndex, int x, char pixels)
+void MapManager::InsertModification(int insertIndex, unsigned char x, char pixels)
 {
 	// push all the modification (that keep the order)
 	for (int i = MODIFICATION_LIST_SIZE-1; i > insertIndex; --i)
