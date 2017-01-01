@@ -18,3 +18,10 @@ void LemManager::Update(int frameNumber)
 	for (int i = 0; i < MAX_LEM_COUNT; ++i)
 		lemArray[i].Update(frameNumber);
 }
+
+void LemManager::Draw()
+{
+	// draw all the Lems
+	for (int i = 0; i < MAX_LEM_COUNT; ++i)
+		lemArray[i].Draw();
+}

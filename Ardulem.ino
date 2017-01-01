@@ -47,8 +47,13 @@ void loop()
 	
 	// update the various managers
 	Input::Update(frameNumber);
+	// at first draw the Map (and nothing else before, because the lem will use the screen buffer information)
 	MapManager::Update(frameNumber);
+	// then update the lem and draw them in two pass, so that all the lems have updated their logic, before being drawn
+	// and polluting the screen buffer.
 	LemManager::Update(frameNumber);
+	LemManager::Draw();
+	// finally draw the HUD that will override the map and lem which has been drawn behind
 	HUD::Update(frameNumber);
 	
 	// draw the frame buffer

@@ -136,59 +136,56 @@ int Lem::GetFrameCountForCurrentAnim()
 
 bool Lem::UpdateCurrentAnim(int frameNumber)
 {
-	// check if we need to change the animation frame
-	bool shouldChangeFrame = !(frameNumber % GetFrameRateForCurrentAnim());
-	
-	// get the current frame counter
-	int currentFrame = GetCurrentAnimFrame();
-	// increase the frame counter if needed
-	if (shouldChangeFrame)
-	{
-		currentFrame = (currentFrame + 1) % GetFrameCountForCurrentAnim();
-		SetCurrentAnimFrame(currentFrame);
-	}
-	
 	// declare the return value
 	bool hasMoved = false;
-	
-	// and find the correct animation frame
-	switch (mCurrentState)
+
+	// check if we need to change the animation frame
+	if (!(frameNumber % GetFrameRateForCurrentAnim()))
 	{
-		case StateId::WALK:
-			hasMoved = DrawOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), shouldChangeFrame);
-			break;
-		case StateId::BLOCKER:
-			DrawOneAnimFrame(anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), shouldChangeFrame);
-			hasMoved = true; // blocker never move, but we can dig under their feet, so they have to check their state every frame
-			break;
-		case StateId::BOMB:
-			hasMoved = DrawOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), shouldChangeFrame);
-			break;
-		case StateId::DIG_DIAG:
-			hasMoved = DrawOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), shouldChangeFrame);
-			break;
-		case StateId::DIG_HORIZ:
-			hasMoved = DrawOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), shouldChangeFrame);
-			break;
-		case StateId::DIG_VERT:
-			hasMoved = DrawOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), shouldChangeFrame);
-			break;
-		case StateId::STAIR:
-			hasMoved = DrawOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), shouldChangeFrame);
-			break;
-		case StateId::CLIMB:
-			hasMoved = DrawOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), shouldChangeFrame);
-			break;
-		case StateId::CLIMB_TOP:
-			hasMoved = DrawOneAnimFrame(anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), shouldChangeFrame);
-			break;
-		case StateId::START_FALL:
-			hasMoved = DrawOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), shouldChangeFrame);
-			break;
-		case StateId::FALL:
-			hasMoved = DrawOneAnimFrame(anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), shouldChangeFrame);
-			break;
+		// get the current frame counter and increase it
+		int currentFrame = (GetCurrentAnimFrame() + 1) % GetFrameCountForCurrentAnim();
+		SetCurrentAnimFrame(currentFrame);
+		
+		// and find the correct animation frame
+		switch (mCurrentState)
+		{
+			case StateId::WALK:
+				hasMoved = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
+				break;
+			case StateId::BLOCKER:
+				UpdateOneAnimFrame(anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]));
+				hasMoved = true; // blocker never move, but we can dig under their feet, so they have to check their state every frame
+				break;
+			case StateId::BOMB:
+				hasMoved = UpdateOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]));
+				break;
+			case StateId::DIG_DIAG:
+				hasMoved = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
+				break;
+			case StateId::DIG_HORIZ:
+				hasMoved = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]));
+				break;
+			case StateId::DIG_VERT:
+				hasMoved = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
+				break;
+			case StateId::STAIR:
+				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
+				break;
+			case StateId::CLIMB:
+				hasMoved = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));
+				break;
+			case StateId::CLIMB_TOP:
+				hasMoved = UpdateOneAnimFrame(anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]));
+				break;
+			case StateId::START_FALL:
+				hasMoved = UpdateOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]));
+				break;
+			case StateId::FALL:
+				hasMoved = UpdateOneAnimFrame(anim_LemFall[currentFrame], sizeof(anim_LemFall[0]));
+				break;
+		}
 	}
+	
 	// return the flag
 	return hasMoved;
 }
@@ -203,68 +200,109 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
  * All the animation are stored with a movement to the right. If the Lem is walking to the left,
  * The move x should be reversed.
  */
-bool Lem::DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement)
+bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth)
 {
-	bool isMirrored = IsDirectionMirrored();
 	bool hasMoved = false;
 	
-	// move the lem before drawing the frame if it's time to move
-	if (shouldApplyMovement)
+	// first get the move from the animation frame
+	int xMove = 0;
+	int yMove = 0;
+	if (pgm_read_byte_near(animFrame) & 0x80)
+		xMove += 1;
+	if (pgm_read_byte_near(animFrame + 1) & 0x80)
+		yMove -= 1;
+	if ((animFrameWidth > 1) && pgm_read_byte_near(animFrame + 2) & 0x80)
+		yMove += 1;
+	if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
+		xMove += 2;
+
+	// check if there's any movement
+	hasMoved = (xMove != 0) || (yMove != 0);
+	
+	// then move the lem position according to the move found in the animation
+	// move the y first (because we will ask if the lem is still inside the world)
+	mPosY += yMove;
+
+	// first move the x
+	bool isInsideMap = true;
+	if (IsDirectionMirrored())
 	{
-		// first get the move from the animation frame
-		int xMove = 0;
-		int yMove = 0;
-		if (pgm_read_byte_near(animFrame) & 0x80)
-			xMove += 1;
-		if (pgm_read_byte_near(animFrame + 1) & 0x80)
-			yMove -= 1;
-		if ((animFrameWidth > 1) && pgm_read_byte_near(animFrame + 2) & 0x80)
-			yMove += 1;
-		if ((animFrameWidth > 2) && pgm_read_byte_near(animFrame + 3) & 0x80)
-			xMove += 2;
-
-		// check if there's any movement
-		hasMoved = (xMove != 0) || (yMove != 0);
-		
-		// then move the lem position according to the move found in the animation
-		// move the y first (because we will ask if the lem is still inside the world)
-		mPosY += yMove;
-
-		// first move the x
-		bool isInsideMap = true;
-		if (isMirrored)
-		{
-			// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
-			isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)mPosY);
-			mPosX -= xMove;
-		}
-		else
-		{
-			// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
-			isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY);
-			mPosX += xMove;
-		}
-		
-		// if the position are outside the boundary of the Map, the lem is dead
-		if (!isInsideMap)
-		{
-			SetCurrentStateId(StateId::DEAD);
-			return false;
-		}
+		// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
+		isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)mPosY);
+		mPosX -= xMove;
+	}
+	else
+	{
+		// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
+		isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY);
+		mPosX += xMove;
 	}
 	
-	// call the static function to draw the anim frame if not ouside the screen
-	if (MapManager::IsOnScreen(mPosX))
-		DrawOneAnimFrame(MapManager::ConvertToScreenCoord(mPosX), mPosY, animFrame, animFrameWidth, isMirrored, WHITE);
+	// if the position are outside the boundary of the Map, the lem is dead
+	if (!isInsideMap)
+	{
+		SetCurrentStateId(StateId::DEAD);
+		return false;
+	}
 	
 	// return the flag telling if the lem has moved
 	return hasMoved;
 }
 
+void Lem::Draw()
+{
+	// call the draw function to draw the anim frame if alive and not ouside the screen
+	if ((mCurrentState > StateId::DEAD) && MapManager::IsOnScreen(mPosX))
+	{
+		// get the screen coordinate and the current anim frame
+		unsigned char screenX  = MapManager::ConvertToScreenCoord(mPosX);
+		int currentFrame = GetCurrentAnimFrame();
+		bool isMirrored = IsDirectionMirrored();
+		
+		// and draw the correct animation frame
+		switch (mCurrentState)
+		{
+			case StateId::WALK:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
+				break;
+			case StateId::BLOCKER:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), isMirrored, WHITE);
+				break;
+			case StateId::BOMB:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
+				break;
+			case StateId::DIG_DIAG:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), isMirrored, WHITE);
+				break;
+			case StateId::DIG_HORIZ:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), isMirrored, WHITE);
+				break;
+			case StateId::DIG_VERT:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), isMirrored, WHITE);
+				break;
+			case StateId::STAIR:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
+				break;
+			case StateId::CLIMB:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);
+				break;
+			case StateId::CLIMB_TOP:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), isMirrored, WHITE);
+				break;
+			case StateId::START_FALL:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), isMirrored, WHITE);
+				break;
+			case StateId::FALL:
+				DrawOneAnimFrame(screenX, mPosY, anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), isMirrored, WHITE);
+				break;
+		}
+	}
+}
+
 /*
  * Draw a specific frame of a lem animation at the specified position and with the specified color
  */
-void Lem::DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
+void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
 {
 	// copy the frame into a temp buffer by removing according to the mask
 	unsigned char maskedAnimFrame[animFrameWidth];

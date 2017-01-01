@@ -10,6 +10,7 @@ namespace LemManager
 	static const unsigned int MAX_LEM_COUNT = 1;
 	
 	extern void Update(int frameNumber);
+	extern void Draw();
 }
 
 #endif

@@ -10,8 +10,9 @@ public:
 	Lem();
 	void Spawn(unsigned char x, unsigned char y);
 	void Update(int frameNumber);
+	void Draw();
 	
-	static void DrawOneAnimFrame(char x, char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
+	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
 	enum StateId
@@ -65,7 +66,7 @@ private:
 	void 	UpdateFall();
 	
 	// anim related functions
-	bool	DrawOneAnimFrame(const unsigned char animFrame[], int animFrameWidth, bool shouldApplyMovement);
+	bool	UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
 	int		GetFrameRateForCurrentAnim();
 	int 	GetFrameCountForCurrentAnim();
 };
