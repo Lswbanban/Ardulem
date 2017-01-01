@@ -75,10 +75,21 @@ void HUD::Update(int frameNumber)
  */
 void HUD::UpdateInput()
 {
+	const int INPUT_FRAME_COUNT_FIRST_MODULO = 10;
+	const int INPUT_FRAME_COUNT_SECOND_MODULO = 5;
+	const int INPUT_FRAME_COUNT_FIRST_MODULO_FOR_DROP_SPEED = 8;
+	const int INPUT_FRAME_COUNT_SECOND_MODULO_FOR_DROP_SPEED = 2;
+
 	// declare an action variable to combine various way of moving
 	InputAction action = InputAction::NONE;
-	int inputFrameCountFirstModulo = 10;
-	int inputFrameCountSecondModulo = 5;
+	int inputFrameCountFirstModulo = INPUT_FRAME_COUNT_FIRST_MODULO;
+	int inputFrameCountSecondModulo = INPUT_FRAME_COUNT_SECOND_MODULO;
+	// change the modulo speed if it's the drop speed button which is selected
+	if (SelectedButton == Button::DROP_SPEED)
+	{
+		inputFrameCountFirstModulo = INPUT_FRAME_COUNT_FIRST_MODULO_FOR_DROP_SPEED;
+		inputFrameCountSecondModulo = INPUT_FRAME_COUNT_SECOND_MODULO_FOR_DROP_SPEED;
+	}
 	
 	// reset the flag if we just press the A button
 	if (Input::IsJustPressed(A_BUTTON))
@@ -94,12 +105,12 @@ void HUD::UpdateInput()
 		action = InputAction::RIGHT;
 		WasArrowButtonUsedInHUD = true;
 	}
-	else if (Input::IsDownModulo(A_BUTTON + UP_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
+	else if (Input::IsDownModulo(A_BUTTON + UP_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
 	{
 		action = InputAction::UP;
 		WasArrowButtonUsedInHUD = true;
 	}
-	else if (Input::IsDownModulo(A_BUTTON + DOWN_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
+	else if (Input::IsDownModulo(A_BUTTON + DOWN_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
 	{
 		action = InputAction::DOWN;
 		WasArrowButtonUsedInHUD = true;

@@ -38,11 +38,13 @@ namespace MapManager
 	MapData::MapDescription CurrentMapDescription;
 	
 	// this variable store the current scrolling value of the map on the screen
-	int ScrollValue = 0;
+	int ScrollValue = 30;
 	
 	// private functions
-	void ClearModificationList();
+	void UpdateInput(int frameNumber);
 	void DrawMap();
+
+	void ClearModificationList();
 	void ApplyModifications();
 	void InsertModification(int insertIndex, int x, char pixels);
 }
@@ -87,8 +89,14 @@ void MapManager::ClearModificationList()
 
 void MapManager::Update(int frameNumber)
 {
+	UpdateInput(frameNumber);
 	DrawMap();
 	ApplyModifications();
+}
+
+void MapManager::UpdateInput(int frameNumber)
+{
+	
 }
 
 void MapManager::DrawMap()
@@ -127,7 +135,7 @@ void MapManager::DrawMap()
 				int currentSpriteGlobalId = pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
 				
 				// now draw the sprite, at the correct position
-				arduboy.drawBitmap(HUD::HUD_WIDTH + (col<<3), i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
+				arduboy.drawBitmap(HUD::HUD_WIDTH + ((col - firstSpriteColumn)<<3), i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
 				
 				// increase the sprite counter
 				currentSpriteDrawn++;

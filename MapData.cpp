@@ -23,10 +23,11 @@ const unsigned char MapData::PillarWorldRemapTable[] PROGMEM = {0,1,2,3,4,5,6,7,
 /*
  * The various map localization and id list
  */
-const unsigned char Map01Loca[] PROGMEM = { 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xf0, 0xf0, 0x80, 0x80, 0xe0, };
+const unsigned char Map01Loca[] PROGMEM = { 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xf0, 0xf0, 0x80, 0x80, 0xe0, 0x80, 0x00, 0x40, 0x40, 0x40, 0x00, 0x10, 0x1c, 0x10, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x80, 0x80, 0x40, 0x40, 0x78, };
 const unsigned char Map01IdList[] PROGMEM = {
 	LOCID(0,2), LOCID(3,2), LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3), LOCID(0,1), LOCID(2,3),
-	LOCID(3,3), LOCID(0,2), LOCID(3,0) };
+	LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,0), LOCID(2,3), LOCID(3,3), LOCID(3,3), LOCID(3,3),
+	LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3)};
 
 /*
  * The various maps
