@@ -21,20 +21,17 @@ namespace LemManager
 	void UpdateInput();
 }
 
-bool tempNeedSpawn = true;
-
 void LemManager::Update(int frameNumber)
 {
-	// temp code to spawn the first lem
-	if (tempNeedSpawn)
-	{
-		tempNeedSpawn = false;
-		lemArray[0].Spawn(2, 10);
-	}
-	
 	// update the input of game play (move cursor, and click on lem).
 	// Some inputs are directly handled in the HUD (like button to navigate in HUD)
 	UpdateInput();
+
+	// check if it is time to spawn a new lem (and if there're still to spawn)
+	if (OutLemCount < MapManager::GetAvailableLemCount() && !(frameNumber % HUD::GetLemDropFrameRate()))
+	{
+		lemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+	}
 	
 	// then update each Lem
 	for (int i = 0; i < MAX_LEM_COUNT; ++i)

@@ -49,14 +49,22 @@ namespace MapManager
 	void DrawMap();
 
 	// map config
-	int GetBlockerCount()			{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 12; }
-	int GetBomberCount()			{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 8) & 0x0F; }
-	int GetDiggerDiagonalCount()	{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 4) & 0x0F; }
-	int GetDiggerHorizontalCount()	{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig  & 0x0F; }
-	int GetDiggerVerticalCount()	{ return CurrentMapDescription.LemDigvertStairClimbParaConfig >> 12; }
-	int GetStairerCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 8) & 0x0F; }
-	int GetClimberCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 4) & 0x0F; }
-	int GetParachuterCount()		{ return CurrentMapDescription.LemDigvertStairClimbParaConfig  & 0x0F; }
+	unsigned char GetStartX()			{ return CurrentMapDescription.StartX; }
+	unsigned char GetStartY()			{ return CurrentMapDescription.StartY; }
+	unsigned char GetHomeX()			{ return CurrentMapDescription.HomeX; }
+	unsigned char GetHomeY()			{ return CurrentMapDescription.HomeY; }
+	int GetMapTimeInSecond()			{ return (CurrentMapDescription.TimeInMultipleOf10s * 10); }
+	unsigned char GetMinDropSpeed()		{ return CurrentMapDescription.MinDropSpeed; }
+	unsigned char GetAvailableLemCount(){ return CurrentMapDescription.AvailableLemCount; }
+	int GetRequiredLemPercentage()		{ return RequiredLemPercentage; }
+	int GetBlockerCount()				{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 12; }
+	int GetBomberCount()				{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 8) & 0x0F; }
+	int GetDiggerDiagonalCount()		{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 4) & 0x0F; }
+	int GetDiggerHorizontalCount()		{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig  & 0x0F; }
+	int GetDiggerVerticalCount()		{ return CurrentMapDescription.LemDigvertStairClimbParaConfig >> 12; }
+	int GetStairerCount()				{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 8) & 0x0F; }
+	int GetClimberCount()				{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 4) & 0x0F; }
+	int GetParachuterCount()			{ return CurrentMapDescription.LemDigvertStairClimbParaConfig  & 0x0F; }
 	void DecreaseBlockerCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x1000; }
 	void DecreaseBomberCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0100; }
 	void DecreaseDiggerDiagonalCount()		{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0010; }
@@ -65,8 +73,6 @@ namespace MapManager
 	void DecreaseStairerCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0100; }
 	void DecreaseClimberCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0010; }
 	void DecreaseParachuterCount()			{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0001; }
-	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount; }
-	int GetRequiredLemPercentage()			{ return RequiredLemPercentage; }
 
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);

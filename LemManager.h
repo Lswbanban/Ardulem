@@ -8,7 +8,7 @@
 namespace LemManager
 {
 	// the maximum of Lem that can be spawn in a level
-	static const unsigned int MAX_LEM_COUNT = 1;
+	static const unsigned int MAX_LEM_COUNT = 10;
 	
 	extern int GetOutLemPercentage();
 	extern int GetInLemPercentage();

@@ -12,6 +12,14 @@ namespace MapManager
 	bool ScrollView(int scrollMoveInPixel);
 	
 	// map config
+	extern unsigned char GetStartX();
+	extern unsigned char GetStartY();
+	extern unsigned char GetHomeX();
+	extern unsigned char GetHomeY();
+	extern int GetMapTimeInSecond();
+	extern unsigned char GetMinDropSpeed();
+	extern unsigned char GetAvailableLemCount();
+	extern int GetRequiredLemPercentage();
 	extern int GetBlockerCount();
 	extern int GetBomberCount();
 	extern int GetDiggerDiagonalCount();
@@ -20,8 +28,6 @@ namespace MapManager
 	extern int GetStairerCount();
 	extern int GetClimberCount();
 	extern int GetParachuterCount();
-	extern unsigned char GetAvailableLemCount();
-	extern int GetRequiredLemPercentage();
 	
 	// decrease lem count
 	extern void DecreaseBlockerCount();
