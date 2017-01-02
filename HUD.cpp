@@ -4,6 +4,7 @@
 #include "Input.h"
 #include "Lem.h"
 #include "MapManager.h"
+#include "LemManager.h"
 
 namespace HUD
 {
@@ -237,6 +238,10 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 	if (color == BLACK)
 		arduboy.fillRect(x, y, width, height, WHITE);
 	
+	// if the number of lemming is null, early exit as we don't draw the button icon neither the number
+	if (lemCount == 0)
+		return;
+
 	// draw the correct icon
 	switch (button)
 	{
@@ -356,14 +361,14 @@ void HUD::DrawLemCounter()
 	// draw the number out with the icon
 	int x = START_COUNTER_X;
 	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, WHITE);
-	x = PrintNumber(x, y, 100, 3, false, WHITE);
+	x = PrintNumber(x, y, LemManager::GetOutLemPercentage(), 3, false, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
 	// draw the number in with the icon
 	x = START_COUNTER_X;
 	y += COUNTER_HEIGHT;
 	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, WHITE);
-	x = PrintNumber(x, y, 82, 3, false, WHITE);
+	x = PrintNumber(x, y, LemManager::GetInLemPercentage(), 3, false, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
 	// draw the required number with the icon
@@ -372,7 +377,7 @@ void HUD::DrawLemCounter()
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
 	arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
-	x = PrintNumber(x, y, 0, 3, false, color);
+	x = PrintNumber(x, y, MapManager::GetRequiredLemPercentage(), 3, false, color);
 	PrintChar(x, y, '%', color);
 }
 

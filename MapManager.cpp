@@ -39,6 +39,7 @@ namespace MapManager
 	
 	// the current map Description we are playing
 	MapData::MapDescription CurrentMapDescription;
+	unsigned char RequiredLemPercentage = 0; // computed in the init function from the ratio required lem count by available lem count
 	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
@@ -64,6 +65,8 @@ namespace MapManager
 	void DecreaseStairerCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0100; }
 	void DecreaseClimberCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0010; }
 	void DecreaseParachuterCount()			{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0001; }
+	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount; }
+	int GetRequiredLemPercentage()			{ return RequiredLemPercentage; }
 
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
@@ -117,6 +120,9 @@ void MapManager::InitMap(int mapId)
 	
 	// compute the max scroll value depending on the size of the Map
 	MaxScrollValue = (CurrentMapDescription.SpriteColumnCount << 3) - MAP_SCREEN_WIDTH;
+	
+	// compute the required lem percentage
+	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
 	
 	// clear the modification list
 	ClearModificationList();

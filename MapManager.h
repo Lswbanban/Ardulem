@@ -20,7 +20,9 @@ namespace MapManager
 	extern int GetStairerCount();
 	extern int GetClimberCount();
 	extern int GetParachuterCount();
-
+	extern unsigned char GetAvailableLemCount();
+	extern int GetRequiredLemPercentage();
+	
 	// decrease lem count
 	extern void DecreaseBlockerCount();
 	extern void DecreaseBomberCount();

@@ -10,6 +10,13 @@ namespace LemManager
 	// the array storing all the Lems
 	Lem lemArray[LemManager::MAX_LEM_COUNT];
 	
+	// number of lem out (in game) and in (saved in home)
+	unsigned char OutLemCount = 0;
+	unsigned char InLemCount = 0;
+	
+	int GetOutLemPercentage()	{ return ((int)OutLemCount * 100) / MapManager::GetAvailableLemCount(); }
+	int GetInLemPercentage()	{ return ((int)InLemCount * 100) / MapManager::GetAvailableLemCount(); }
+
 	// private functions
 	void UpdateInput();
 }
@@ -39,6 +46,10 @@ void LemManager::UpdateInput()
 	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
 	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
 	const int SCROLL_VIEW_SPEED = 2;
+
+	// early exit if button A is down, because that means we want to control the HUD
+	if (Input::IsDown(A_BUTTON))
+		return;
 	
 	// Move the cursor and scroll the view if the cursor reach one border of the view
 	if (Input::IsDownModulo(LEFT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))

@@ -16,24 +16,24 @@ namespace MapData
 	struct MapDescription
 	{
 		// the start position where the lems will be spawned
-		char StartX;
-		char StartY;
+		unsigned char StartX;
+		unsigned char StartY;
 		
 		// the position of the home, where the lems will be saved
-		char HomeX;
-		char HomeY;
+		unsigned char HomeX;
+		unsigned char HomeY;
 		
 		// The time in multiple of 10 seconds
-		char TimeInMultipleOf10s;
+		unsigned char TimeInMultipleOf10s;
 		
 		// the minimum drop speed allowed
-		char MinDropSpeed;
+		unsigned char MinDropSpeed;
 		
 		// The number of Lem that will be spawned in the Map
-		char AvailableLemCount;
+		unsigned char AvailableLemCount;
 		
 		// The required number of Lem to save, in order to win
-		char RequiredLemCount;
+		unsigned char RequiredLemCount;
 		
 		// Lems button configuration (how many lem per type, can you use)
 		unsigned int LemBlockBombDigdiagDighorizConfig;
