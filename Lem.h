@@ -7,15 +7,6 @@
 class Lem
 {
 public:
-	Lem();
-	void Spawn(unsigned char x, unsigned char y);
-	void Update(int frameNumber);
-	void Draw();
-	bool InUnderCursorPosition();
-	
-	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
-
-private:
 	enum StateId
 	{
 		NO_SPAWN = 0, // the lem is not yet spawned, will be spawned by the spawn manager
@@ -36,6 +27,21 @@ private:
 		PARACHUTE,
 	};
 
+	Lem();
+	void Spawn(unsigned char x, unsigned char y);
+	void Update(int frameNumber);
+	void Draw();
+	bool InUnderCursorPosition();
+	unsigned char	GetCurrentState()	{ return (mPackedStateData & 0x0F);}
+	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
+	bool			IsAClimber()		{ return false; }
+	void			PromoteClimber()	{}
+	bool			IsAParachuter()		{ return false; }
+	void			PromoteParachuter()	{}
+	
+	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
+
+private:
 	// position
 	unsigned char	mPosX;
 	unsigned char	mPosY;
@@ -45,8 +51,6 @@ private:
 	unsigned char	mPackedStateData; // several data store in one char, used the functions to manipulate them
 	
 	// state data manipulation
-	unsigned char	GetCurrentState()						{ return (mPackedStateData & 0x0F);}
-	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
 	unsigned char	GetCurrentAnimFrame()					{ return (mPackedStateData & 0x70) >> 4; }
 	void			SetCurrentAnimFrame(unsigned char val)	{ mPackedStateData = (mPackedStateData & 0x8F) | (val << 4); }
 	bool			IsDirectionMirrored() 					{ return (mPackedStateData & 0x80); }

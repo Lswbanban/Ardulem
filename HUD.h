@@ -39,6 +39,7 @@ namespace HUD
 	
 	// the button currently selected in the HUD
 	extern Button GetSelectedButton();
+	extern bool IsSelectedButtonValid();
 	
 	// the lem drop framerate currently set in HUD
 	extern int GetLemDropFrameRate();

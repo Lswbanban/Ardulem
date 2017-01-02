@@ -15,6 +15,8 @@ namespace HUD
 	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
 	Button GetSelectedButton() { return SelectedButton; }
+	bool mIsSelectedButtonValid = true;
+	bool IsSelectedButtonValid() { return mIsSelectedButtonValid; }
 	
 	// The frame number (time) when the game will end.
 	int FrameNumberOfTheGameEnd = 4320;
@@ -276,7 +278,10 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 	
 	// draw the white background if the button is selected
 	if (color == BLACK)
+	{
 		arduboy.fillRect(x, y, width, height, WHITE);
+		mIsSelectedButtonValid = (lemCount != 0);
+	}
 	
 	// if the number of lemming is null, early exit as we don't draw the button icon neither the number
 	if (lemCount == 0)

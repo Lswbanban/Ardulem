@@ -89,39 +89,47 @@ void LemManager::UpdateInput()
 	}
 	
 	//if pressing on the B button while HUD button is selected, and cursor over a lem, give order to the lem
-	if (Input::IsJustPressed(B_BUTTON) && CurrentLemIndexUnderCursor > -1)
+	if (Input::IsJustPressed(B_BUTTON) && HUD::IsSelectedButtonValid() && CurrentLemIndexUnderCursor > -1)
 	{
 		switch (HUD::GetSelectedButton())
 		{
 			case HUD::Button::LEM_BLOCKER:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BLOCKER);
 				MapManager::DecreaseBlockerCount();
 				break;
 				
-			case HUD::Button::LEM_BOMB: MapManager::
-				DecreaseBomberCount();
+			case HUD::Button::LEM_BOMB:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BOMB);
+				MapManager::DecreaseBomberCount();
 				break;
 				
 			case HUD::Button::LEM_DIG_DIAG:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_DIAG);
 				MapManager::DecreaseDiggerDiagonalCount();
 				break;
 				
 			case HUD::Button::LEM_DIG_HORIZ:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_HORIZ);
 				MapManager::DecreaseDiggerHorizontalCount();
 				break;
 				
 			case HUD::Button::LEM_DIG_VERT:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_VERT);
 				MapManager::DecreaseDiggerVerticalCount();
 				break;
 				
 			case HUD::Button::LEM_STAIR:
+				lemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
 				MapManager::DecreaseStairerCount();
 				break;
 				
 			case HUD::Button::LEM_CLIMB:
+				lemArray[CurrentLemIndexUnderCursor].PromoteClimber();
 				MapManager::DecreaseClimberCount();
 				break;
 				
 			case HUD::Button::LEM_PARACHUTE:
+				lemArray[CurrentLemIndexUnderCursor].PromoteParachuter();
 				MapManager::DecreaseParachuterCount();
 				break;
 		}
@@ -155,6 +163,7 @@ void LemManager::UpdateLemUnderCursor()
 			}
 			
 			// otherwise check if it is better one
+			// TODO
 		}
 		
 	// Set the correct cursor depending if we found something or not
