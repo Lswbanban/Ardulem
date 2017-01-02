@@ -45,7 +45,6 @@ namespace MapManager
 	int MaxScrollValue = 0;
 	
 	// private functions
-	void UpdateInput();
 	void DrawMap();
 
 	// map config
@@ -57,7 +56,16 @@ namespace MapManager
 	int GetStairerCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 8) & 0x0F; }
 	int GetClimberCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 4) & 0x0F; }
 	int GetParachuterCount()		{ return CurrentMapDescription.LemDigvertStairClimbParaConfig  & 0x0F; }
-	
+	void DecreaseBlockerCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x1000; }
+	void DecreaseBomberCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0100; }
+	void DecreaseDiggerDiagonalCount()		{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0010; }
+	void DecreaseDiggerHorizontalCount()	{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0001; }
+	void DecreaseDiggerVerticalCount()		{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x1000; }
+	void DecreaseStairerCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0100; }
+	void DecreaseClimberCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0010; }
+	void DecreaseParachuterCount()			{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0001; }
+
+	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
 	char GetPixelOutsideScreen(int x, int y);
@@ -66,6 +74,22 @@ namespace MapManager
 	void ApplyModifications();
 	void InsertModification(int insertIndex, int x, char pixels);
 	void Modify8Pixels(int x, int lineY, char pixels);
+}
+
+bool MapManager::ScrollView(int scrollMoveInPixel)
+{
+	// memorize current value and scroll
+	int previousValue = ScrollValue;
+	ScrollValue += scrollMoveInPixel;
+	
+	// clamp the value
+	if (ScrollValue < 0)
+		ScrollValue = 0;
+	else if (ScrollValue > MaxScrollValue)
+		ScrollValue = MaxScrollValue;
+	
+	// return true if the view has changed
+	return (previousValue != ScrollValue);
 }
 
 void MapManager::InitMap(int mapId)
@@ -112,7 +136,6 @@ void MapManager::ClearModificationList()
 
 void MapManager::Update(int frameNumber)
 {
-	UpdateInput();
 	DrawMap();
 	ApplyModifications();
 	
@@ -121,21 +144,6 @@ void MapManager::Update(int frameNumber)
 	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
 	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
 */
-}
-
-void MapManager::UpdateInput()
-{
-	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
-	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
-
-	if ((ScrollValue > 0) && Input::IsDownModulo(LEFT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
-	{
-		ScrollValue--;
-	}
-	else if ((ScrollValue < MaxScrollValue) && Input::IsDownModulo(RIGHT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
-	{
-		ScrollValue++;
-	}
 }
 
 inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)

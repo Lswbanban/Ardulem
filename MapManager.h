@@ -8,6 +8,9 @@ namespace MapManager
 	extern void InitMap(int mapId);
 	extern void Update(int frameNumber);
 
+	// view scrolle
+	bool ScrollView(int scrollMoveInPixel);
+	
 	// map config
 	extern int GetBlockerCount();
 	extern int GetBomberCount();
@@ -17,6 +20,16 @@ namespace MapManager
 	extern int GetStairerCount();
 	extern int GetClimberCount();
 	extern int GetParachuterCount();
+
+	// decrease lem count
+	extern void DecreaseBlockerCount();
+	extern void DecreaseBomberCount();
+	extern void DecreaseDiggerDiagonalCount();
+	extern void DecreaseDiggerHorizontalCount();
+	extern void DecreaseDiggerVerticalCount();
+	extern void DecreaseStairerCount();
+	extern void DecreaseClimberCount();
+	extern void DecreaseParachuterCount();
 
 	// coordinate helper
 	extern bool IsOnScreen(int worldX);

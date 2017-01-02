@@ -1,8 +1,18 @@
+#include "Ardulem.h"
 #include "LemManager.h"
 #include "Lem.h"
+#include "HUD.h"
+#include "MapManager.h"
+#include "Input.h"
 
-// the array storing all the Lems
-Lem lemArray[LemManager::MAX_LEM_COUNT];
+namespace LemManager
+{
+	// the array storing all the Lems
+	Lem lemArray[LemManager::MAX_LEM_COUNT];
+	
+	// private functions
+	void UpdateInput();
+}
 
 bool tempNeedSpawn = true;
 
@@ -15,8 +25,69 @@ void LemManager::Update(int frameNumber)
 		lemArray[0].Spawn(2, 10);
 	}
 	
+	// update the input of game play (move cursor, and click on lem).
+	// Some inputs are directly handled in the HUD (like button to navigate in HUD)
+	UpdateInput();
+	
+	// then update each Lem
 	for (int i = 0; i < MAX_LEM_COUNT; ++i)
 		lemArray[i].Update(frameNumber);
+}
+
+void LemManager::UpdateInput()
+{
+	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
+	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
+	const int SCROLL_VIEW_SPEED = 2;
+	
+	// Move the cursor and scroll the view if the cursor reach one border of the view
+	if (Input::IsDownModulo(LEFT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		MapManager::ScrollView(-SCROLL_VIEW_SPEED);
+	}
+	else if (Input::IsDownModulo(RIGHT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		MapManager::ScrollView(SCROLL_VIEW_SPEED);
+	}
+	
+	//if pressing on the B button while HUD button is selected, and cursor over a lem, give order to the lem
+	if (Input::IsJustPressed(B_BUTTON))
+	{
+		switch (HUD::SelectedButton)
+		{
+			case HUD::Button::LEM_BLOCKER:
+				MapManager::DecreaseBlockerCount();
+				break;
+				
+			case HUD::Button::LEM_BOMB: MapManager::
+				DecreaseBomberCount();
+				break;
+				
+			case HUD::Button::LEM_DIG_DIAG:
+				MapManager::DecreaseDiggerDiagonalCount();
+				break;
+				
+			case HUD::Button::LEM_DIG_HORIZ:
+				MapManager::DecreaseDiggerHorizontalCount();
+				break;
+				
+			case HUD::Button::LEM_DIG_VERT:
+				MapManager::DecreaseDiggerVerticalCount();
+				break;
+				
+			case HUD::Button::LEM_STAIR:
+				MapManager::DecreaseStairerCount();
+				break;
+				
+			case HUD::Button::LEM_CLIMB:
+				MapManager::DecreaseClimberCount();
+				break;
+				
+			case HUD::Button::LEM_PARACHUTE:
+				MapManager::DecreaseParachuterCount();
+				break;
+		}
+	}
 }
 
 void LemManager::Draw()

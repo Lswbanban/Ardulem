@@ -1,7 +1,8 @@
 #ifndef LEM_MANAGER_H
 #define LEM_MANAGER_H
 /*
- * This file handle the update of the lems
+ * This file handle the update of the lems.
+ * It also handle the gameplay input of the player (move cursor, and give order to lems)
  */
 
 namespace LemManager
