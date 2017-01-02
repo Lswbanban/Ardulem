@@ -380,37 +380,13 @@ void HUD::DrawCursor(int frameNumber)
 {
 	const unsigned int CURSOR_BLINKING_TIME_OFF = 1;
 	const unsigned int CURSOR_BLINKING_TIME_ON = 6;
-	const unsigned int CURSOR_SIZE = 4;
 	int normalizeFrameNumber = frameNumber % (CURSOR_BLINKING_TIME_OFF + CURSOR_BLINKING_TIME_ON);
 	
 	// draw for the major part of the time, and draw in invert color
 	if (normalizeFrameNumber >= CURSOR_BLINKING_TIME_OFF)
 	{
-		// check if we need to draw the square or the cross
-		if (IsCursorSquared)
-		{
-			// draw the square
-			int left = CursorX - CURSOR_SIZE;
-			int right = CursorX + CURSOR_SIZE;
-			int top = CursorY - CURSOR_SIZE;
-			int bottom = CursorY + CURSOR_SIZE;
-			arduboy.drawFastHLine(left, top, 2, INVERT);
-			arduboy.drawFastHLine(right - 2, top, 2, INVERT);
-			arduboy.drawFastHLine(left, bottom, 2, INVERT);
-			arduboy.drawFastHLine(right - 2, bottom, 2, INVERT);
-			arduboy.drawPixel(left, top + 1, INVERT);
-			arduboy.drawPixel(right-1, top + 1, INVERT);
-			arduboy.drawPixel(left, bottom - 1, INVERT);
-			arduboy.drawPixel(right-1, bottom - 1, INVERT);
-		}
-		else
-		{
-			// draw the cross
-			arduboy.drawFastHLine(CursorX - CURSOR_SIZE, CursorY, CURSOR_SIZE, INVERT);
-			arduboy.drawFastHLine(CursorX + 1, CursorY, CURSOR_SIZE, INVERT);
-			arduboy.drawFastVLine(CursorX, CursorY - CURSOR_SIZE, CURSOR_SIZE, INVERT);
-			arduboy.drawFastVLine(CursorX, CursorY + 1, CURSOR_SIZE, INVERT);
-		}
+		// draw the square or the cross sprite
+		arduboy.drawBitmap(CursorX - 3, CursorY - 3, sprite_Cursor[IsCursorSquared ? 1 : 0], 7, 7, INVERT);
 	}
 }
 
