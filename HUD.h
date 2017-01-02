@@ -26,8 +26,20 @@ namespace HUD
 	};
 	
 	// the button currently selected in the HUD
-	extern Button SelectedButton;
+	extern Button GetSelectedButton();
+	
+	// the lem drop framerate currently set in HUD
 	extern int GetLemDropFrameRate();
+	
+	// set the cursor position
+	extern unsigned char GetCursorX();
+	extern void SetCursorX(unsigned char x);
+	
+	extern unsigned char GetCursorY();
+	extern void SetCursorY(unsigned char y);
+	
+	// cursor shape (square or cross)
+	extern void SetCursorShape(bool isSquared);
 	
 	extern void Update(int frameNumber);
 }

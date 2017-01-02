@@ -9,9 +9,23 @@ namespace HUD
 {
 	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
+	Button GetSelectedButton() { return SelectedButton; }
 	
 	// The frame number (time) when the game will end.
 	int FrameNumberOfTheGameEnd = 4320;
+	
+	// cursor X position
+	unsigned char CursorX = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
+	unsigned char GetCursorX() { return CursorX; }
+	void SetCursorX(unsigned char x) { CursorX = x; }
+
+	// cursor Y position
+	unsigned char CursorY = HEIGHT/2;
+	unsigned char GetCursorY() { return CursorY; }
+	void SetCursorY(unsigned char y) { CursorY = y; }
+	
+	bool IsCursorSquared = false;
+	void SetCursorShape(bool isSquared) { IsCursorSquared = isSquared; }
 	
 	// the position of the cursor of the drop velocity bar, and a multiplier to get the frame rate drop velocity
 	const int BAR_CURSOR_TO_FRAMERATE_MULTIPLIER = 6;
@@ -37,6 +51,7 @@ namespace HUD
 	void DrawLemButtons(int frameNumber);
 	void DrawDropVelocity(int frameNumber);
 	void DrawLemCounter();
+	void DrawCursor(int frameNumber);
 	
 	char GetButtonColor(Button button);
 	int PrintChar(int x, int y, unsigned char c, char color);
@@ -66,6 +81,9 @@ void HUD::Update(int frameNumber)
 	
 	// draw the vertical line that separate the hud bar from the game area
 	arduboy.drawFastVLine(HUD_WIDTH - 1, 0, HEIGHT, WHITE);
+	
+	// draw the cursor
+	DrawCursor(frameNumber);
 }
 
 /*
@@ -356,6 +374,44 @@ void HUD::DrawLemCounter()
 	arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
 	x = PrintNumber(x, y, 0, 3, false, color);
 	PrintChar(x, y, '%', color);
+}
+
+void HUD::DrawCursor(int frameNumber)
+{
+	const unsigned int CURSOR_BLINKING_TIME_OFF = 1;
+	const unsigned int CURSOR_BLINKING_TIME_ON = 6;
+	const unsigned int CURSOR_SIZE = 4;
+	int normalizeFrameNumber = frameNumber % (CURSOR_BLINKING_TIME_OFF + CURSOR_BLINKING_TIME_ON);
+	
+	// draw for the major part of the time, and draw in invert color
+	if (normalizeFrameNumber >= CURSOR_BLINKING_TIME_OFF)
+	{
+		// check if we need to draw the square or the cross
+		if (IsCursorSquared)
+		{
+			// draw the square
+			int left = CursorX - CURSOR_SIZE;
+			int right = CursorX + CURSOR_SIZE;
+			int top = CursorY - CURSOR_SIZE;
+			int bottom = CursorY + CURSOR_SIZE;
+			arduboy.drawFastHLine(left, top, 2, INVERT);
+			arduboy.drawFastHLine(right - 2, top, 2, INVERT);
+			arduboy.drawFastHLine(left, bottom, 2, INVERT);
+			arduboy.drawFastHLine(right - 2, bottom, 2, INVERT);
+			arduboy.drawPixel(left, top + 1, INVERT);
+			arduboy.drawPixel(right-1, top + 1, INVERT);
+			arduboy.drawPixel(left, bottom - 1, INVERT);
+			arduboy.drawPixel(right-1, bottom - 1, INVERT);
+		}
+		else
+		{
+			// draw the cross
+			arduboy.drawFastHLine(CursorX - CURSOR_SIZE, CursorY, CURSOR_SIZE, INVERT);
+			arduboy.drawFastHLine(CursorX + 1, CursorY, CURSOR_SIZE, INVERT);
+			arduboy.drawFastVLine(CursorX, CursorY - CURSOR_SIZE, CURSOR_SIZE, INVERT);
+			arduboy.drawFastVLine(CursorX, CursorY + 1, CURSOR_SIZE, INVERT);
+		}
+	}
 }
 
 char HUD::GetButtonColor(Button button)
