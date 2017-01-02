@@ -11,6 +11,7 @@ public:
 	void Spawn(unsigned char x, unsigned char y);
 	void Update(int frameNumber);
 	void Draw();
+	bool InUnderCursorPosition();
 	
 	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
@@ -75,6 +76,7 @@ private:
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
 	unsigned int	GetFrameRateForCurrentAnim();
 	unsigned int	GetFrameCountForCurrentAnim();
+	unsigned int 	GetFrameWidthForCurrentAnim();
 };
 
 #endif

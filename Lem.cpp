@@ -2,6 +2,7 @@
 #include "Lem.h"
 #include "SpriteData.h"
 #include "MapManager.h"
+#include "HUD.h"
 
 Lem::Lem()
 {
@@ -190,6 +191,28 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 		case StateId::FALL: return ANIM_LEM_FALL_FRAME_COUNT;
 	}
 	return 1;
+}
+
+/*
+ * Get the width of the current animation
+ */
+unsigned int Lem::GetFrameWidthForCurrentAnim()
+{
+	switch (GetCurrentState())
+	{
+		case StateId::WALK: return sizeof(anim_LemWalk[0]);
+		case StateId::BLOCKER: return sizeof(anim_LemBlocker[0]);
+		case StateId::BOMB: return sizeof(anim_LemBomb[0]);
+		case StateId::DIG_DIAG: return sizeof(anim_LemDigDiagonal[0]);
+		case StateId::DIG_HORIZ: return sizeof(anim_LemDigHorizontal[0]);
+		case StateId::DIG_VERT: return sizeof(anim_LemDigVertical[0]);
+		case StateId::STAIR: return sizeof(anim_LemStair[0]);
+		case StateId::CLIMB: return sizeof(anim_LemClimb[0]);
+		case StateId::CLIMB_TOP: return sizeof(anim_LemClimbTop[0]);
+		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
+		case StateId::FALL: return sizeof(anim_LemFall[0]);
+	}
+	return 5;
 }
 
 bool Lem::UpdateCurrentAnim(int frameNumber)
@@ -383,4 +406,17 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
 	mPosY += shiftY;
+}
+
+bool Lem::InUnderCursorPosition()
+{
+	// check the easiest test first
+	int curY = HUD::GetCursorY();
+	if ((curY > mPosY) && (curY < mPosY + 6))
+	{
+		int curX = HUD::GetCursorX();
+		int x = MapManager::ConvertToScreenCoord(mPosX);
+		return (curX >= x) && (curX < x + GetFrameWidthForCurrentAnim());
+	}
+	return false;
 }

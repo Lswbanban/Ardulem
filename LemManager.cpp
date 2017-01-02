@@ -14,11 +14,15 @@ namespace LemManager
 	unsigned char OutLemCount = 0;
 	unsigned char InLemCount = 0;
 	
+	// the current lem targeted by the cursor
+	char CurrentLemIndexUnderCursor = -1;
+	
 	int GetOutLemPercentage()	{ return ((int)OutLemCount * 100) / MapManager::GetAvailableLemCount(); }
 	int GetInLemPercentage()	{ return ((int)InLemCount * 100) / MapManager::GetAvailableLemCount(); }
 
 	// private functions
 	void UpdateInput();
+	void UpdateLemUnderCursor();
 }
 
 void LemManager::Update(int frameNumber)
@@ -27,6 +31,9 @@ void LemManager::Update(int frameNumber)
 	// Some inputs are directly handled in the HUD (like button to navigate in HUD)
 	UpdateInput();
 
+	// Search the lem under the cursor
+	UpdateLemUnderCursor();
+	
 	if (HUD::GetCurrentGameState() == HUD::GameState::PLAYING)
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
@@ -82,7 +89,7 @@ void LemManager::UpdateInput()
 	}
 	
 	//if pressing on the B button while HUD button is selected, and cursor over a lem, give order to the lem
-	if (Input::IsJustPressed(B_BUTTON))
+	if (Input::IsJustPressed(B_BUTTON) && CurrentLemIndexUnderCursor > -1)
 	{
 		switch (HUD::GetSelectedButton())
 		{
@@ -120,6 +127,40 @@ void LemManager::UpdateInput()
 		}
 	}
 }
+
+/*
+ * This function try to find the best lem under the current cursor.
+ * The function will choose in priority different type of lem depending on the HUD button selected:
+ * - If the blocker is selected: it will choose any lem with a function (not a blocker/bomber), then a walker
+ * - If the bomb action is selected, it will choose a Blocker in priority, then any lem with a function (not a bomber), then a walker
+ * - If a digger is selected, if will choose the same type of digger in priority, then any digger, then any function (not a bomber), then a walker
+ * - if a stair is selected, it will choose a stairer first, then any function (not a bomber), then a walker
+ * - If the climber is selected, it will choose a parachuter first, then a walker, then any function (not a bomber)
+ * - If the parachute is selected, it will choose a Climber first, then a walker, then any function (not a bomber)
+ */
+void LemManager::UpdateLemUnderCursor()
+{
+	// reset the lem pointer
+	CurrentLemIndexUnderCursor = -1;
+	
+	// iterate on all lem to find the best candidate
+	for (int i = 0; i < OutLemCount; ++i)
+		if (lemArray[i].InUnderCursorPosition())
+		{
+			// we found a potential candidate, if it is the first one, take it
+			if (CurrentLemIndexUnderCursor == -1)
+			{
+				CurrentLemIndexUnderCursor = i;
+				continue;
+			}
+			
+			// otherwise check if it is better one
+		}
+		
+	// Set the correct cursor depending if we found something or not
+	HUD::SetCursorShape(CurrentLemIndexUnderCursor != -1);
+}
+
 
 /*
  * This function should be called when the player wants to abandon the current level
