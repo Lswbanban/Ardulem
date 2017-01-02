@@ -8,6 +8,16 @@ namespace MapManager
 	extern void InitMap(int mapId);
 	extern void Update(int frameNumber);
 
+	// map config
+	extern int GetBlockerCount();
+	extern int GetBomberCount();
+	extern int GetDiggerDiagonalCount();
+	extern int GetDiggerHorizontalCount();
+	extern int GetDiggerVerticalCount();
+	extern int GetStairerCount();
+	extern int GetClimberCount();
+	extern int GetParachuterCount();
+
 	// coordinate helper
 	extern bool IsOnScreen(int worldX);
 	extern bool IsInMapBoundary(int worldX, int worldY);

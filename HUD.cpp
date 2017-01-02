@@ -3,6 +3,7 @@
 #include "SpriteData.h"
 #include "Input.h"
 #include "Lem.h"
+#include "MapManager.h"
 
 namespace HUD
 {
@@ -32,7 +33,7 @@ namespace HUD
 	// forward declaration of the private function
 	void UpdateInput();
 	void DrawTimer(int frameNumber);
-	void DrawLemButton(int frameNumber, Button button, int startY, int width, int height);
+	void DrawLemButton(int frameNumber, Button button, int startY, int width, int height, int lemCount);
 	void DrawLemButtons(int frameNumber);
 	void DrawDropVelocity(int frameNumber);
 	void DrawLemCounter();
@@ -206,7 +207,7 @@ void HUD::DrawTimer(int frameNumber)
 	PrintNumber(x, START_Y, remainingTimeInSecond - (remainingMinutes * 60), 2, true, color);
 }
 
-void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width, int height)
+void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width, int height, int lemCount)
 {
 	int col = (button - Button::LEM_WALK) % 3;
 	int row = (button - Button::LEM_WALK) / 3;
@@ -251,7 +252,7 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 			break;
 	}
 	
-	PrintTinyDigit(x+5, y+1, 3, color);
+	PrintTinyDigit(x+5, y+1, lemCount, color);
 }
 
 /*
@@ -276,15 +277,15 @@ void HUD::DrawLemButtons(int frameNumber)
 	int animFrameIndex = frameNumber / 10;
 	
 	// draw the 9 buttons
-	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_BLOCKER, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_BOMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_DIG_DIAG, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_DIG_HORIZ, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_DIG_VERT, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_STAIR, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_CLIMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
-	DrawLemButton(animFrameIndex, Button::LEM_PARACHUTE, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, -1);
+	DrawLemButton(animFrameIndex, Button::LEM_BLOCKER, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetBlockerCount());
+	DrawLemButton(animFrameIndex, Button::LEM_BOMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetBomberCount());
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_DIAG, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetDiggerDiagonalCount());
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_HORIZ, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetDiggerHorizontalCount());
+	DrawLemButton(animFrameIndex, Button::LEM_DIG_VERT, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetDiggerVerticalCount());
+	DrawLemButton(animFrameIndex, Button::LEM_STAIR, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetStairerCount());
+	DrawLemButton(animFrameIndex, Button::LEM_CLIMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetClimberCount());
+	DrawLemButton(animFrameIndex, Button::LEM_PARACHUTE, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetParachuterCount());
 }
 
 /*

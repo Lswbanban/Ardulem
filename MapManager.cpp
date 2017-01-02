@@ -48,6 +48,16 @@ namespace MapManager
 	void UpdateInput();
 	void DrawMap();
 
+	// map config
+	int GetBlockerCount()			{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 12; }
+	int GetBomberCount()			{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 8) & 0x0F; }
+	int GetDiggerDiagonalCount()	{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 4) & 0x0F; }
+	int GetDiggerHorizontalCount()	{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig  & 0x0F; }
+	int GetDiggerVerticalCount()	{ return CurrentMapDescription.LemDigvertStairClimbParaConfig >> 12; }
+	int GetStairerCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 8) & 0x0F; }
+	int GetClimberCount()			{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 4) & 0x0F; }
+	int GetParachuterCount()		{ return CurrentMapDescription.LemDigvertStairClimbParaConfig  & 0x0F; }
+	
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
 	char GetPixelOutsideScreen(int x, int y);
