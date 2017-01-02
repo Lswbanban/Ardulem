@@ -34,17 +34,21 @@ public:
 	bool InUnderCursorPosition();
 	unsigned char	GetCurrentState()	{ return (mPackedStateData & 0x0F);}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
-	bool			IsAClimber()		{ return false; }
-	void			PromoteClimber()	{}
-	bool			IsAParachuter()		{ return false; }
-	void			PromoteParachuter()	{}
+	bool			IsAClimber()		{ return (mPosYAndAthleteFlags & 0x40); }
+	void			PromoteClimber()	{ mPosYAndAthleteFlags |= 0x40; }
+	bool			IsAParachuter()		{ return (mPosYAndAthleteFlags & 0x80); }
+	void			PromoteParachuter()	{ mPosYAndAthleteFlags |= 0x80; }
 	
 	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
-	// position
+	// position (and we also packed the climb and parachute flags in the Y)
 	unsigned char	mPosX;
-	unsigned char	mPosY;
+	unsigned char	mPosYAndAthleteFlags;
+	
+	unsigned char	GetPosY()					{ return (mPosYAndAthleteFlags & 0x3F); }
+	void			SetPosY(unsigned char y)	{ mPosYAndAthleteFlags = (mPosYAndAthleteFlags & 0xC0) | y; }
+	void			IncPosY(int inc)			{ mPosYAndAthleteFlags = (mPosYAndAthleteFlags & 0xC0) | (((mPosYAndAthleteFlags & 0x3F) + inc) & 0x3F); }
 	
 	// state information as follow from high bit to low:
 	// 1 bit = isMirroded / 3 bit = Anim frame / 4 bit = StateId

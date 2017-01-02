@@ -7,7 +7,7 @@
 Lem::Lem()
 {
 	mPosX = 0;
-	mPosY = 0;
+	SetPosY(0);
 	SetCurrentState(StateId::FALL);
 }
 
@@ -15,7 +15,7 @@ void Lem::Spawn(unsigned char x, unsigned char y)
 {
 	// set the position
 	mPosX = x;
-	mPosY = y;
+	SetPosY(y);
 	// reset the state (they all start by falling)
 	SetCurrentState(StateId::FALL);
 }
@@ -88,16 +88,16 @@ int Lem::IsThereAWall(int x, int y)
 void Lem::UpdateWalk()
 {
 	// get the pixel under my feet, if no ground, I start to fall
-	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, false))
+	if (!IsThereGroundAt(mPosX+1, GetPosY()+6, true, false))
 	{
 		SetCurrentState(StateId::START_FALL, 0, 1);
 		return;
 	}
 
 	// now check for the stairs (a step of 2 pixel max)
-	int wallHeight = IsThereAWall(IsDirectionMirrored() ? mPosX-1 : mPosX+3, mPosY+5);
+	int wallHeight = IsThereAWall(IsDirectionMirrored() ? mPosX-1 : mPosX+3, GetPosY()+5);
 	if (wallHeight < 3)
-		mPosY -= wallHeight;
+		IncPosY(-wallHeight);
 	
 	// but if the wall is taller, we need to reverse direction
 	if (wallHeight > 2)
@@ -139,7 +139,7 @@ void Lem::UpdateClimbTop()
 void Lem::UpdateStartFall(int frameNumber)
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (IsThereGroundAt(mPosX+2, GetPosY()+6, true, true))
 	{
 		SetCurrentState(StateId::WALK, 1, 0);
 		return;
@@ -154,7 +154,7 @@ void Lem::UpdateStartFall(int frameNumber)
 void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (IsThereGroundAt(mPosX+2, GetPosY()+6, true, true))
 		SetCurrentState(StateId::WALK, 1, 0);
 }
 
@@ -305,24 +305,23 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 	// check if there's any movement
 	hasMoved = (xMove != 0) || (yMove != 0);
 	
-	// then move the lem position according to the move found in the animation
-	// move the y first (because we will ask if the lem is still inside the world)
-	mPosY += yMove;
-
 	// first move the x
 	bool isInsideMap = true;
 	if (IsDirectionMirrored())
 	{
-		// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
-		isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)mPosY);
+		// cast the mPosX and PosY in int before removing, because if the map is 256 pixel wide, mPosX will reboot, and same for y
+		isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)GetPosY() + yMove);
 		mPosX -= xMove;
 	}
 	else
 	{
 		// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
-		isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY);
+		isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)GetPosY() + yMove);
 		mPosX += xMove;
 	}
+
+	// then move the lem Y position according to the move found in the animation
+	IncPosY(yMove);
 	
 	// if the position are outside the boundary of the Map, the lem is dead
 	if (!isInsideMap)
@@ -341,7 +340,8 @@ void Lem::Draw()
 	if ((GetCurrentState() > StateId::DEAD) && MapManager::IsOnScreen(mPosX))
 	{
 		// get the screen coordinate and the current anim frame
-		unsigned char screenX  = MapManager::ConvertToScreenCoord(mPosX);
+		unsigned char screenX = MapManager::ConvertToScreenCoord(mPosX);
+		unsigned char screenY = GetPosY();
 		unsigned char currentFrame = GetCurrentAnimFrame();
 		bool isMirrored = IsDirectionMirrored();
 		
@@ -349,37 +349,37 @@ void Lem::Draw()
 		switch (GetCurrentState())
 		{
 			case StateId::WALK:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
 				break;
 			case StateId::BLOCKER:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), isMirrored, WHITE);
 				break;
 			case StateId::BOMB:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
 				break;
 			case StateId::DIG_DIAG:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), isMirrored, WHITE);
 				break;
 			case StateId::DIG_HORIZ:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), isMirrored, WHITE);
 				break;
 			case StateId::DIG_VERT:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), isMirrored, WHITE);
 				break;
 			case StateId::STAIR:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
 				break;
 			case StateId::CLIMB:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);
 				break;
 			case StateId::CLIMB_TOP:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), isMirrored, WHITE);
 				break;
 			case StateId::START_FALL:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), isMirrored, WHITE);
 				break;
 			case StateId::FALL:
-				DrawOneAnimFrame(screenX, mPosY, anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), isMirrored, WHITE);
 				break;
 		}
 	}
@@ -405,14 +405,15 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	mPackedStateData = (mPackedStateData & 0X80) | stateId;
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
-	mPosY += shiftY;
+	IncPosY(shiftY);
 }
 
 bool Lem::InUnderCursorPosition()
 {
 	// check the easiest test first
 	int curY = HUD::GetCursorY();
-	if ((curY > mPosY) && (curY < mPosY + 6))
+	int y = GetPosY();
+	if ((curY > y) && (curY < y + 6))
 	{
 		int curX = HUD::GetCursorX();
 		int x = MapManager::ConvertToScreenCoord(mPosX);
