@@ -12,6 +12,7 @@ namespace LemManager
 	
 	extern int GetOutLemPercentage();
 	extern int GetInLemPercentage();
+	extern void KillAllLems();
 
 	extern void Update(int frameNumber);
 	extern void Draw();

@@ -121,6 +121,13 @@ void LemManager::UpdateInput()
 	}
 }
 
+/*
+ * This function should be called when the player wants to abandon the current level
+ */
+void LemManager::KillAllLems()
+{
+}
+
 void LemManager::Draw()
 {
 	// draw all the Lems

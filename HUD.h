@@ -14,7 +14,8 @@ namespace HUD
 		INTRO = 0,
 		PLAYING,
 		PAUSED,
-		QUIT_WARNING
+		QUIT_WARNING,
+		OUTRO
 	};
 	
 	enum Button

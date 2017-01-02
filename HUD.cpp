@@ -119,36 +119,50 @@ void HUD::UpdateInput()
 		inputFrameCountSecondModulo = INPUT_FRAME_COUNT_SECOND_MODULO_FOR_DROP_SPEED;
 	}
 	
-	// reset the flag if we just press the A button
+	// check if we just pressed A
 	if (Input::IsJustPressed(A_BUTTON))
+	{
+		// first in anyway reset the flag if we just press the A button
 		WasArrowButtonUsedInHUD = false;
+		
+		// now if we are in GameState quit warning, pressing A is a quit confirmation
+		if (CurrentGameState == GameState::QUIT_WARNING)
+		{
+			LemManager::KillAllLems();
+			CurrentGameState = OUTRO;
+		}
+	}
 	
-	if (Input::IsDownModulo(A_BUTTON + LEFT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
+	// prevent navigating in the HUD menu, if we have a game state message
+	if ((CurrentGameState == GameState::PLAYING) || (CurrentGameState == GameState::INTRO))
 	{
-		action = InputAction::LEFT;
-		WasArrowButtonUsedInHUD = true;
-	}
-	else if (Input::IsDownModulo(A_BUTTON + RIGHT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
-	{
-		action = InputAction::RIGHT;
-		WasArrowButtonUsedInHUD = true;
-	}
-	else if (Input::IsDownModulo(A_BUTTON + UP_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
-	{
-		action = InputAction::UP;
-		WasArrowButtonUsedInHUD = true;
-	}
-	else if (Input::IsDownModulo(A_BUTTON + DOWN_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
-	{
-		action = InputAction::DOWN;
-		WasArrowButtonUsedInHUD = true;
-	}
-	else if (Input::IsJustReleased(A_BUTTON))
-	{
-		if (!WasArrowButtonUsedInHUD)
-			action = InputAction::NEXT;
-		// reset the flag
-		WasArrowButtonUsedInHUD = false;
+		if (Input::IsDownModulo(A_BUTTON + LEFT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
+		{
+			action = InputAction::LEFT;
+			WasArrowButtonUsedInHUD = true;
+		}
+		else if (Input::IsDownModulo(A_BUTTON + RIGHT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
+		{
+			action = InputAction::RIGHT;
+			WasArrowButtonUsedInHUD = true;
+		}
+		else if (Input::IsDownModulo(A_BUTTON + UP_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+		{
+			action = InputAction::UP;
+			WasArrowButtonUsedInHUD = true;
+		}
+		else if (Input::IsDownModulo(A_BUTTON + DOWN_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+		{
+			action = InputAction::DOWN;
+			WasArrowButtonUsedInHUD = true;
+		}
+		else if (Input::IsJustReleased(A_BUTTON))
+		{
+			if (!WasArrowButtonUsedInHUD)
+				action = InputAction::NEXT;
+			// reset the flag
+			WasArrowButtonUsedInHUD = false;
+		}
 	}
 	
 	// now analyse the action
@@ -432,6 +446,19 @@ void HUD::DrawGameState(int frameNumber)
 		arduboy.drawRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-2, 7+(CORNER_SIZE*2), CORNER_SIZE, WHITE);
 		arduboy.setCursor(X, Y);
 		arduboy.print(F("Game Paused!"));
+	}
+	else if (CurrentGameState == GameState::QUIT_WARNING)
+	{
+		const int TEXT_WIDTH = 10*6;
+		const int CORNER_SIZE = 3;
+		const int X = HUD_WIDTH + ((WIDTH - HUD_WIDTH - TEXT_WIDTH) / 2);
+		const int Y = 4;
+		arduboy.fillRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-1, 15+(CORNER_SIZE*2), CORNER_SIZE, BLACK);
+		arduboy.drawRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-1, 15+(CORNER_SIZE*2), CORNER_SIZE, WHITE);
+		arduboy.setCursor(X+6, Y);
+		arduboy.print(F("Abandon?"));
+		arduboy.setCursor(X, Y+8);
+		arduboy.print(F("A=YES B=NO"));
 	}
 }
 
