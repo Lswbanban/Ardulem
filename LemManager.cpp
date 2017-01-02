@@ -27,15 +27,18 @@ void LemManager::Update(int frameNumber)
 	// Some inputs are directly handled in the HUD (like button to navigate in HUD)
 	UpdateInput();
 
-	// check if it is time to spawn a new lem (and if there're still to spawn)
-	if (OutLemCount < MapManager::GetAvailableLemCount() && !(frameNumber % HUD::GetLemDropFrameRate()))
+	if (HUD::GetCurrentGameState() == HUD::GameState::PLAYING)
 	{
-		lemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+		// check if it is time to spawn a new lem (and if there're still to spawn)
+		if ((OutLemCount < MapManager::GetAvailableLemCount()) && !(frameNumber % HUD::GetLemDropFrameRate()))
+		{
+			lemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+		}
+		
+		// then update each Lem
+		for (int i = 0; i < OutLemCount; ++i)
+			lemArray[i].Update(frameNumber);
 	}
-	
-	// then update each Lem
-	for (int i = 0; i < MAX_LEM_COUNT; ++i)
-		lemArray[i].Update(frameNumber);
 }
 
 void LemManager::UpdateInput()
@@ -121,6 +124,6 @@ void LemManager::UpdateInput()
 void LemManager::Draw()
 {
 	// draw all the Lems
-	for (int i = 0; i < MAX_LEM_COUNT; ++i)
+	for (int i = 0; i < OutLemCount; ++i)
 		lemArray[i].Draw();
 }

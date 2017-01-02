@@ -8,6 +8,10 @@
 
 namespace HUD
 {
+	// the current game state of the game
+	GameState CurrentGameState = GameState::PAUSED;
+	GameState GetCurrentGameState() { return CurrentGameState; }
+	
 	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
 	Button GetSelectedButton() { return SelectedButton; }
@@ -52,6 +56,7 @@ namespace HUD
 	void DrawLemButtons(int frameNumber);
 	void DrawDropVelocity(int frameNumber);
 	void DrawLemCounter();
+	void DrawGameState(int frameNumber);
 	void DrawCursor(int frameNumber);
 	
 	char GetButtonColor(Button button);
@@ -82,6 +87,9 @@ void HUD::Update(int frameNumber)
 	
 	// draw the vertical line that separate the hud bar from the game area
 	arduboy.drawFastVLine(HUD_WIDTH - 1, 0, HEIGHT, WHITE);
+	
+	// draw eventually the game state
+	DrawGameState(frameNumber);
 	
 	// draw the cursor
 	DrawCursor(frameNumber);
@@ -191,6 +199,20 @@ void HUD::UpdateInput()
 			else SelectedButton = (Button)(SelectedButton + 1);
 			break;
 	}
+	
+	// now if the player press the B button, for some hud button, we deals with it here
+	if (Input::IsJustPressed(B_BUTTON))
+	{
+		switch (SelectedButton)
+		{
+			case Button::TIMER:
+				CurrentGameState = (CurrentGameState == GameState::PLAYING) ? GameState::PAUSED : GameState::PLAYING;
+				break;
+			case Button::COUNTER:
+				CurrentGameState = (CurrentGameState == GameState::PLAYING) ? GameState::QUIT_WARNING : GameState::PLAYING;
+				break;
+		}
+	}
 }
 
 /*
@@ -200,6 +222,10 @@ void HUD::UpdateInput()
 void HUD::DrawTimer(int frameNumber)
 {
 	const int START_Y = 24;
+
+	// if the game is paused, pushed the end of game time
+	if (CurrentGameState == GameState::PAUSED)
+		FrameNumberOfTheGameEnd++;
 
 	// get the number of frame the game will continue to play
 	int remainingTimeInSecond = 0;
@@ -381,10 +407,41 @@ void HUD::DrawLemCounter()
 	PrintChar(x, y, '%', color);
 }
 
+/*
+ * Draw optionnal text in the center of the screen when the game is paused for example
+ * return true if it draws something (usefull to skip some other drawing like the cursor)
+ */
+void HUD::DrawGameState(int frameNumber)
+{
+	// first check the frame count for making the message blink
+	const unsigned int TEXT_BLINKING_TIME_OFF = 5;
+	const unsigned int TEXT_BLINKING_TIME_ON = 8;
+	int normalizeFrameNumber = frameNumber % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
+	
+	// early exit if it is not the time to draw
+	if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
+		return;
+	
+	if (CurrentGameState == GameState::PAUSED)
+	{
+		const int TEXT_WIDTH = 12*6;
+		const int CORNER_SIZE = 3;
+		const int X = HUD_WIDTH + ((WIDTH - HUD_WIDTH - TEXT_WIDTH) / 2);
+		const int Y = 10;
+		arduboy.fillRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-2, 7+(CORNER_SIZE*2), CORNER_SIZE, BLACK);
+		arduboy.drawRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-2, 7+(CORNER_SIZE*2), CORNER_SIZE, WHITE);
+		arduboy.setCursor(X, Y);
+		arduboy.print(F("Game Paused!"));
+	}
+}
+
+/*
+ * Draw a blinking cursor that the player can move in the view
+ */
 void HUD::DrawCursor(int frameNumber)
 {
-	const unsigned int CURSOR_BLINKING_TIME_OFF = 1;
-	const unsigned int CURSOR_BLINKING_TIME_ON = 6;
+	const unsigned int CURSOR_BLINKING_TIME_OFF = 2;
+	const unsigned int CURSOR_BLINKING_TIME_ON = 4;
 	int normalizeFrameNumber = frameNumber % (CURSOR_BLINKING_TIME_OFF + CURSOR_BLINKING_TIME_ON);
 	
 	// draw for the major part of the time, and draw in invert color
