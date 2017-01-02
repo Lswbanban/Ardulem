@@ -39,20 +39,21 @@ private:
 	unsigned char	mPosX;
 	unsigned char	mPosY;
 	
-	// state
-	unsigned char	mCurrentState; // of type StateId
+	// state information as follow from high bit to low:
+	// 1 bit = isMirroded / 3 bit = Anim frame / 4 bit = StateId
 	unsigned char	mPackedStateData; // several data store in one char, used the functions to manipulate them
 	
 	// state data manipulation
-	unsigned char	GetCurrentAnimFrame()					{ return (mPackedStateData & 0x7F); }
-	void			SetCurrentAnimFrame(unsigned char val)	{ mPackedStateData = (mPackedStateData & 0x80) | val; }
+	unsigned char	GetCurrentState()						{ return (mPackedStateData & 0x0F);}
+	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
+	unsigned char	GetCurrentAnimFrame()					{ return (mPackedStateData & 0x70) >> 4; }
+	void			SetCurrentAnimFrame(unsigned char val)	{ mPackedStateData = (mPackedStateData & 0x8F) | (val << 4); }
 	bool			IsDirectionMirrored() 					{ return (mPackedStateData & 0x80); }
 	void			SetDirectionMirrored(bool isMirrored)	{ if (isMirrored) mPackedStateData |= 0x80; else mPackedStateData &= 0x7F; }
 	void			ReverseMirroredDirection()				{ if (mPackedStateData & 0x80) mPackedStateData &= 0x7F; else mPackedStateData |= 0x80;}
 	
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
-	void	SetCurrentStateId(StateId stateId, int shiftX = 0, int shiftY = 0);
 	void 	UpdateState(int frameNumber);
 	void 	UpdateWalk();
 	void 	UpdateBlocker();

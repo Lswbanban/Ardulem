@@ -7,8 +7,7 @@ Lem::Lem()
 {
 	mPosX = 0;
 	mPosY = 0;
-	mCurrentState = StateId::FALL;
-	mPackedStateData = 0;
+	SetCurrentState(StateId::FALL);
 }
 
 void Lem::Spawn(unsigned char x, unsigned char y)
@@ -17,13 +16,13 @@ void Lem::Spawn(unsigned char x, unsigned char y)
 	mPosX = x;
 	mPosY = y;
 	// reset the state (they all start by falling)
-	SetCurrentStateId(StateId::FALL);
+	SetCurrentState(StateId::FALL);
 }
 
 void Lem::Update(int frameNumber)
 {
 	// do nothing if the Lem is not alive
-	if (mCurrentState > StateId::DEAD)
+	if (GetCurrentState() > StateId::DEAD)
 	{
 		// update the current animation (which will make the lem position move)
 		bool hasMoved = UpdateCurrentAnim(frameNumber);
@@ -36,7 +35,7 @@ void Lem::Update(int frameNumber)
 
 void Lem::UpdateState(int frameNumber)
 {
-	switch (mCurrentState)
+	switch (GetCurrentState())
 	{
 		case StateId::WALK: UpdateWalk(); break;
 		case StateId::BLOCKER: UpdateBlocker(); break;
@@ -90,7 +89,7 @@ void Lem::UpdateWalk()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, false))
 	{
-		SetCurrentStateId(StateId::START_FALL, 0, 1);
+		SetCurrentState(StateId::START_FALL, 0, 1);
 		return;
 	}
 
@@ -141,21 +140,21 @@ void Lem::UpdateStartFall(int frameNumber)
 	// get the pixel under my feet, if I touch ground, go back to walk
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 	{
-		SetCurrentStateId(StateId::WALK, 1, 0);
+		SetCurrentState(StateId::WALK, 1, 0);
 		return;
 	}
 	
 	// and when I have finished the start to Fall anim, I go to Fall
 	if ((GetCurrentAnimFrame() == ANIM_LEM_START_FALL_FRAME_COUNT - 1) &&
 		!((frameNumber+1) % GetFrameRateForCurrentAnim()))
-		SetCurrentStateId(StateId::FALL);
+		SetCurrentState(StateId::FALL);
 }
 
 void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
-		SetCurrentStateId(StateId::WALK, 1, 0);
+		SetCurrentState(StateId::WALK, 1, 0);
 }
 
 /*
@@ -163,7 +162,7 @@ void Lem::UpdateFall()
  */
 unsigned int Lem::GetFrameRateForCurrentAnim()
 {
-	switch (mCurrentState)
+	switch (GetCurrentState())
 	{
 		case StateId::START_FALL: return 3;
 		case StateId::FALL: return 2;
@@ -176,7 +175,7 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
  */
 unsigned int Lem::GetFrameCountForCurrentAnim()
 {
-	switch (mCurrentState)
+	switch (GetCurrentState())
 	{
 		case StateId::WALK: return ANIM_LEM_WALK_FRAME_COUNT;
 		case StateId::BLOCKER: return ANIM_LEM_BLOCKER_FRAME_COUNT;
@@ -206,7 +205,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		SetCurrentAnimFrame(currentFrame);
 		
 		// and find the correct animation frame
-		switch (mCurrentState)
+		switch (GetCurrentState())
 		{
 			case StateId::WALK:
 				hasMoved = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
@@ -247,7 +246,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
 	else if (!((frameNumber+1) % GetFrameRateForCurrentAnim()))
 	{
-		hasMoved = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL);
+		hasMoved = (GetCurrentState() == StateId::CLIMB_TOP) || (GetCurrentState() == StateId::START_FALL);
 	}
 	
 	// return the flag
@@ -305,7 +304,7 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 	// if the position are outside the boundary of the Map, the lem is dead
 	if (!isInsideMap)
 	{
-		SetCurrentStateId(StateId::DEAD);
+		SetCurrentState(StateId::DEAD);
 		return false;
 	}
 	
@@ -316,7 +315,7 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 void Lem::Draw()
 {
 	// call the draw function to draw the anim frame if alive and not ouside the screen
-	if ((mCurrentState > StateId::DEAD) && MapManager::IsOnScreen(mPosX))
+	if ((GetCurrentState() > StateId::DEAD) && MapManager::IsOnScreen(mPosX))
 	{
 		// get the screen coordinate and the current anim frame
 		unsigned char screenX  = MapManager::ConvertToScreenCoord(mPosX);
@@ -324,7 +323,7 @@ void Lem::Draw()
 		bool isMirrored = IsDirectionMirrored();
 		
 		// and draw the correct animation frame
-		switch (mCurrentState)
+		switch (GetCurrentState())
 		{
 			case StateId::WALK:
 				DrawOneAnimFrame(screenX, mPosY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
@@ -377,11 +376,10 @@ void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char
 	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
 }
 
-void Lem::SetCurrentStateId(StateId stateId, int shiftX, int shiftY)
+void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 {
 	// set the state id and reset the current frame
-	mCurrentState = stateId;
-	SetCurrentAnimFrame(0);
+	mPackedStateData = (mPackedStateData & 0X80) | stateId;
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
 	mPosY += shiftY;
