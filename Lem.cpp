@@ -46,7 +46,7 @@ void Lem::UpdateState(int frameNumber)
 		case StateId::DIG_VERT: UpdateDigVert(); break;
 		case StateId::STAIR: UpdateStair(); break;
 		case StateId::CLIMB: UpdateClimb(); break;
-		case StateId::CLIMB_TOP: UpdateClimbTop(); break;
+		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
 		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
 		case StateId::FALL: UpdateFall(); break;
 	}
@@ -164,8 +164,13 @@ void Lem::UpdateClimb()
 	}
 }
 
-void Lem::UpdateClimbTop()
+void Lem::UpdateClimbTop(int frameNumber)
 {
+	// no need to check the ground during that anim, because the whole anim is played on the wall edge
+	// and when I have finished the climb top anim, I go to Walk
+	if ((GetCurrentAnimFrame() == ANIM_LEM_CLIMB_TOP_FRAME_COUNT - 1) &&
+		!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+		SetCurrentState(StateId::WALK);
 }
 
 void Lem::UpdateStartFall(int frameNumber)
@@ -199,6 +204,7 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 	{
 		case StateId::START_FALL: return 3;
 		case StateId::FALL: return 2;
+		case StateId::CLIMB_TOP: return 7;
 		default: return 10;
 	}
 }

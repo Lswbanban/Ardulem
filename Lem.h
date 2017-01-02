@@ -72,7 +72,7 @@ private:
 	void 	UpdateDigVert();
 	void 	UpdateStair();
 	void 	UpdateClimb();
-	void 	UpdateClimbTop();
+	void 	UpdateClimbTop(int frameNumber);
 	void 	UpdateStartFall(int frameNumber);
 	void 	UpdateFall();
 	
