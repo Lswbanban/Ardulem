@@ -40,10 +40,10 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		50, //HomeY
 		20, //Time In Multiple Of 10 seconds
 		1, //MinDropSpeed
-		10, //AvailableLemCount (NO MORE THAN 100!!!!)
+		1, //AvailableLemCount (NO MORE THAN 100!!!!)
 		1, //RequiredLemCount (obviously less or equals than the previous number)
-		PACK_BUTTON_CONFIG(4,5,0,9), //Nb of Lem per button: Blocker, Bomb, Dig diagonal, Dig horizontal
-		PACK_BUTTON_CONFIG(8,0,1,3), //Nb of Lem per button: Dig vertical, Stair, Climb, Parachute
+		PACK_BUTTON_CONFIG(9,9,9,9), //Nb of Lem per button: Blocker, Bomb, Dig diagonal, Dig horizontal
+		PACK_BUTTON_CONFIG(9,9,9,9), //Nb of Lem per button: Dig vertical, Stair, Climb, Parachute
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		sizeof(Map01Loca), // size of the Map in number of sprite columns

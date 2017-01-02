@@ -74,6 +74,11 @@ bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
 	return false;
 }
 
+bool Lem::IsThereRoofAt(int x, int y)
+{
+	return (MapManager::GetPixel(x, y) == WHITE);
+}
+
 int Lem::IsThereAWall(int x, int y)
 {
 	int wallHeight = 0;
@@ -87,21 +92,30 @@ int Lem::IsThereAWall(int x, int y)
 
 void Lem::UpdateWalk()
 {
+	unsigned char posY = GetPosY();
+	bool isMirrored = IsDirectionMirrored();
+
 	// get the pixel under my feet, if no ground, I start to fall
-	if (!IsThereGroundAt(mPosX+1, GetPosY()+6, true, false))
+	if (!IsThereGroundAt(mPosX+1, posY+6, true, false))
 	{
-		SetCurrentState(StateId::START_FALL, 0, 1);
+		SetCurrentState(StateId::START_FALL, isMirrored ? -1 : 0, 1);
 		return;
 	}
 
 	// now check for the stairs (a step of 2 pixel max)
-	int wallHeight = IsThereAWall(IsDirectionMirrored() ? mPosX-1 : mPosX+3, GetPosY()+5);
+	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+3, posY+5);
 	if (wallHeight < 3)
+	{
 		IncPosY(-wallHeight);
-	
-	// but if the wall is taller, we need to reverse direction
-	if (wallHeight > 2)
-		ReverseMirroredDirection();
+	}
+	else
+	{
+		// but if the wall is taller, either we climb or we need to reverse direction
+		if (IsAClimber())
+			SetCurrentState(StateId::CLIMB, isMirrored ? 0 : 1, 0);
+		else
+			ReverseMirroredDirection();
+	}
 }
 
 void Lem::UpdateBlocker()
@@ -130,6 +144,24 @@ void Lem::UpdateStair()
 
 void Lem::UpdateClimb()
 {
+	unsigned char posY = GetPosY();
+	bool isMirrored = IsDirectionMirrored();
+
+	// if we reach the top of the screen or if we reach a roof, we fall down opposite to the wall
+	if ((posY == 0) || IsThereRoofAt(isMirrored ? mPosX : mPosX+1, posY))
+	{
+		ReverseMirroredDirection();
+		SetCurrentState(StateId::START_FALL, isMirrored ? 0 : -2, 0);
+		return;
+	}
+	
+	// then check if we reach the top of the climb
+	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+2, posY+5);
+	if (wallHeight <= 3)
+	{
+		SetCurrentState(StateId::CLIMB_TOP, isMirrored ? -2 : 0, 0);
+		return;
+	}
 }
 
 void Lem::UpdateClimbTop()

@@ -78,6 +78,7 @@ private:
 	
 	// helper functions for update
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
+	bool	IsThereRoofAt(int x, int y);
 	int		IsThereAWall(int x, int y);
 	
 	// anim related functions
