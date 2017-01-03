@@ -4,20 +4,13 @@
 #include "MapManager.h"
 #include "HUD.h"
 
-Lem::Lem()
-{
-	mPosX = 0;
-	SetPosY(0);
-	SetCurrentState(StateId::FALL);
-}
-
 void Lem::Spawn(unsigned char x, unsigned char y)
 {
 	// set the position
 	mPosX = x;
-	SetPosY(y);
+	mPosYAndAthleteFlags = y; // set directly the position to delete the athlete flags
 	// reset the state (they all start by falling)
-	SetCurrentState(StateId::FALL);
+	mPackedStateData = StateId::FALL; // set directly the value to override the other mirror flag;
 }
 
 void Lem::Update(int frameNumber)
@@ -421,6 +414,12 @@ void Lem::Draw()
 				break;
 		}
 	}
+}
+
+void Lem::DrawTimerAboveHead(unsigned char timer)
+{
+	if (MapManager::IsOnScreen(mPosX))
+		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mPosX), GetPosY()-5, sprite_TinyNumbers[timer], 3, 8, WHITE);
 }
 
 /*

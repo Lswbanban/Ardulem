@@ -27,10 +27,10 @@ public:
 		PARACHUTE,
 	};
 
-	Lem();
 	void Spawn(unsigned char x, unsigned char y);
 	void Update(int frameNumber);
 	void Draw();
+	void DrawTimerAboveHead(unsigned char timer);
 	bool InUnderCursorPosition();
 	unsigned char	GetCurrentState()	{ return (mPackedStateData & 0x0F);}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
