@@ -1,9 +1,9 @@
 #ifndef LEM_H
 #define LEM_H
-/*
- * This file contains the logic/ai of one Lem
- */
 
+/*
+ * This class contains the logic/ai of one Lem
+ */
 class Lem
 {
 public:
@@ -27,39 +27,31 @@ public:
 		PARACHUTE,
 	};
 
-	void Spawn(unsigned char x, unsigned char y);
-	void Update(int frameNumber);
-	void Draw();
-	void DrawTimerAboveHead(unsigned char timer);
-	bool InUnderCursorPosition();
-	unsigned char	GetCurrentState()	{ return (mPackedStateData & 0x0F);}
+	void			Spawn(unsigned char x, unsigned char y);
+	void			Update(int frameNumber);
+	void			Draw();
+	void			DrawTimerAboveHead(unsigned char timer);
+	bool			InUnderCursorPosition();
+	unsigned char	GetCurrentState()		{ return mCurrentState;}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
-	bool			IsAClimber()		{ return (mPosYAndAthleteFlags & 0x40); }
-	void			PromoteClimber()	{ mPosYAndAthleteFlags |= 0x40; }
-	bool			IsAParachuter()		{ return (mPosYAndAthleteFlags & 0x80); }
-	void			PromoteParachuter()	{ mPosYAndAthleteFlags |= 0x80; }
+	void			PromoteClimber()		{ mIsAClimber = 1; }
+	void			PromoteParachuter()		{ mIsAParachuter = 1; }
 	
-	static void DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
+	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
 	// position (and we also packed the climb and parachute flags in the Y)
 	unsigned char	mPosX;
-	unsigned char	mPosYAndAthleteFlags;
-	
-	unsigned char	GetPosY()					{ return (mPosYAndAthleteFlags & 0x3F); }
-	void			SetPosY(unsigned char y)	{ mPosYAndAthleteFlags = (mPosYAndAthleteFlags & 0xC0) | y; }
-	void			IncPosY(int inc)			{ mPosYAndAthleteFlags = (mPosYAndAthleteFlags & 0xC0) | (((mPosYAndAthleteFlags & 0x3F) + inc) & 0x3F); }
-	
-	// state information as follow from high bit to low:
-	// 1 bit = isMirroded / 3 bit = Anim frame / 4 bit = StateId
-	unsigned char	mPackedStateData; // several data store in one char, used the functions to manipulate them
+	unsigned char	mPosY			: 6;
+	unsigned char	mIsAClimber		: 1;
+	unsigned char	mIsAParachuter	: 1;
+	// state information packed on another char
+	unsigned char	mIsDirectionMirrored	: 1;
+	unsigned char	mCurrentAnimFrame		: 3;
+	unsigned char	mCurrentState			: 4;
 	
 	// state data manipulation
-	unsigned char	GetCurrentAnimFrame()					{ return (mPackedStateData & 0x70) >> 4; }
-	void			SetCurrentAnimFrame(unsigned char val)	{ mPackedStateData = (mPackedStateData & 0x8F) | (val << 4); }
-	bool			IsDirectionMirrored() 					{ return (mPackedStateData & 0x80); }
-	void			SetDirectionMirrored(bool isMirrored)	{ if (isMirrored) mPackedStateData |= 0x80; else mPackedStateData &= 0x7F; }
-	void			ReverseMirroredDirection()				{ if (mPackedStateData & 0x80) mPackedStateData &= 0x7F; else mPackedStateData |= 0x80;}
+	void			ReverseMirroredDirection()	{ mIsDirectionMirrored = !mIsDirectionMirrored; }
 	
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
