@@ -13,37 +13,24 @@ namespace LemManager
 	//The lem array is sorted, and we store two counter, one for the lem than need timer,
 	// and one for the lem out. So the lem is sorted this way:
 	// lem with timer => other out lem => not updated lems (still in, dead, or in home)
-	unsigned char TimerLemCount = 0;
 	unsigned char OutLemCount = 0;
 	unsigned char InLemCount = 0; // this one is used to compute the score, but the end of the list is not sorted
 
 	// for the lem that need to be stopped to do something (like the stairer that build a stair only for x turns, 
 	// or the bomber that start their bye bye anim, after x seconds) we use another limited array to store their
-	// remaining time. It's an array of struct, the struct contains a normalized frame count (generally inside a seconde)
-	// and a number of remaining ticks packed into a char. The normalized frame count is divided by 2 for bomb (at 60fps)
-	// and by 4 for stair (at 60fps) because we need more ticks for stairs.
-	// This struct contains info for both stair and bomb, because the same lem could be in the middle of building a stair
-	// while the bomb is set for him.
+	// remaining time. It's an array of bitfield, the bitfield contains a normalized frame count (generally inside a seconde)
+	// and a number of remaining ticks.
 	struct LemTimer
 	{
-		unsigned char	BombTimeModuloAndTick; // the value that should be tested when doing the modulo on the current frame counter
-		unsigned char	StairTimeModuloAndTick; // the number of remaining tick for Bomb (3 high bits) and stair (5 low bits)
-		// bomb tick (3 high bits) and time modulo (on 5 bits)
-		void			InitBombTimer(unsigned char tick, unsigned char time)	{ BombTimeModuloAndTick = (tick << 5) | time; }
-		unsigned char	GetBombTick()	{ return (BombTimeModuloAndTick & 0xE0) >> 5; }
-		void			DecBombTick()	{ BombTimeModuloAndTick -= 0x20; }
-		unsigned char	GetBombTimeModulo()	{ return (BombTimeModuloAndTick & 0x1F); }
-		// stair tick (4 high bits) and time modulo (on 4 bits)
-		void			InitStairTimer(unsigned char tick, unsigned char time)	{ StairTimeModuloAndTick = (tick << 4) | time; }
-		unsigned char	GetStairTick()	{ return (StairTimeModuloAndTick & 0xF0) >> 4; }
-		void			DecStairTick()	{ StairTimeModuloAndTick -= 0x10; }
-		unsigned char	GetStairTimeModulo()	{ return (StairTimeModuloAndTick & 0x0F); }
+		unsigned int	IsBombTimer		: 1; // (bool flag) Is this timer a bomb timer (bit set) or a stair timer (bit unset)
+		unsigned int	LemId			: 5; // (0-31) the id of the lem in the LemArray array, knowing that the lem with timer will be place at the beginning of this array
+		unsigned int	RemainingTick	: 4; // (0-15) the number of remaining tick for Bomb and stair
+		unsigned int	TimeModulo		: 6; // (0-63) the value that should be tested when doing the modulo on the current frame counter
 	};
+	const int TIMER_DURATION = 60;
 	const int MAX_LEM_TIMER_COUNT = 18; // if 9 stair + 9 bomb, then total can be 18.
 	LemTimer LemTimerList[MAX_LEM_TIMER_COUNT];
-	const int TIMER_DURATION = 60;
-	const int BOMB_TIMER_PRESISION = 1; // number of bit shift
-	const int STAIR_TIMER_PRESISION = 2; // number of bit shift
+	unsigned char LemTimerCount = 0; // the number of timer currently reccorded in the LemTimerList
 	
 	// the current lem targeted by the cursor
 	char CurrentLemIndexUnderCursor = -1;
@@ -57,8 +44,8 @@ namespace LemManager
 	void CheckLemTimers(int frameNumber);
 	
 	// lem array manipulation and sorting
+	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
 	void SwapTwoLems(unsigned char lemId1, unsigned char lemId2);
-	unsigned char MoveLemToTimerList(unsigned char lemId);
 	void MoveLemToOutList(unsigned char lemId);
 	void MoveLemToDeadList(unsigned char lemId);
 	void AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
@@ -215,6 +202,17 @@ void LemManager::UpdateLemUnderCursor()
 }
 
 /*
+ * Swap the two specified id inside the LemTimerList
+ */
+void LemManager::SwapTwoTimers(unsigned char timerId1, unsigned char timerId2)
+{
+	LemTimer swap;
+	memccpy(&swap,                     &(LemTimerList[timerId1]), 1, sizeof(swap));
+	memccpy(&(LemTimerList[timerId1]), &(LemTimerList[timerId2]), 1, sizeof(swap));
+	memccpy(&(LemTimerList[timerId2]), &swap,                     1, sizeof(swap));
+}
+
+/*
  * Swap the two specified lem in the lem array. This is used to reorder the lem array.
  */
 void LemManager::SwapTwoLems(unsigned char lemId1, unsigned char lemId2)
@@ -230,50 +228,12 @@ void LemManager::SwapTwoLems(unsigned char lemId1, unsigned char lemId2)
 }
 
 /*
- * Move one specific lem id inside the timer list. This will adjust the various counter as needed.
- * This function return the new lem id, where it was moved.
- */
-unsigned char LemManager::MoveLemToTimerList(unsigned char lemId)
-{
-	// check if lem is not already in the timer list
-	if (lemId < TimerLemCount)
-		return lemId;
-	
-	// now swap it with the first out lem and increase the timer count
-	SwapTwoLems(lemId, TimerLemCount);
-	TimerLemCount++;
-	
-	// if the lem was out, that's fine he just exchanged his place with another out lem
-	// but if the lem was dead, we need to put back the lem we moved to dead pool, in out list again
-	if (lemId >= OutLemCount)
-	{
-		SwapTwoLems(lemId, OutLemCount);
-		OutLemCount++;
-	}
-	
-	return (TimerLemCount-1);
-}
-
-/*
- * Move one specific lem id inside the out list. This will adjust the various counter as needed
+ * Move one specific lem id inside the out list. This can make revive a dead lem
  */
 void LemManager::MoveLemToOutList(unsigned char lemId)
 {
-	// check if lem is in the timer list
-	if (lemId < TimerLemCount)
-	{
-		// in that case, swap it with the first out lem and decrease the timer count
-		SwapTwoLems(lemId, TimerLemCount);
-		TimerLemCount--;
-		return;
-	}
-	
-	// now swap it with the first out lem and increase the timer count
-	SwapTwoLems(lemId, TimerLemCount);
-	TimerLemCount++;
-	
-	// nothing to do if the lem is already out, but is he's dead,
-	// move it to the first dead lem position and increase the out counter
+	// Nothing to do if the lem is already out, but check if the lem is dead, and needs to revive
+	// in that case move it to the first dead lem position and increase the out counter
 	if (lemId >= OutLemCount)
 	{
 		SwapTwoLems(lemId, OutLemCount);
@@ -282,42 +242,55 @@ void LemManager::MoveLemToOutList(unsigned char lemId)
 }
 
 /*
- * Move one specific lem id inside the dead list. This will adjust the various counter as needed
+ * Move one specific lem id inside the dead list. This will adjust the out counter as needed.
  */
 void LemManager::MoveLemToDeadList(unsigned char lemId)
 {
-	// check if lem is in the timer list
-	if (lemId < TimerLemCount)
-	{
-		// in that case, first swap it with the last timer element, decrase the list
-		// and then swap it again with the last out element
-		SwapTwoLems(lemId, TimerLemCount-1);
-		TimerLemCount--;
-		// change the lem id for swapping it again
-		lemId = TimerLemCount;
-	}
-	
-	// check if lem is in the out list, then swap the last out lem with him
+	// nothing to do if the lem is already dead
 	if (lemId < OutLemCount)
 	{
-		SwapTwoLems(lemId, OutLemCount-1);
 		OutLemCount--;
+		SwapTwoLems(lemId, OutLemCount);
 	}
-	
-	// nothing to do if the lem is already dead
 }
 
 void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer)
 {
-	// first move the lem to the timer list and get its new id
-	lemId = MoveLemToTimerList(lemId);
-	// then set its timer. We set a timer of one second, since the FPS is 60, use 60 for the modulo
-	// but then we have different precision for stair and bomb, so we need to divide this modulo (and loose some precision)
-	unsigned char timerModulo = timer % TIMER_DURATION;
-	if (isBombTimer)
-		LemTimerList[lemId].InitBombTimer(4, timerModulo >> BOMB_TIMER_PRESISION); // 3 second of warning before explosion
-	else
-		LemTimerList[lemId].InitStairTimer(14, timerModulo >> STAIR_TIMER_PRESISION); // will put 14 step on the stair
+	// check if the current lem id is sufficiently low so that we can save it's id in the timer instance
+	// in such case, we don't need to swap his place to move it at the beginning of the LemArray list
+	// but if the lem id is too big, we need to swap it first
+	if (lemId >= MAX_LEM_TIMER_COUNT)
+	{
+		// if the lem id is too far in the lem array, we need to swap it closer to the beggining,
+		// so we will search for a free space (a lem that doesn't have a timer) starting from the beggining
+		int newIndex = 0;
+		for (int i = 0; i < MAX_LEM_TIMER_COUNT; ++i)
+		{
+			bool isAnyTimerFound = false;
+			for (int j = 0; j < LemTimerCount; ++j)
+				if (LemTimerList[j].LemId == i)
+				{
+					isAnyTimerFound = true;
+					break;
+				}
+			// check if the current i is a good candidate (no timer found)
+			if (!isAnyTimerFound)
+			{
+				newIndex = i;
+				break;
+			}
+		}
+		// now swap the lem with the new found index, and update the lem id
+		SwapTwoLems(lemId, newIndex);
+		lemId = newIndex;
+	}
+	
+	// now insert the timer in the timer array
+	LemTimerList[LemTimerCount].IsBombTimer = isBombTimer;
+	LemTimerList[LemTimerCount].LemId = lemId;
+	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 14;
+	LemTimerList[LemTimerCount].TimeModulo = timer % TIMER_DURATION;
+	LemTimerCount++;
 }
 
 /*
@@ -325,55 +298,35 @@ void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool is
  */
 void LemManager::CheckLemTimers(int frameNumber)
 {
-	for (int i = 0; i < TimerLemCount; ++i)
+	// check the stair timer
+	for (int i = 0; i < LemTimerCount; ++i)
 	{
-		// by default if the tick value are at their max, that means the timer is not set
-		bool isStairTickDone = (LemTimerList[i].GetStairTick() == 15);
-		bool isBombTickDone = (LemTimerList[i].GetStairTick() == 7);
+		// get the lemId
+		int lemId = LemTimerList[i].LemId;
 
-		// do I need to tick the stair?
-		if (!isStairTickDone)
+		// draw the time abobe his head for the bombers
+		if (LemTimerList[i].IsBombTimer)
+			LemArray[lemId].DrawTimerAboveHead(LemTimerList[i].RemainingTick);
+
+		// check if it's time to tick the stair
+		if ((frameNumber % TIMER_DURATION) == LemTimerList[i].TimeModulo)
 		{
-			// check if it's time to tick the stair
-			if (((frameNumber % TIMER_DURATION) >> STAIR_TIMER_PRESISION) == LemTimerList[i].GetStairTimeModulo())
+			// decrease the tick and check if it reaches zero
+			LemTimerList[i].RemainingTick--;
+			if (LemTimerList[i].RemainingTick == 0)
 			{
-				// decrease the bomb timer and check if it reaches zero
-				LemTimerList[i].DecStairTick();
-				isStairTickDone = (LemTimerList[i].GetStairTick() == 0);
-				// decraese the time and check if it reaches zero
-				if (isStairTickDone)
-				{
-					// if the stair is finished, return to walk
-					LemArray[i].SetCurrentState(Lem::StateId::WALK);
-				}
+				// if it is a bomb timer, set the bomb anim, and the stair is finished, return to walk
+				if (LemTimerList[i].IsBombTimer)
+					LemArray[lemId].SetCurrentState(Lem::StateId::BOMB);
+				else
+					LemArray[lemId].SetCurrentState(Lem::StateId::WALK);
+				
+				// then swap this timer with the end, and decrease the timer count
+				LemTimerCount--;
+				SwapTwoTimers(i, LemTimerCount);
+				// and decrease also i to check again the new guys that took his place
+				i--;
 			}
-		}
-		
-		// do I need to tick the bomb?
-		if (!isBombTickDone)
-		{
-			// check if it's time to tick the bomb
-			if (((frameNumber % TIMER_DURATION) >> BOMB_TIMER_PRESISION) == LemTimerList[i].GetBombTimeModulo())
-			{
-				// decrease the bomb timer and check if it reaches zero
-				LemTimerList[i].DecBombTick();
-				isBombTickDone = (LemTimerList[i].GetBombTick() == 0);
-				if (isBombTickDone)
-				{
-					// we need to set the explosion anim to the lem, and move it back to the out list
-					LemArray[i].SetCurrentState(Lem::StateId::BOMB);
-				}
-			}
-			// draw the time abobe his head
-			LemArray[i].DrawTimerAboveHead(LemTimerList[i].GetBombTick());
-		}
-		
-		// if both ticks are done, we need to move the lem back to the out list
-		if (isStairTickDone && isBombTickDone)
-		{
-			MoveLemToOutList(i);
-			// and we decrease i to check again the new guys that took his place
-			i--;
 		}
 	}
 }
