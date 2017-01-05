@@ -49,30 +49,30 @@ namespace MapManager
 	void DrawMap();
 
 	// map config
-	unsigned char GetStartX()			{ return CurrentMapDescription.StartX; }
-	unsigned char GetStartY()			{ return CurrentMapDescription.StartY; }
-	unsigned char GetHomeX()			{ return CurrentMapDescription.HomeX; }
-	unsigned char GetHomeY()			{ return CurrentMapDescription.HomeY; }
-	int GetMapTimeInSecond()			{ return (CurrentMapDescription.TimeInMultipleOf10s * 10); }
-	unsigned char GetMinDropSpeed()		{ return CurrentMapDescription.MinDropSpeed; }
-	unsigned char GetAvailableLemCount(){ return CurrentMapDescription.AvailableLemCount; }
-	int GetRequiredLemPercentage()		{ return RequiredLemPercentage; }
-	int GetBlockerCount()				{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 12; }
-	int GetBomberCount()				{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 8) & 0x0F; }
-	int GetDiggerDiagonalCount()		{ return (CurrentMapDescription.LemBlockBombDigdiagDighorizConfig >> 4) & 0x0F; }
-	int GetDiggerHorizontalCount()		{ return CurrentMapDescription.LemBlockBombDigdiagDighorizConfig  & 0x0F; }
-	int GetDiggerVerticalCount()		{ return CurrentMapDescription.LemDigvertStairClimbParaConfig >> 12; }
-	int GetStairerCount()				{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 8) & 0x0F; }
-	int GetClimberCount()				{ return (CurrentMapDescription.LemDigvertStairClimbParaConfig >> 4) & 0x0F; }
-	int GetParachuterCount()			{ return CurrentMapDescription.LemDigvertStairClimbParaConfig  & 0x0F; }
-	void DecreaseBlockerCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x1000; }
-	void DecreaseBomberCount()				{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0100; }
-	void DecreaseDiggerDiagonalCount()		{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0010; }
-	void DecreaseDiggerHorizontalCount()	{ CurrentMapDescription.LemBlockBombDigdiagDighorizConfig -= 0x0001; }
-	void DecreaseDiggerVerticalCount()		{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x1000; }
-	void DecreaseStairerCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0100; }
-	void DecreaseClimberCount()				{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0010; }
-	void DecreaseParachuterCount()			{ CurrentMapDescription.LemDigvertStairClimbParaConfig -= 0x0001; }
+	unsigned char GetStartX()				{ return CurrentMapDescription.StartX; }
+	unsigned char GetStartY()				{ return CurrentMapDescription.StartY; }
+	unsigned char GetHomeX()				{ return CurrentMapDescription.HomeX; }
+	unsigned char GetHomeY()				{ return CurrentMapDescription.HomeY; }
+	int GetMapTimeInSecond()				{ return (CurrentMapDescription.TimeInMultipleOf10s * 10); }
+	unsigned char GetMinDropSpeed()			{ return CurrentMapDescription.MinDropSpeed; }
+	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount; }
+	int GetRequiredLemPercentage()			{ return RequiredLemPercentage; }
+	int GetBlockerCount()					{ return CurrentMapDescription.LemBlockCount; }
+	int GetBomberCount()					{ return CurrentMapDescription.LemBombCount; }
+	int GetDiggerDiagonalCount()			{ return CurrentMapDescription.LemDigDiagCount; }
+	int GetDiggerHorizontalCount()			{ return CurrentMapDescription.LemDigHorizCount; }
+	int GetDiggerVerticalCount()			{ return CurrentMapDescription.LemDigVertCount; }
+	int GetStairerCount()					{ return CurrentMapDescription.LemStairCount; }
+	int GetClimberCount()					{ return CurrentMapDescription.LemClimbCount; }
+	int GetParachuterCount()				{ return CurrentMapDescription.LemParaCount; }
+	void DecreaseBlockerCount()				{ CurrentMapDescription.LemBlockCount--; }
+	void DecreaseBomberCount()				{ CurrentMapDescription.LemBombCount--; }
+	void DecreaseDiggerDiagonalCount()		{ CurrentMapDescription.LemDigDiagCount--; }
+	void DecreaseDiggerHorizontalCount()	{ CurrentMapDescription.LemDigHorizCount--; }
+	void DecreaseDiggerVerticalCount()		{ CurrentMapDescription.LemDigVertCount--; }
+	void DecreaseStairerCount()				{ CurrentMapDescription.LemStairCount--; }
+	void DecreaseClimberCount()				{ CurrentMapDescription.LemClimbCount--; }
+	void DecreaseParachuterCount()			{ CurrentMapDescription.LemParaCount--; }
 
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
@@ -112,10 +112,20 @@ void MapManager::InitMap(int mapId)
 	CurrentMapDescription.MinDropSpeed = pgm_read_byte_near(&(MapData::AllMaps[mapId].MinDropSpeed));
 	CurrentMapDescription.AvailableLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].AvailableLemCount));
 	CurrentMapDescription.RequiredLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].RequiredLemCount));
-	CurrentMapDescription.LemBlockBombDigdiagDighorizConfig = 
-		pgm_read_word_near(&(MapData::AllMaps[mapId].LemBlockBombDigdiagDighorizConfig));
-	CurrentMapDescription.LemDigvertStairClimbParaConfig =
-		pgm_read_word_near(&(MapData::AllMaps[mapId].LemDigvertStairClimbParaConfig));
+	// for the bitfield, we need to read the whole int and unpack, 
+	// and we need to use the adress of the previous variable to work around a compiler error
+	int lemCount = pgm_read_word_near(&(MapData::AllMaps[mapId].RequiredLemCount) + 1);
+	CurrentMapDescription.LemBlockCount = lemCount & 0x000F;
+	CurrentMapDescription.LemBombCount = (lemCount >> 4) & 0x000F;
+	CurrentMapDescription.LemDigDiagCount = (lemCount >> 8) & 0x000F;
+	CurrentMapDescription.LemDigHorizCount = lemCount >> 12;
+	// read the second bitfield
+	lemCount = pgm_read_word_near(&(MapData::AllMaps[mapId].RequiredLemCount) + 3);
+	CurrentMapDescription.LemDigVertCount = lemCount & 0x000F;
+	CurrentMapDescription.LemStairCount = (lemCount >> 4) & 0x000F;
+	CurrentMapDescription.LemClimbCount = (lemCount >> 8) & 0x000F;
+	CurrentMapDescription.LemParaCount = lemCount >> 12;
+	// now read the pointer tables
 	CurrentMapDescription.StriteIDRemapingTable = 
 		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].StriteIDRemapingTable));
 	CurrentMapDescription.SpriteLocalization = 

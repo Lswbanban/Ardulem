@@ -1,11 +1,8 @@
 #include <avr/pgmspace.h>
 #include "MapData.h"
 
-// The LOCID macro is used to pack two local id of the SpriteLocalIdList
-#define LOCID(id1, id2) (id1 | (id2<<4))
-
-// The following macro will pack the lem button config
-#define PACK_BUTTON_CONFIG(count1, count2, count3, count4) ((unsigned int)((count1 << 12) | (count2 << 8) | (count3 << 4) | count4))
+// The LID macro is used to pack two local id of the SpriteLocalIdList
+#define LID(id1, id2) (id1 | (id2<<4))
 
 /*
  * All the sprite that can be used to create the maps (up to 256, because after that the remaping table cannot handle it)
@@ -25,9 +22,8 @@ const unsigned char MapData::PillarWorldRemapTable[] PROGMEM = {0,1,2,3,4,5,6,7,
  */
 const unsigned char Map01Loca[] PROGMEM = { 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xf0, 0xf0, 0x80, 0x80, 0xe0, 0x80, 0x00, 0x40, 0x40, 0x40, 0x00, 0x10, 0x1c, 0x10, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x80, 0x80, 0x40, 0x40, 0x78, };
 const unsigned char Map01IdList[] PROGMEM = {
-	LOCID(0,2), LOCID(3,2), LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3), LOCID(0,1), LOCID(2,3),
-	LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,2), LOCID(3,3), LOCID(3,3), LOCID(3,3),
-	LOCID(3,3), LOCID(3,3), LOCID(3,3), LOCID(0,1), LOCID(2,3)};
+	LID(0,2), LID(3,2), LID(3,3), LID(3,3), LID(3,3), LID(0,1), LID(2,3), LID(0,1), LID(2,3), LID(3,3), LID(0,2), LID(3,3), LID(3,3),
+	LID(3,3), LID(0,2), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(0,1), LID(2,3)};
 
 /*
  * The various maps
@@ -40,10 +36,16 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		50, //HomeY
 		20, //Time In Multiple Of 10 seconds
 		1, //MinDropSpeed
-		1, //AvailableLemCount (NO MORE THAN 100!!!!)
+		10, //AvailableLemCount (NO MORE THAN 100!!!!)
 		1, //RequiredLemCount (obviously less or equals than the previous number)
-		PACK_BUTTON_CONFIG(9,9,9,9), //Nb of Lem per button: Blocker, Bomb, Dig diagonal, Dig horizontal
-		PACK_BUTTON_CONFIG(9,9,9,9), //Nb of Lem per button: Dig vertical, Stair, Climb, Parachute
+		3, //Nb of available Blocker,
+		2, //Nb of available Bomb,
+		4, //Nb of available Dig diagonal,
+		5, //Nb of available Dig horizontal
+		9, //Nb of available Dig vertical
+		9, //Nb of available Stair
+		9, //Nb of available Climb
+		9, //Nb of available Parachute
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		sizeof(Map01Loca), // size of the Map in number of sprite columns
