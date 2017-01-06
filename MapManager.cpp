@@ -7,9 +7,14 @@
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
 
+//usefull macro for modif map manipulation
+// get the modif map index from (ool, line) index. Normally (lineY * MODIF_MAP_COLUMN_COUNT) + colX   but  MODIF_MAP_COLUMN_COUNT=16
+#define GET_MAP_INDEX(colX, lineY) ((lineY << 4) + colX)
+
 namespace MapManager
 {
 	const unsigned int MAP_SCREEN_WIDTH = WIDTH - HUD::HUD_WIDTH;
+	const unsigned int MAP_MAX_WIDTH = 256; // do not increase that number
 	
 	/*
 	 * The modification list will store all the modification made by the Lem to the original map.
@@ -23,7 +28,12 @@ namespace MapManager
 	 * in the row indicates that a modification char should be applied on that particular x.
 	 * So the map itself will take 8x32 = 256 chars. And each modification will take one char
 	 */
-	const unsigned int MODIFICATION_MAP_SIZE = 8 * 16;
+	const unsigned int X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT = 4; // x in [0..255] and map index in [0..15]
+	const unsigned int Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT = 3; // y in [0..63] and map index in [0..8]
+	const unsigned int NB_BIT_MODIF_MAP_CELL = sizeof(int)*8;
+	const unsigned int MODIF_MAP_LINE_COUNT = 8;
+	const unsigned int MODIF_MAP_COLUMN_COUNT = MAP_MAX_WIDTH / NB_BIT_MODIF_MAP_CELL;
+	const unsigned int MODIFICATION_MAP_SIZE = MODIF_MAP_LINE_COUNT * MODIF_MAP_COLUMN_COUNT;
 	unsigned int ModificationMap[MODIFICATION_MAP_SIZE];
 	
 	const unsigned int MODIFICATION_LIST_SIZE = 100;
@@ -136,22 +146,24 @@ void MapManager::InitMap(int mapId)
 
 void MapManager::ClearModificationList()
 {
-	memset(ModificationMap, 0, MODIFICATION_MAP_SIZE);
-	memset(ModificationList, 0, MODIFICATION_LIST_SIZE);
-	
-	SetPixel(10,10,true);
+	memset(ModificationMap, 0, sizeof(ModificationMap));
+	memset(ModificationList, 0, sizeof(ModificationList));
 }
 
 void MapManager::Update(int frameNumber)
 {
 	DrawMap();
-//	ApplyModifications();
+	ApplyModifications();
 	
 /*	char pixel = GetPixel(ScrollValue + 108, 50);
 	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
 	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
 	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
 */
+
+	// debug paint pixels on screen
+	if (arduboy.pressed(B_BUTTON))
+		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), true);
 }
 
 inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)
@@ -295,8 +307,8 @@ void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 	// then we have nothing to do. So call the modification only if the SetPixel will actually modify the map
 	if (isAdded != currentPixel)
 	{
-		int lineY = worldY >> 1;
-		Modify8Pixels(worldX, lineY, 1 << (worldY - lineY));
+		int lineY = worldY >> Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+		Modify8Pixels(worldX, lineY, 1 << (worldY % MODIF_MAP_LINE_COUNT));
 	}
 }
 
@@ -307,11 +319,11 @@ void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 int MapManager::GetModificationIndex(int x, int lineY, int & mapBitfield)
 {
 	// compute the row and bit coord from x coord
-	int colX = x >> 4;
-	int bitX = x - (colX << 4);
-	int mapIndex = (lineY << 4) + colX;
+	int colX = x >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+	int bitX = x % NB_BIT_MODIF_MAP_CELL;
+	int mapIndex = GET_MAP_INDEX(colX, lineY);
 	
-	// get the bitfield in the modif map at the specified coordinate
+	// set the bitfield in the modif map at the specified coordinate in the var given in reference
 	mapBitfield = ModificationMap[mapIndex];
 
 	// get the modif index in the modif list by counting the bit set to the coordinate
@@ -319,7 +331,7 @@ int MapManager::GetModificationIndex(int x, int lineY, int & mapBitfield)
 	for (int i = 0; i < mapIndex; ++i)
 		modifIndex += __builtin_popcount(ModificationMap[i]);
 	// add the last bit of the current mapBitfield
-	modifIndex += __builtin_popcount(mapBitfield << (16-bitX)) -1;
+	modifIndex += __builtin_popcount(mapBitfield << (NB_BIT_MODIF_MAP_CELL - bitX));
 	
 	// return the index in the modif list
 	return modifIndex;
@@ -327,9 +339,8 @@ int MapManager::GetModificationIndex(int x, int lineY, int & mapBitfield)
 
 void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 {
-	int colX = x >> 4;
-	int bitX = x - (colX << 4);
-	int mapIndex = (lineY << 4) + colX;
+	int colX = x >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+	int bitX = x % NB_BIT_MODIF_MAP_CELL;
 
 	int mapBitfield = 0;
 	int modifIndex = GetModificationIndex(x, lineY, mapBitfield);
@@ -340,15 +351,19 @@ void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 		// if there's already a modif, merge the new modif with the existing one with a XOR
 		// (if both not modified: it stay not modified, if one is modified, we take the modif,
 		// if a modif is modified again, it cancel the modif)
-		ModificationList[modifIndex] ^= pixels;
+		ModificationList[modifIndex-1] ^= pixels;
 	}
 	else
 	{
 		// otherwise we need to set the bit in the modif map
+		int mapIndex = GET_MAP_INDEX(colX, lineY); 
 		ModificationMap[mapIndex] |= (1 << bitX);
 		
+		// get the last modif index (in case the buffer is full)
+		int lastModifIndex = ModificationListCount >= MODIFICATION_LIST_SIZE ? MODIFICATION_LIST_SIZE-2 : ModificationListCount-1;
+		
 		// and insert the modification in the modif list
-		for (int i = ModificationListCount-1; i >= modifIndex; --i)
+		for (int i = lastModifIndex; i > modifIndex; --i)
 			ModificationList[i+1] = ModificationList[i];
 		ModificationList[modifIndex] = pixels;
 		ModificationListCount++;
@@ -357,31 +372,41 @@ void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 
 void MapManager::ApplyModifications()
 {
-	int startCol = ScrollValue >> 4;
-	int startBitX = ScrollValue - (startCol << 4);
-	int endCol = startCol + 4;
+	int startCol = ScrollValue >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+	int endCol = startCol + 6;
+	int startBitX = ScrollValue % NB_BIT_MODIF_MAP_CELL;
+	
 	// iterate on the line
-	for (int i = 0; i < 8; ++i)
+	for (int lineY = 0; lineY < MODIF_MAP_LINE_COUNT; ++lineY)
 	{
+		// compute the current screen y for the current line
+		int screenY = lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+		
 		// get the modif index for the first x of the current line
 		int mapBitfield = 0;
-		int modifIndex = GetModificationIndex(ScrollValue, i, mapBitfield);
+		int modifIndex = GetModificationIndex(ScrollValue, lineY, mapBitfield);
+		// if the first bit is set, then the modif index return is correct, otherwise it's the modif index of the previous bit before
+		if (mapBitfield & (1<<startBitX))
+			modifIndex--;
 		
 		// now iterate on the column
-		int startK = startBitX;
-		for (int j = startCol; j < endCol; ++j)
+		int startB = startBitX;
+		for (int colX = startCol; colX < endCol; ++colX)
 		{
+			// compute the current screen x for the current column
+			int screenX = MapManager::ConvertToScreenCoord(colX << X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT);
+			
 			// and iterate on the bit of the map bitfield
-			for (int k = startK; k < 8; ++k)
-				if (ModificationMap[(i<<4) + j] & (1<<k))
+			for (int b = startB; b < NB_BIT_MODIF_MAP_CELL; ++b)
+				if (ModificationMap[GET_MAP_INDEX(colX, lineY)] & (1<<b))
 				{
 					// there's a modification at that place, so get it
 					unsigned char pixels = ModificationList[modifIndex++];
 					// draw the modif on screen
-					arduboy.drawBitmapFromRAM(j+k, i<<3, &pixels, 1, 8, INVERT);
+					arduboy.drawBitmapFromRAM(screenX + b, screenY, &pixels, 1, 8, INVERT);
 				}
-			// reset start k to 0 for the next column
-			startK = 0;
+			// reset start b to 0 for the next column
+			startB = 0;
 		}
 	}
 }
