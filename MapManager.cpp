@@ -85,7 +85,7 @@ namespace MapManager
 	void ClearModificationList();
 	void ApplyModifications();
 	int GetModificationIndex(int x, int lineY, int & mapBitfield);
-	void Modify8Pixels(int x, int lineY, char pixels);
+	void Modify8Pixels(int x, int lineY, unsigned char pixels);
 }
 
 bool MapManager::ScrollView(int scrollMoveInPixel)
@@ -308,7 +308,7 @@ void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 	if (isAdded != currentPixel)
 	{
 		int lineY = worldY >> Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
-		Modify8Pixels(worldX, lineY, 1 << (worldY % MODIF_MAP_LINE_COUNT));
+		Modify8Pixels(worldX, lineY, (unsigned char)(1 << (worldY % 8)));
 	}
 }
 
@@ -337,7 +337,7 @@ int MapManager::GetModificationIndex(int x, int lineY, int & mapBitfield)
 	return modifIndex;
 }
 
-void MapManager::Modify8Pixels(int x, int lineY, char pixels)
+void MapManager::Modify8Pixels(int x, int lineY, unsigned char pixels)
 {
 	int colX = x >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
 	int bitX = x % NB_BIT_MODIF_MAP_CELL;
@@ -345,35 +345,42 @@ void MapManager::Modify8Pixels(int x, int lineY, char pixels)
 	int mapBitfield = 0;
 	int modifIndex = GetModificationIndex(x, lineY, mapBitfield);
 	
-	// check if there's already a modif of if we need to add one
-	if (mapBitfield & (1 << bitX))
+	// check if the modif index is inside the list
+	if (modifIndex < MODIFICATION_LIST_SIZE)
 	{
-		// if there's already a modif, merge the new modif with the existing one with a XOR
-		// (if both not modified: it stay not modified, if one is modified, we take the modif,
-		// if a modif is modified again, it cancel the modif)
-		ModificationList[modifIndex-1] ^= pixels;
-	}
-	else
-	{
-		// otherwise we need to set the bit in the modif map
-		int mapIndex = GET_MAP_INDEX(colX, lineY); 
-		ModificationMap[mapIndex] |= (1 << bitX);
+		int mapMaskForX = (1 << bitX);
 		
-		// get the last modif index (in case the buffer is full)
-		int lastModifIndex = ModificationListCount >= MODIFICATION_LIST_SIZE ? MODIFICATION_LIST_SIZE-2 : ModificationListCount-1;
-		
-		// and insert the modification in the modif list
-		for (int i = lastModifIndex; i > modifIndex; --i)
-			ModificationList[i+1] = ModificationList[i];
-		ModificationList[modifIndex] = pixels;
-		ModificationListCount++;
+		// check if there's already a modif of if we need to add one
+		if (mapBitfield & mapMaskForX)
+		{
+			// if there's already a modif, merge the new modif with the existing one with a XOR
+			// (if both not modified: it stay not modified, if one is modified, we take the modif,
+			// if a modif is modified again, it cancel the modif)
+			ModificationList[modifIndex] ^= pixels;
+			// if the modification becomes empty, then we should remove it from the list
+			//if (ModificationList[modifIndex] == 0)
+			// TODO
+		}
+		// otherwise we need to add a new modif, but only if the list is not full
+		else if (ModificationListCount < MODIFICATION_LIST_SIZE)
+		{
+			// otherwise we need to set the bit in the modif map
+			int mapIndex = GET_MAP_INDEX(colX, lineY); 
+			ModificationMap[mapIndex] |= mapMaskForX;
+			
+			// and insert the modification in the modif list
+			for (int i = ModificationListCount-1; i >= modifIndex; --i)
+				ModificationList[i+1] = ModificationList[i];
+			ModificationList[modifIndex] = pixels;
+			ModificationListCount++;
+		}
 	}
 }
 
 void MapManager::ApplyModifications()
 {
 	int startCol = ScrollValue >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
-	int endCol = startCol + 6;
+	int endCol = (ScrollValue + MAP_SCREEN_WIDTH) >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
 	int startBitX = ScrollValue % NB_BIT_MODIF_MAP_CELL;
 	
 	// iterate on the line
@@ -385,13 +392,10 @@ void MapManager::ApplyModifications()
 		// get the modif index for the first x of the current line
 		int mapBitfield = 0;
 		int modifIndex = GetModificationIndex(ScrollValue, lineY, mapBitfield);
-		// if the first bit is set, then the modif index return is correct, otherwise it's the modif index of the previous bit before
-		if (mapBitfield & (1<<startBitX))
-			modifIndex--;
 		
 		// now iterate on the column
 		int startB = startBitX;
-		for (int colX = startCol; colX < endCol; ++colX)
+		for (int colX = startCol; colX <= endCol; ++colX)
 		{
 			// compute the current screen x for the current column
 			int screenX = MapManager::ConvertToScreenCoord(colX << X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT);
@@ -404,6 +408,9 @@ void MapManager::ApplyModifications()
 					unsigned char pixels = ModificationList[modifIndex++];
 					// draw the modif on screen
 					arduboy.drawBitmapFromRAM(screenX + b, screenY, &pixels, 1, 8, INVERT);
+					// stop drawing if we reach the end of the modification list
+					if (modifIndex >= MODIFICATION_LIST_SIZE)
+						return;
 				}
 			// reset start b to 0 for the next column
 			startB = 0;
