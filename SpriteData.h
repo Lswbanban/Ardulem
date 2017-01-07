@@ -88,4 +88,13 @@ extern const unsigned char anim_LemPara[][3];
 const unsigned int ANIM_PARACHUTE_FRAME_COUNT = 4;
 extern const unsigned char anim_Parachute[][7];
 
+/*
+ * Start and Home
+ */
+const unsigned int ANIM_START_FRAME_COUNT = 6;
+extern const unsigned char anim_Start[][8];
+
+extern const unsigned char sprite_HomeTop[];
+extern const unsigned char sprite_HomeBottom[];
+
 #endif

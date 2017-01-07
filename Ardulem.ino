@@ -53,6 +53,8 @@ void loop()
 	// and polluting the screen buffer.
 	LemManager::Update(frameNumber);
 	LemManager::Draw();
+	// then draw the start and home
+	MapManager::DrawStartAndHome(frameNumber);
 	// finally draw the HUD that will override the map and lem which has been drawn behind
 	HUD::Update(frameNumber);
 	

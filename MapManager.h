@@ -7,8 +7,9 @@ namespace MapManager
 {
 	extern void InitMap(int mapId);
 	extern void Update(int frameNumber);
+	extern void DrawStartAndHome(int frameNumber);
 
-	// view scrolle
+	// view scroll
 	bool ScrollView(int scrollMoveInPixel);
 	
 	// map config

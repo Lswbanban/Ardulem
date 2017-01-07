@@ -3,6 +3,7 @@
 #include "MapData.h"
 #include "HUD.h"
 #include "Input.h"
+#include "SpriteData.h"
 
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
@@ -43,6 +44,7 @@ namespace MapManager
 	// the current map Description we are playing
 	MapData::MapDescription CurrentMapDescription;
 	unsigned char RequiredLemPercentage = 0; // computed in the init function from the ratio required lem count by available lem count
+	unsigned char IntroAnimFrameIndex = 0;
 	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
@@ -168,6 +170,39 @@ void MapManager::Update(int frameNumber)
 	if (arduboy.pressed(A_BUTTON))
 		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), false);
 */
+}
+void MapManager::DrawStartAndHome(int frameNumber)
+{
+	// draw start
+	int startX = CurrentMapDescription.StartX-8;
+	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
+	{
+		// compute the current frame index
+		if ((HUD::GetCurrentGameState() == HUD::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && !(frameNumber % 5))
+			IntroAnimFrameIndex++;
+		
+		// copy the current frame
+		unsigned char animStartMirrored[sizeof(anim_Start[0])];
+		for (int i = 0; i < sizeof(anim_Start[0]); ++i)
+			animStartMirrored[sizeof(anim_Start[0]) - 1 - i] = pgm_read_byte_near(anim_Start[IntroAnimFrameIndex] + i);
+
+		// draw the start and its mirror
+		int screenX = ConvertToScreenCoord(startX);
+		int screenY = CurrentMapDescription.StartY;
+		arduboy.drawBitmap(screenX, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), 8, WHITE);
+		arduboy.drawBitmapFromRAM(screenX+8, screenY, animStartMirrored, sizeof(anim_Start[0]), 8, WHITE);
+	}
+	
+	// draw home
+	int homeX = CurrentMapDescription.HomeX-7;
+	if (IsOnScreen(homeX) || IsOnScreen(homeX + 15))
+	{
+		int screenX = ConvertToScreenCoord(homeX);
+		int screenY = CurrentMapDescription.HomeY - 7;
+		arduboy.drawBitmap(screenX,   screenY,   sprite_HomeBottom, 15, 8, WHITE);
+		arduboy.drawBitmap(screenX+5, screenY-4, sprite_HomeTop, 5, 8, WHITE);
+		arduboy.drawBitmap(screenX+6, screenY-11, anim_HUDFlag[(frameNumber >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), 8, WHITE);
+	}
 }
 
 inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)
