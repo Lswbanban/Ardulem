@@ -23,10 +23,10 @@ void Lem::Update(int frameNumber)
 	if (GetCurrentState() > StateId::DEAD)
 	{
 		// update the current animation (which will make the lem position move)
-		bool hasMoved = UpdateCurrentAnim(frameNumber);
+		bool doesNeedUpdate = UpdateCurrentAnim(frameNumber);
 		
 		// update the ai of the lem depending on the new position if it has moved
-		if (hasMoved)
+		if (doesNeedUpdate)
 			UpdateState(frameNumber);
 	}
 }
@@ -139,7 +139,7 @@ void Lem::UpdateWalk()
  */
 bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror)
 {
-	if ((mCurrentState == StateId::BLOCKER) && (worldY+3 > mPosY+2) && (worldY <= mPosY+6) && (worldX >= mPosX) && (worldX < mPosX+5))
+	if ((mCurrentState == StateId::BLOCKER) && (worldY+3 > mPosY+2) && (worldY <= mPosY+5) && (worldX >= mPosX) && (worldX < mPosX+5))
 	{
 		int xBefore = worldX + (isWalkingInMirror ? 1 : -1);
 		return ((xBefore < mPosX) || (xBefore > mPosX+4));
@@ -149,6 +149,13 @@ bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool is
 
 void Lem::UpdateBlocker()
 {
+	// get the pixel under my feet, if no ground, I start to fall
+	if (!IsThereGroundAt(mPosX+2, mPosY+6, false, false))
+	{
+		// check if I need to fall toward left or right (if no ground on my left, set mirror to true)
+		mIsDirectionMirrored = !IsThereGroundAt(mPosX+1, mPosY+6, false, false) ? 1 : 0;
+		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+	}
 }
 
 void Lem::UpdateBomb()
@@ -161,6 +168,37 @@ void Lem::UpdateDigDiag()
 
 void Lem::UpdateDigHoriz()
 {
+	// remove specific pixels depending on the frame num
+	switch (mCurrentAnimFrame)
+	{
+		case 0:
+		{
+			int x = mIsDirectionMirrored ? mPosX : mPosX+3;
+			MapManager::SetPixel(x, mPosY, false);
+			MapManager::SetPixel(x, mPosY+1, false);
+			MapManager::SetPixel(x+1 ,mPosY, false);
+			MapManager::SetPixel(x+1, mPosY+1, false);
+			break;
+		}
+		case 1:
+		{
+			int x = mIsDirectionMirrored ? mPosX : mPosX+3;
+			MapManager::SetPixel(x, mPosY+2, false);
+			MapManager::SetPixel(x, mPosY+3, false);
+			MapManager::SetPixel(x+1, mPosY+2, false);
+			MapManager::SetPixel(x+1, mPosY+3, false);
+			break;
+		}
+		case 2:
+		{
+			int x = mIsDirectionMirrored ? mPosX+1 : mPosX+2;
+			MapManager::SetPixel(x, mPosY+4, false);
+			MapManager::SetPixel(x, mPosY+5, false);
+			MapManager::SetPixel(x+1, mPosY+4, false);
+			MapManager::SetPixel(x+1, mPosY+5, false);
+			break;
+		}
+	}
 }
 
 void Lem::UpdateDigVert()
@@ -265,7 +303,7 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
  */
 unsigned int Lem::GetFrameWidthForCurrentAnim()
 {
-	switch (GetCurrentState())
+	switch (mCurrentState)
 	{
 		case StateId::WALK: return sizeof(anim_LemWalk[0]);
 		case StateId::BLOCKER: return sizeof(anim_LemBlocker[0]);
@@ -286,6 +324,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 {
 	// declare the return value
 	bool hasMoved = false;
+	bool doesNeedUpdate = false;
 
 	// check if we need to change the animation frame
 	if (!(frameNumber % GetFrameRateForCurrentAnim()))
@@ -295,7 +334,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		mCurrentAnimFrame = currentFrame;
 		
 		// and find the correct animation frame
-		switch (GetCurrentState())
+		switch (mCurrentState)
 		{
 			case StateId::WALK:
 				hasMoved = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
@@ -312,6 +351,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				break;
 			case StateId::DIG_HORIZ:
 				hasMoved = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]));
+				doesNeedUpdate = (currentFrame < 3); // need to dig on the first frame
 				break;
 			case StateId::DIG_VERT:
 				hasMoved = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
@@ -336,11 +376,11 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
 	else if (!((frameNumber+1) % GetFrameRateForCurrentAnim()))
 	{
-		hasMoved = (GetCurrentState() == StateId::CLIMB_TOP) || (GetCurrentState() == StateId::START_FALL);
+		doesNeedUpdate = (GetCurrentState() == StateId::CLIMB_TOP) || (GetCurrentState() == StateId::START_FALL);
 	}
 	
 	// return the flag
-	return hasMoved;
+	return hasMoved || doesNeedUpdate;
 }
 
 /*
