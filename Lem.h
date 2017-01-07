@@ -72,6 +72,7 @@ private:
 	void 	UpdateFall(int frameNumber);
 	void 	UpdateFallToDeath();
 	void 	UpdateCrash(int frameNumber);
+	void 	UpdateParachute();
 	
 	// helper functions for update
 	bool	IsXInsideWorld(int x);

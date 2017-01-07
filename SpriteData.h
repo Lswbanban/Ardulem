@@ -80,4 +80,12 @@ extern const unsigned char anim_LemFallToDeath[][5];
 const unsigned int ANIM_LEM_CRASH_FRAME_COUNT = 6;
 extern const unsigned char anim_LemCrash[][5];
 
+// PARA
+const unsigned int ANIM_LEM_PARA_FRAME_COUNT = 4;
+extern const unsigned char anim_LemPara[][3];
+
+// PARACHUTE
+const unsigned int ANIM_PARACHUTE_FRAME_COUNT = 4;
+extern const unsigned char anim_Parachute[][7];
+
 #endif

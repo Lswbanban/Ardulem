@@ -30,8 +30,8 @@ const unsigned char Map01IdList[] PROGMEM = {
  */
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
-		45, //StartX
-		11, //StartY
+		55, //StartX
+		14, //StartY
 		80, //HomeX
 		50, //HomeY
 		20, //Time In Multiple Of 10 seconds

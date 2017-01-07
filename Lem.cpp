@@ -49,6 +49,7 @@ void Lem::UpdateState(int frameNumber)
 		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
 		case StateId::FALL: UpdateFall(frameNumber); break;
 		case StateId::FALL_TO_DEATH: UpdateFallToDeath(); break;
+		case StateId::PARACHUTE: UpdateParachute(); break;
 	}
 }
 
@@ -346,11 +347,24 @@ void Lem::UpdateFall(int frameNumber)
 	
 	// if there's no ground and it is the last frame, we move to the fall to death anim
 	if (IsLastFrame(frameNumber))
-		SetCurrentState(StateId::FALL_TO_DEATH);
+	{
+		// check if I got a parachute, or not
+		if (mIsAParachuter)
+			SetCurrentState(StateId::PARACHUTE, 1, 0);
+		else
+			SetCurrentState(StateId::FALL_TO_DEATH);
+	}
 }
 
 void Lem::UpdateFallToDeath()
 {
+	// if I got a parachute, change my state
+	if (mIsAParachuter)
+	{
+		SetCurrentState(StateId::PARACHUTE, 1, 0);
+		return;
+	}
+
 	// get the pixel under my feet, if I touch ground, I just crash
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 		SetCurrentState(StateId::CRASH, 0, -1);
@@ -363,6 +377,13 @@ void Lem::UpdateCrash(int frameNumber)
 		SetCurrentState(StateId::DEAD);
 }
 
+void Lem::UpdateParachute()
+{
+	// get the pixel under my feet, if I touch ground, I go back to walk
+	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+		SetCurrentState(StateId::WALK, 0, -1);
+}
+
 /*
  * Get the frame rate for the current anim id
  */
@@ -370,12 +391,14 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 {
 	switch (GetCurrentState())
 	{
-		case StateId::START_FALL:
-		case StateId::CRASH:
-			return 3;
 		case StateId::FALL:
 		case StateId::FALL_TO_DEATH:
 			return 2;
+		case StateId::START_FALL:
+		case StateId::CRASH:
+			return 3;
+		case StateId::PARACHUTE:
+			return 6;
 		case StateId::CLIMB_TOP:
 			return 7;
 		default:
@@ -404,6 +427,7 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
 		case StateId::FALL: return 8; // special case for fall, we use the full frame count maximum value to reccord the altitude
 		case StateId::FALL_TO_DEATH: return ANIM_LEM_FALL_TO_DEATH_FRAME_COUNT;
+		case StateId::PARACHUTE: return ANIM_LEM_PARA_FRAME_COUNT;
 	}
 	return 1;
 }
@@ -429,6 +453,7 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
 		case StateId::FALL: return sizeof(anim_LemFall[0]);
 		case StateId::FALL_TO_DEATH: return sizeof(anim_LemFallToDeath[0]);
+		case StateId::PARACHUTE: return sizeof(anim_LemPara[0]);
 	}
 	return 5;
 }
@@ -499,6 +524,9 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				break;
 			case StateId::FALL_TO_DEATH:
 				hasMoved = UpdateOneAnimFrame(anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]));
+				break;
+			case StateId::PARACHUTE:
+				hasMoved = UpdateOneAnimFrame(anim_LemPara[currentFrame], sizeof(anim_LemPara[0]));
 				break;
 		}
 	}
@@ -627,6 +655,11 @@ void Lem::Draw()
 				break;
 			case StateId::FALL_TO_DEATH:
 				DrawOneAnimFrame(screenX, screenY, anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]), isMirrored, WHITE);
+				break;
+			case StateId::PARACHUTE:
+				DrawOneAnimFrame(screenX-2, screenY-4, anim_Parachute[currentFrame], sizeof(anim_Parachute[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(currentFrame==1 ? screenX-1: currentFrame==3 ? screenX+1 : screenX, screenY, anim_LemPara[currentFrame], sizeof(anim_LemPara[0]), isMirrored, WHITE);
+				break;
 		}
 	}
 }
