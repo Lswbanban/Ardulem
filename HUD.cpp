@@ -297,7 +297,11 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 			Lem::DrawOneAnimFrame(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), false, color);
 			break;
 		case Button::LEM_BOMB:
-			// TODO need a special explosion sprite
+			{
+				int index = animFrameIndex%ANIM_LEM_CRASH_FRAME_COUNT;
+				if (index > 1)
+					Lem::DrawOneAnimFrame(x, y, anim_LemCrash[index], sizeof(anim_LemCrash[0]), false, color);
+			}
 			break;
 		case Button::LEM_DIG_DIAG:
 			Lem::DrawOneAnimFrame(x, y, anim_LemDigDiagonal[animFrameIndex%ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT], sizeof(anim_LemDigDiagonal[0]), false, color);
