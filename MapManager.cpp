@@ -164,6 +164,8 @@ void MapManager::Update(int frameNumber)
 	// debug paint pixels on screen
 	if (arduboy.pressed(B_BUTTON))
 		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), true);
+	if (arduboy.pressed(A_BUTTON))
+		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), false);
 }
 
 inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)
@@ -254,7 +256,7 @@ char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
 	unsigned char row = worldY >> 3;
 	
 	// start with a default black pixel
-	char pixel = BLACK;
+	char heightPixelsColumn = 0;
 	
 	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
@@ -271,16 +273,34 @@ char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
 		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
 
 		// now get the correct column of the sprite
-		char spriteColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (worldX % 8));
-		
-		// and get the correct pixel inside that sprite column
-		pixel = (spriteColumn >> (worldY % 8)) & 0x01;
+		heightPixelsColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (worldX % 8));
 	}
 	
-	// now apply the modification of that pixel if needed
+	// now apply the modification of that column of 8 pixels if needed
+	// get the col and row in the modif map
+	col = worldX >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+	int bitX = worldX % NB_BIT_MODIF_MAP_CELL;
+	int bitY = (worldY % 8);
 	
+	// check if there's a modif at the specified coordinate
+	if (ModificationMap[GET_MAP_INDEX(col, row)] & (1 << bitX))
+	{
+		// we found a modif, get it from the list
+		int modifIndex = GetModificationIndex(col, bitX, row);
+		if (modifIndex < MODIFICATION_LIST_SIZE)
+		{
+			// if there's a modif, apply it to the original map data with a XOR
+			// | original pixel | modif | result pixel
+			// |        0       |   1   |   1
+			// |        0       |   0   |   0
+			// |        1       |   1   |   0
+			// |        1       |   0   |   1
+			heightPixelsColumn ^= ModificationList[modifIndex];
+		}
+	}
+
 	// and return the final pixel color
-	return pixel;
+	return (heightPixelsColumn >> bitY) & 0x01;
 }
 
 /*
