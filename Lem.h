@@ -72,9 +72,11 @@ private:
 	void 	UpdateFall();
 	
 	// helper functions for update
+	bool	IsXInsideWorld(int x);
+	bool	IsYInsideWorld(int y);
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
-	int		IsThereAWall(int x, int y);
+	int		IsThereAWall(int x, int y, int height);
 	bool	IsLastFrame(int frameNumber);
 	
 	// anim related functions
