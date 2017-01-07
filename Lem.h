@@ -58,7 +58,6 @@ private:
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
 	void 	UpdateState(int frameNumber);
-	void 	UpdateCrash();
 	void 	UpdateByeByeBoom();
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
@@ -72,6 +71,7 @@ private:
 	void 	UpdateStartFall(int frameNumber);
 	void 	UpdateFall(int frameNumber);
 	void 	UpdateFallToDeath();
+	void 	UpdateCrash(int frameNumber);
 	
 	// helper functions for update
 	bool	IsXInsideWorld(int x);

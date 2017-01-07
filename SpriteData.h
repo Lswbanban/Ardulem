@@ -72,4 +72,8 @@ extern const unsigned char anim_LemFall[][5];
 const unsigned int ANIM_LEM_FALL_TO_DEATH_FRAME_COUNT = 3;
 extern const unsigned char anim_LemFallToDeath[][5];
 
+// CRASH
+const unsigned int ANIM_LEM_CRASH_FRAME_COUNT = 6;
+extern const unsigned char anim_LemCrash[][5];
+
 #endif
