@@ -49,6 +49,7 @@ namespace LemManager
 	void MoveLemToOutList(unsigned char lemId);
 	void MoveLemToDeadList(unsigned char lemId);
 	void AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
+	bool ExtendTimerOfLem(unsigned char lemId);
 }
 
 void LemManager::Update(int frameNumber)
@@ -120,49 +121,79 @@ void LemManager::UpdateInput(int frameNumber)
 	//if pressing on the B button while HUD button is selected, and cursor over a lem, give order to the lem
 	if (Input::IsJustPressed(B_BUTTON) && HUD::IsSelectedButtonValid() && CurrentLemIndexUnderCursor > -1)
 	{
-		switch (HUD::GetSelectedButton())
+		unsigned char lemState = LemArray[CurrentLemIndexUnderCursor].GetCurrentState();
+		// no order can be given to a crashing lem or a lem saying bye bye to explose
+		if (lemState > Lem::StateId::BYE_BYE_BOOM)
 		{
-			case HUD::Button::LEM_BLOCKER:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BLOCKER);
-				MapManager::DecreaseBlockerCount();
-				break;
-				
-			case HUD::Button::LEM_BOMB:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BOMB);
-				AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, true);
-				MapManager::DecreaseBomberCount();
-				break;
-				
-			case HUD::Button::LEM_DIG_DIAG:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_DIAG);
-				MapManager::DecreaseDiggerDiagonalCount();
-				break;
-				
-			case HUD::Button::LEM_DIG_HORIZ:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_HORIZ);
-				MapManager::DecreaseDiggerHorizontalCount();
-				break;
-				
-			case HUD::Button::LEM_DIG_VERT:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_VERT);
-				MapManager::DecreaseDiggerVerticalCount();
-				break;
-				
-			case HUD::Button::LEM_STAIR:
-				LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
-				AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, false);
-				MapManager::DecreaseStairerCount();
-				break;
-				
-			case HUD::Button::LEM_CLIMB:
-				LemArray[CurrentLemIndexUnderCursor].PromoteClimber();
-				MapManager::DecreaseClimberCount();
-				break;
-				
-			case HUD::Button::LEM_PARACHUTE:
-				LemArray[CurrentLemIndexUnderCursor].PromoteParachuter();
-				MapManager::DecreaseParachuterCount();
-				break;
+			switch (HUD::GetSelectedButton())
+			{
+				case HUD::Button::LEM_BLOCKER:
+					if ((lemState != Lem::StateId::BLOCKER) && (lemState < Lem::StateId::CLIMB))
+					{
+						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BLOCKER);
+						MapManager::DecreaseBlockerCount();
+					}
+					break;
+					
+				case HUD::Button::LEM_BOMB:
+					AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, true);
+					MapManager::DecreaseBomberCount();
+					break;
+					
+				case HUD::Button::LEM_DIG_DIAG:
+					if ((lemState != Lem::StateId::DIG_DIAG) && (lemState < Lem::StateId::CLIMB))
+					{
+						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_DIAG);
+						MapManager::DecreaseDiggerDiagonalCount();
+					}
+					break;
+					
+				case HUD::Button::LEM_DIG_HORIZ:
+					if ((lemState != Lem::StateId::DIG_HORIZ) && (lemState < Lem::StateId::CLIMB))
+					{
+						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_HORIZ);
+						MapManager::DecreaseDiggerHorizontalCount();
+					}
+					break;
+					
+				case HUD::Button::LEM_DIG_VERT:
+					if ((lemState != Lem::StateId::DIG_VERT) && (lemState < Lem::StateId::CLIMB))
+					{
+						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_VERT);
+						MapManager::DecreaseDiggerVerticalCount();
+					}
+					break;
+					
+				case HUD::Button::LEM_STAIR:
+					if (lemState < Lem::StateId::CLIMB)
+					{
+						// check if it is already a stairer that should be extended, or if we get a new one
+						if (lemState == Lem::StateId::STAIR)
+						{
+							if (ExtendTimerOfLem(CurrentLemIndexUnderCursor))
+								MapManager::DecreaseStairerCount();
+						}
+						else
+						{
+							LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
+							AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, false);
+							MapManager::DecreaseStairerCount();
+						}
+					}
+					break;
+					
+				case HUD::Button::LEM_CLIMB:
+					// promote the lem as climber, and decrease the count only he was not already a climber
+					if (LemArray[CurrentLemIndexUnderCursor].PromoteClimber())
+						MapManager::DecreaseClimberCount();
+					break;
+					
+				case HUD::Button::LEM_PARACHUTE:
+					// promote the lem as parachuter, and decrease the count only he was not already a parachuter
+					if (LemArray[CurrentLemIndexUnderCursor].PromoteParachuter())
+						MapManager::DecreaseParachuterCount();
+					break;
+			}
 		}
 	}
 }
@@ -288,9 +319,20 @@ void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool is
 	// now insert the timer in the timer array
 	LemTimerList[LemTimerCount].IsBombTimer = isBombTimer;
 	LemTimerList[LemTimerCount].LemId = lemId;
-	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 14;
+	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 10;
 	LemTimerList[LemTimerCount].TimeModulo = timer % TIMER_DURATION;
 	LemTimerCount++;
+}
+
+bool LemManager::ExtendTimerOfLem(unsigned char lemId)
+{
+	// normally the lemId should always be valid, but test if we are et the end of the stair
+	if ((lemId < LemTimerCount) && (LemTimerList[lemId].RemainingTick < 4))
+	{
+		LemTimerList[lemId].RemainingTick += 10;
+		return true;
+	}
+	return false;
 }
 
 /*
@@ -317,7 +359,7 @@ void LemManager::CheckLemTimers(int frameNumber)
 			{
 				// if it is a bomb timer, set the bomb anim, and the stair is finished, return to walk
 				if (LemTimerList[i].IsBombTimer)
-					LemArray[lemId].SetCurrentState(Lem::StateId::BOMB);
+					LemArray[lemId].SetCurrentState(Lem::StateId::BYE_BYE_BOOM);
 				else
 					LemArray[lemId].SetCurrentState(Lem::StateId::WALK);
 				

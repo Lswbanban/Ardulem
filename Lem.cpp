@@ -35,13 +35,15 @@ void Lem::UpdateState(int frameNumber)
 {
 	switch (GetCurrentState())
 	{
+		case StateId::CRASH: UpdateCrash(); break;
+		case StateId::BYE_BYE_BOOM: UpdateByeByeBoom(); break;
 		case StateId::WALK: UpdateWalk(); break;
 		case StateId::BLOCKER: UpdateBlocker(); break;
-		case StateId::BOMB: UpdateBomb(); break;
 		case StateId::DIG_DIAG: UpdateDigDiag(); break;
 		case StateId::DIG_HORIZ: UpdateDigHoriz(); break;
 		case StateId::DIG_VERT: UpdateDigVert(); break;
 		case StateId::STAIR: UpdateStair(); break;
+		case StateId::SHRUG: UpdateShrug(); break;
 		case StateId::CLIMB: UpdateClimb(); break;
 		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
 		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
@@ -94,6 +96,24 @@ int Lem::IsThereAWall(int x, int y)
 		}
 	// return the height
 	return wallHeight;
+}
+
+/*
+ * Tell if it is the last frame of the last anim frame for the current anim 
+ *(i.e. next loop, the anim will return to the first frame)
+ */
+bool Lem::IsLastFrame(int frameNumber)
+{
+	return (mCurrentAnimFrame == GetFrameCountForCurrentAnim()-1) &&
+			!((frameNumber+1) % GetFrameRateForCurrentAnim());
+}
+
+void Lem::UpdateCrash()
+{
+}
+
+void Lem::UpdateByeByeBoom()
+{
 }
 
 void Lem::UpdateWalk()
@@ -158,22 +178,21 @@ void Lem::UpdateBlocker()
 	}
 }
 
-void Lem::UpdateBomb()
-{
-}
-
 void Lem::UpdateDigDiag()
 {
 }
 
 void Lem::UpdateDigHoriz()
 {
+	// only test ground in specific frame id (when the lem is moving)
+	bool shouldTestGround = false;
+	int x = mIsDirectionMirrored ? mPosX : mPosX+3;
+	
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
 		case 0:
 		{
-			int x = mIsDirectionMirrored ? mPosX : mPosX+3;
 			MapManager::SetPixel(x, mPosY, false);
 			MapManager::SetPixel(x, mPosY+1, false);
 			MapManager::SetPixel(x+1 ,mPosY, false);
@@ -182,7 +201,6 @@ void Lem::UpdateDigHoriz()
 		}
 		case 1:
 		{
-			int x = mIsDirectionMirrored ? mPosX : mPosX+3;
 			MapManager::SetPixel(x, mPosY+2, false);
 			MapManager::SetPixel(x, mPosY+3, false);
 			MapManager::SetPixel(x+1, mPosY+2, false);
@@ -191,13 +209,34 @@ void Lem::UpdateDigHoriz()
 		}
 		case 2:
 		{
-			int x = mIsDirectionMirrored ? mPosX+1 : mPosX+2;
+			shouldTestGround = true;
 			MapManager::SetPixel(x, mPosY+4, false);
 			MapManager::SetPixel(x, mPosY+5, false);
 			MapManager::SetPixel(x+1, mPosY+4, false);
 			MapManager::SetPixel(x+1, mPosY+5, false);
 			break;
 		}
+		case 3:
+		{
+			shouldTestGround = true;
+			break;
+		}
+		case 5:
+		{
+			shouldTestGround = true;
+			// in last frame check if there's some pixel in front to continue to dig
+			if ((IsThereAWall(mIsDirectionMirrored ? mPosX+1 : mPosX+3, mPosY+1) == 0) &&
+				(IsThereAWall(mIsDirectionMirrored ? mPosX : mPosX+4, mPosY+1) == 0))
+				SetCurrentState(StateId::WALK, mIsDirectionMirrored ? -2 : 0, 0);
+			break;
+		}
+	}
+	
+	// get the pixel under my feet, if no ground, I start to fall
+	if (shouldTestGround)
+	{
+		if (!IsThereGroundAt(mPosX+1, mPosY+6, true, false))
+			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
 
@@ -206,6 +245,10 @@ void Lem::UpdateDigVert()
 }
 
 void Lem::UpdateStair()
+{
+}
+
+void Lem::UpdateShrug()
 {
 }
 
@@ -235,8 +278,7 @@ void Lem::UpdateClimbTop(int frameNumber)
 {
 	// no need to check the ground during that anim, because the whole anim is played on the wall edge
 	// and when I have finished the climb top anim, I go to Walk
-	if ((mCurrentAnimFrame == ANIM_LEM_CLIMB_TOP_FRAME_COUNT - 1) &&
-		!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+	if (IsLastFrame(frameNumber))
 		SetCurrentState(StateId::WALK);
 }
 
@@ -250,8 +292,7 @@ void Lem::UpdateStartFall(int frameNumber)
 	}
 	
 	// and when I have finished the start to Fall anim, I go to Fall
-	if ((mCurrentAnimFrame == ANIM_LEM_START_FALL_FRAME_COUNT - 1) &&
-		!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+	if (IsLastFrame(frameNumber))
 		SetCurrentState(StateId::FALL);
 }
 
@@ -283,13 +324,15 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 {
 	switch (GetCurrentState())
 	{
+		case StateId::CRASH: return 1;//ANIM_LEM_CRASH_FRAME_COUNT;
+		case StateId::BYE_BYE_BOOM: return ANIM_LEM_BOMB_FRAME_COUNT;
 		case StateId::WALK: return ANIM_LEM_WALK_FRAME_COUNT;
 		case StateId::BLOCKER: return ANIM_LEM_BLOCKER_FRAME_COUNT;
-		case StateId::BOMB: return ANIM_LEM_BOMB_FRAME_COUNT;
 		case StateId::DIG_DIAG: return ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
 		case StateId::DIG_HORIZ: return ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
 		case StateId::DIG_VERT: return ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
 		case StateId::STAIR: return ANIM_LEM_STAIR_FRAME_COUNT;
+		case StateId::SHRUG: 1;//return ANIM_LEM_SHRUG_FRAME_COUNT;
 		case StateId::CLIMB: return ANIM_LEM_CLIMB_FRAME_COUNT;
 		case StateId::CLIMB_TOP: return ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
 		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
@@ -305,13 +348,15 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 {
 	switch (mCurrentState)
 	{
+		case StateId::CRASH: 1;//return sizeof(anim_LemCrash[0]);
+		case StateId::BYE_BYE_BOOM: return sizeof(anim_LemBomb[0]);
 		case StateId::WALK: return sizeof(anim_LemWalk[0]);
 		case StateId::BLOCKER: return sizeof(anim_LemBlocker[0]);
-		case StateId::BOMB: return sizeof(anim_LemBomb[0]);
 		case StateId::DIG_DIAG: return sizeof(anim_LemDigDiagonal[0]);
 		case StateId::DIG_HORIZ: return sizeof(anim_LemDigHorizontal[0]);
 		case StateId::DIG_VERT: return sizeof(anim_LemDigVertical[0]);
 		case StateId::STAIR: return sizeof(anim_LemStair[0]);
+		case StateId::SHRUG: 1;//return sizeof(anim_LemShrug[0]);
 		case StateId::CLIMB: return sizeof(anim_LemClimb[0]);
 		case StateId::CLIMB_TOP: return sizeof(anim_LemClimbTop[0]);
 		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
@@ -336,15 +381,18 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		// and find the correct animation frame
 		switch (mCurrentState)
 		{
+			case StateId::CRASH:
+//				hasMoved = UpdateOneAnimFrame(anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]));
+				break;
+			case StateId::BYE_BYE_BOOM:
+				hasMoved = UpdateOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]));
+				break;
 			case StateId::WALK:
 				hasMoved = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
 				break;
 			case StateId::BLOCKER:
 				UpdateOneAnimFrame(anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]));
 				hasMoved = true; // blocker never move, but we can dig under their feet, so they have to check their state every frame
-				break;
-			case StateId::BOMB:
-				hasMoved = UpdateOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]));
 				break;
 			case StateId::DIG_DIAG:
 				hasMoved = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
@@ -358,6 +406,9 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				break;
 			case StateId::STAIR:
 				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
+				break;
+			case StateId::SHRUG:
+//				hasMoved = UpdateOneAnimFrame(anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]));
 				break;
 			case StateId::CLIMB:
 				hasMoved = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));
@@ -374,9 +425,10 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		}
 	}
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
-	else if (!((frameNumber+1) % GetFrameRateForCurrentAnim()))
+	else if (IsLastFrame(frameNumber))
 	{
-		doesNeedUpdate = (GetCurrentState() == StateId::CLIMB_TOP) || (GetCurrentState() == StateId::START_FALL);
+		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
+						(mCurrentState == StateId::DIG_HORIZ);
 	}
 	
 	// return the flag
@@ -453,16 +505,19 @@ void Lem::Draw()
 		bool isMirrored = mIsDirectionMirrored;
 		
 		// and draw the correct animation frame
-		switch (GetCurrentState())
+		switch (mCurrentState)
 		{
+			case StateId::CRASH:
+//				DrawOneAnimFrame(screenX, screenY, anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]), isMirrored, WHITE);
+				break;
+			case StateId::BYE_BYE_BOOM:
+				DrawOneAnimFrame(screenX, screenY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
+				break;
 			case StateId::WALK:
 				DrawOneAnimFrame(screenX, screenY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
 				break;
 			case StateId::BLOCKER:
 				DrawOneAnimFrame(screenX, screenY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), isMirrored, WHITE);
-				break;
-			case StateId::BOMB:
-				DrawOneAnimFrame(screenX, screenY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
 				break;
 			case StateId::DIG_DIAG:
 				DrawOneAnimFrame(screenX, screenY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), isMirrored, WHITE);
@@ -475,6 +530,9 @@ void Lem::Draw()
 				break;
 			case StateId::STAIR:
 				DrawOneAnimFrame(screenX, screenY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
+				break;
+			case StateId::SHRUG:
+//				DrawOneAnimFrame(screenX, screenY, anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]), isMirrored, WHITE);
 				break;
 			case StateId::CLIMB:
 				DrawOneAnimFrame(screenX, screenY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);

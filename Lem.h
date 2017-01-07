@@ -9,22 +9,22 @@ class Lem
 public:
 	enum StateId
 	{
-		NO_SPAWN = 0, // the lem is not yet spawned, will be spawned by the spawn manager
-		SAVED, // the lem has reached the exit and is saved
-		DEAD, // the lem is dead (killed by falling outside the map or crashing)
+		DEAD = 0, // the lem is not yet spawned, saved or dead
 		// the following states, are anim state
+		CRASH,
+		BYE_BYE_BOOM,
 		WALK,
 		BLOCKER,
-		BOMB,
 		DIG_DIAG,
 		DIG_HORIZ,
 		DIG_VERT,
 		STAIR,
+		SHRUG,
 		CLIMB,
 		CLIMB_TOP,
 		START_FALL,
 		FALL,
-		PARACHUTE,
+		PARACHUTE
 	};
 	
 	void			Spawn(unsigned char x, unsigned char y);
@@ -35,8 +35,8 @@ public:
 	bool			IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror);
 	unsigned char	GetCurrentState()		{ return mCurrentState;}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
-	void			PromoteClimber()		{ mIsAClimber = 1; }
-	void			PromoteParachuter()		{ mIsAParachuter = 1; }
+	bool			PromoteClimber()		{ bool wasPromoted = (mIsAClimber == 0); mIsAClimber = 1; return wasPromoted; }
+	bool			PromoteParachuter()		{ bool wasPromoted = (mIsAParachuter == 0); mIsAParachuter = 1; return wasPromoted; }
 	
 	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
@@ -57,13 +57,15 @@ private:
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
 	void 	UpdateState(int frameNumber);
+	void 	UpdateCrash();
+	void 	UpdateByeByeBoom();
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
-	void 	UpdateBomb();
 	void 	UpdateDigDiag();
 	void 	UpdateDigHoriz();
 	void 	UpdateDigVert();
 	void 	UpdateStair();
+	void 	UpdateShrug();
 	void 	UpdateClimb();
 	void 	UpdateClimbTop(int frameNumber);
 	void 	UpdateStartFall(int frameNumber);
@@ -73,6 +75,7 @@ private:
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
 	int		IsThereAWall(int x, int y);
+	bool	IsLastFrame(int frameNumber);
 	
 	// anim related functions
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
