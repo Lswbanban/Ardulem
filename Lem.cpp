@@ -47,7 +47,8 @@ void Lem::UpdateState(int frameNumber)
 		case StateId::CLIMB: UpdateClimb(); break;
 		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
 		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
-		case StateId::FALL: UpdateFall(); break;
+		case StateId::FALL: UpdateFall(frameNumber); break;
+		case StateId::FALL_TO_DEATH: UpdateFallToDeath(); break;
 	}
 }
 
@@ -142,10 +143,10 @@ int Lem::IsThereAWall(int x, int y, int height)
  * Tell if it is the last frame of the last anim frame for the current anim 
  *(i.e. next loop, the anim will return to the first frame)
  */
-bool Lem::IsLastFrame(int frameNumber)
+bool Lem::IsLastFrame(int frameNumber, int frameRateShifter)
 {
 	return (mCurrentAnimFrame == GetFrameCountForCurrentAnim()-1) &&
-			!((frameNumber+1) % GetFrameRateForCurrentAnim());
+			!((frameNumber+1) % GetFrameRateForCurrentAnim() << frameRateShifter);
 }
 
 void Lem::UpdateCrash()
@@ -341,11 +342,22 @@ void Lem::UpdateStartFall(int frameNumber)
 		SetCurrentState(StateId::FALL);
 }
 
-void Lem::UpdateFall()
+void Lem::UpdateFall(int frameNumber)
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 		SetCurrentState(StateId::WALK, 1, 0);
+	
+	// if there's no ground and it is the last frame, we move to the fall to death anim
+	if (IsLastFrame(frameNumber))
+		SetCurrentState(StateId::FALL_TO_DEATH);
+}
+
+void Lem::UpdateFallToDeath()
+{
+	// get the pixel under my feet, if I touch ground, I just crash
+	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+		SetCurrentState(StateId::CRASH);
 }
 
 /*
@@ -356,7 +368,9 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 	switch (GetCurrentState())
 	{
 		case StateId::START_FALL: return 3;
-		case StateId::FALL: return 2;
+		case StateId::FALL:
+		case StateId::FALL_TO_DEATH:
+			return 2;
 		case StateId::CLIMB_TOP: return 7;
 		default: return 10;
 	}
@@ -381,7 +395,8 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 		case StateId::CLIMB: return ANIM_LEM_CLIMB_FRAME_COUNT;
 		case StateId::CLIMB_TOP: return ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
 		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
-		case StateId::FALL: return ANIM_LEM_FALL_FRAME_COUNT;
+		case StateId::FALL: return 8; // special case for fall, we use the full frame count maximum value to reccord the altitude
+		case StateId::FALL_TO_DEATH: return ANIM_LEM_FALL_TO_DEATH_FRAME_COUNT;
 	}
 	return 1;
 }
@@ -406,6 +421,7 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 		case StateId::CLIMB_TOP: return sizeof(anim_LemClimbTop[0]);
 		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
 		case StateId::FALL: return sizeof(anim_LemFall[0]);
+		case StateId::FALL_TO_DEATH: return sizeof(anim_LemFallToDeath[0]);
 	}
 	return 5;
 }
@@ -465,7 +481,17 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				hasMoved = UpdateOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]));
 				break;
 			case StateId::FALL:
-				hasMoved = UpdateOneAnimFrame(anim_LemFall[currentFrame], sizeof(anim_LemFall[0]));
+				// special case for the fall we want to change the frame less often than we cann the update one frame to move
+				if (frameNumber % (GetFrameRateForCurrentAnim() << 1))
+				{
+					// so cancel the increase of the current frame in that case
+					currentFrame--;
+					mCurrentAnimFrame = currentFrame;
+				}
+				hasMoved = UpdateOneAnimFrame(anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]));
+				break;
+			case StateId::FALL_TO_DEATH:
+				hasMoved = UpdateOneAnimFrame(anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]));
 				break;
 		}
 	}
@@ -473,7 +499,8 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 	else if (IsLastFrame(frameNumber))
 	{
 		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
-						(mCurrentState == StateId::DIG_HORIZ);
+						(mCurrentState == StateId::DIG_HORIZ) || 
+						((mCurrentState == StateId::FALL) && IsLastFrame(frameNumber, 1));
 	}
 	
 	// return the flag
@@ -589,8 +616,10 @@ void Lem::Draw()
 				DrawOneAnimFrame(screenX, screenY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), isMirrored, WHITE);
 				break;
 			case StateId::FALL:
-				DrawOneAnimFrame(screenX, screenY, anim_LemFall[currentFrame], sizeof(anim_LemFall[0]), isMirrored, WHITE);
+				DrawOneAnimFrame(screenX, screenY, anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]), isMirrored, WHITE);
 				break;
+			case StateId::FALL_TO_DEATH:
+				DrawOneAnimFrame(screenX, screenY, anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]), isMirrored, WHITE);
 		}
 	}
 }

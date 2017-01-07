@@ -24,6 +24,7 @@ public:
 		CLIMB_TOP,
 		START_FALL,
 		FALL,
+		FALL_TO_DEATH,
 		PARACHUTE
 	};
 	
@@ -69,7 +70,8 @@ private:
 	void 	UpdateClimb();
 	void 	UpdateClimbTop(int frameNumber);
 	void 	UpdateStartFall(int frameNumber);
-	void 	UpdateFall();
+	void 	UpdateFall(int frameNumber);
+	void 	UpdateFallToDeath();
 	
 	// helper functions for update
 	bool	IsXInsideWorld(int x);
@@ -77,7 +79,7 @@ private:
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
 	int		IsThereAWall(int x, int y, int height);
-	bool	IsLastFrame(int frameNumber);
+	bool	IsLastFrame(int frameNumber, int frameRateShifter = 0);
 	
 	// anim related functions
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
