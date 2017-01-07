@@ -10,10 +10,9 @@ namespace LemManager
 	// the array storing all the Lems
 	Lem LemArray[LemManager::MAX_LEM_COUNT];
 
-	//The lem array is sorted, and we store two counter, one for the lem than need timer,
-	// and one for the lem out. So the lem is sorted this way:
-	// lem with timer => other out lem => not updated lems (still in, dead, or in home)
-	unsigned char OutLemCount = 0;
+	// The lem array is sorted, and we place the lem that needs counter at the beggining of the list
+	unsigned char OutLemCount = 0; // the number of lem currently out and that should be managed in the LemArray
+	unsigned char SpawnLemCount = 0; // the total number of lem that was spawned since the beginning of the game
 	unsigned char InLemCount = 0; // this one is used to compute the score, but the end of the list is not sorted
 
 	// for the lem that need to be stopped to do something (like the stairer that build a stair only for x turns, 
@@ -35,7 +34,7 @@ namespace LemManager
 	// the current lem targeted by the cursor
 	char CurrentLemIndexUnderCursor = -1;
 	
-	int GetOutLemPercentage()	{ return ((int)OutLemCount * 100) / MapManager::GetAvailableLemCount(); }
+	int GetSpawnLemPercentage()	{ return ((int)SpawnLemCount * 100) / MapManager::GetAvailableLemCount(); }
 	int GetInLemPercentage()	{ return ((int)InLemCount * 100) / MapManager::GetAvailableLemCount(); }
 
 	// private functions
@@ -64,9 +63,10 @@ void LemManager::Update(int frameNumber)
 	if (HUD::GetCurrentGameState() == HUD::GameState::PLAYING)
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
-		if ((OutLemCount < MapManager::GetAvailableLemCount()) && !(frameNumber % HUD::GetLemDropFrameRate()))
+		if ((SpawnLemCount < MapManager::GetAvailableLemCount()) && !(frameNumber % HUD::GetLemDropFrameRate()))
 		{
 			LemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+			SpawnLemCount++;
 		}
 		
 		// then update each Lem

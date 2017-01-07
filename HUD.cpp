@@ -315,8 +315,7 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 			Lem::DrawOneAnimFrame(x+1, y, anim_LemClimb[animFrameIndex%ANIM_LEM_CLIMB_FRAME_COUNT], sizeof(anim_LemClimb[0]), false, color);
 			break;
 		case Button::LEM_PARACHUTE:
-			// TODO, waiting for anim or need a special sprite
-			//Lem::DrawOneAnimFrame(x, y, anim_LemParachute[0], sizeof(anim_LemParachute[0]), color);
+			Lem::DrawOneAnimFrame(x, y, anim_ParaButton[animFrameIndex%ANIM_PARA_BUTTON_FRAME_COUNT], sizeof(anim_ParaButton[0]), false, color);
 			break;
 	}
 	
@@ -406,7 +405,7 @@ void HUD::DrawLemCounter()
 	// draw the number out with the icon
 	int x = START_COUNTER_X;
 	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, WHITE);
-	x = PrintNumber(x, y, LemManager::GetOutLemPercentage(), 3, false, WHITE);
+	x = PrintNumber(x, y, LemManager::GetSpawnLemPercentage(), 3, false, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
 	// draw the number in with the icon
