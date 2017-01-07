@@ -75,14 +75,23 @@ bool Lem::IsThereRoofAt(int x, int y)
 	return (MapManager::GetPixel(x, y) == WHITE);
 }
 
+/*
+ * x: x world pos of the wall
+ * y: y world pos of the top of the wall. The wall is 5 pixels high.
+ */
 int Lem::IsThereAWall(int x, int y)
 {
+	// get the column of pixels
+	unsigned char pixelColumn = MapManager::GetPixelsColumn(x, y, 5);
+	// and try to find the highest pixel to determines the height of the wall
 	int wallHeight = 0;
 	for (int i = 0; i < 5; ++i)
-	{
-		if (MapManager::GetPixel(x, y - i) == WHITE)
-			wallHeight = i+1;
-	}
+		if ((pixelColumn >> i) & 0x01)
+		{
+			wallHeight = 5-i;
+			break;
+		}
+	// return the height
 	return wallHeight;
 }
 
@@ -99,7 +108,7 @@ void Lem::UpdateWalk()
 	}
 
 	// now check for the stairs (a step of 2 pixel max)
-	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+3, posY+5);
+	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+3, posY+1);
 	if (wallHeight < 3)
 	{
 		mPosY -= wallHeight;
@@ -152,7 +161,7 @@ void Lem::UpdateClimb()
 	}
 	
 	// then check if we reach the top of the climb
-	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+2, posY+5);
+	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+2, posY+1);
 	if (wallHeight <= 3)
 	{
 		SetCurrentState(StateId::CLIMB_TOP, isMirrored ? -2 : 0, 0);

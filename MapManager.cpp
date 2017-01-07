@@ -80,12 +80,13 @@ namespace MapManager
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
-	char GetPixelOutsideScreen(int x, int y);
+	char Get8PixelsOutsideScreen(int worldX, int worldY);
+	char GetPixelOutsideScreen(int worldX, int worldY);
 	
 	void ClearModificationList();
 	void DrawModifications();
 	int GetModificationIndex(int colX, int bitX, int lineY);
-	void Modify8Pixels(int x, int lineY, unsigned char pixels);
+	void Modify8Pixels(int worldX, int lineY, unsigned char pixels);
 }
 
 bool MapManager::ScrollView(int scrollMoveInPixel)
@@ -249,7 +250,10 @@ unsigned char MapManager::ConvertToScreenCoord(int worldX)
 	return worldX - ScrollValue + HUD::HUD_WIDTH;
 }
 
-char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
+/*
+ * Get the column of 8 pixels at the specified worldX and that contains the worldY.
+ */
+char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY)
 {
 	// compute the sprite row and column from the x and y pixel coord
 	unsigned char col = worldX >> 3;
@@ -280,7 +284,6 @@ char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
 	// get the col and row in the modif map
 	col = worldX >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
 	int bitX = worldX % NB_BIT_MODIF_MAP_CELL;
-	int bitY = (worldY % 8);
 	
 	// check if there's a modif at the specified coordinate
 	if (ModificationMap[GET_MAP_INDEX(col, row)] & (1 << bitX))
@@ -299,8 +302,47 @@ char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
 		}
 	}
 
-	// and return the final pixel color
-	return (heightPixelsColumn >> bitY) & 0x01;
+	// and return the final 8 pixels column
+	return heightPixelsColumn;
+}
+
+/*
+ * Get a column of pixel at the specified position downward up to a specified number of pixel (no more that 8), 
+ * no matter if the specified position is inside the screen or outside the screen.
+ */
+unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height)
+{
+	// first check if the pixel is inside the screen or not.
+	if (IsOnScreen(worldX))
+	{
+		// simply get the column of pixel from the frame buffer
+		int screenX = ConvertToScreenCoord(worldX);
+		unsigned char result = 0;
+		for (int i = 0; i < height; ++i)
+			result |= arduboy.getPixel(screenX, worldY + i) << i;
+		// and return the result
+		return result;
+	}
+	else
+	{
+		int yNormalized = (worldY % 8);
+		// get one or two column of 8 pixels, depending where is the worldY and the required height
+		int height16PixelsColumn = Get8PixelsOutsideScreen(worldX, worldY);
+		if ((yNormalized > height-1) && (worldY < 56))
+			height16PixelsColumn |= Get8PixelsOutsideScreen(worldX, worldY + 8) << 8;
+		// return the value, shifted and masked according to the height required (shift in both direction)
+		int leftShift = (16 - yNormalized - height);
+		return (unsigned char)((height16PixelsColumn << leftShift) >> (leftShift + yNormalized));
+	}
+}
+
+/*
+ * get the specific pixel at the specific world x and world y specified position
+ */
+char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
+{
+	char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY);
+	return (heightPixelsColumn >> (worldY % 8)) & 0x01;
 }
 
 /*

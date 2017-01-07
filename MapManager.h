@@ -45,6 +45,7 @@ namespace MapManager
 	unsigned char ConvertToScreenCoord(int worldX);
 	
 	// pixel helper
+	extern unsigned char GetPixelsColumn(int worldX, int worldY, int height);
 	extern char GetPixel(int worldX, int worldY);
 	extern void SetPixel(int worldX, int worldY, bool isAdded);
 }
