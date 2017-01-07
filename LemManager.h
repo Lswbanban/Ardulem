@@ -13,9 +13,12 @@ namespace LemManager
 	extern int GetOutLemPercentage();
 	extern int GetInLemPercentage();
 	extern void KillAllLems();
-
+	
 	extern void Update(int frameNumber);
 	extern void Draw();
+	
+	// helper function for Lem AI
+	extern bool IsThereABlockerAt(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror);
 }
 
 #endif

@@ -332,6 +332,17 @@ void LemManager::CheckLemTimers(int frameNumber)
 }
 
 /*
+ * Tell if there's a lem at the specified position.
+ */
+bool LemManager::IsThereABlockerAt(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror)
+{
+	for (int i = 0; i < OutLemCount; ++i)
+		if (LemArray[i].IsBlockingPosition(worldX, worldY, isWalkingInMirror))
+			return true;
+	return false;
+}
+
+/*
  * This function should be called when the player wants to abandon the current level
  */
 void LemManager::KillAllLems()

@@ -26,12 +26,13 @@ public:
 		FALL,
 		PARACHUTE,
 	};
-
+	
 	void			Spawn(unsigned char x, unsigned char y);
 	void			Update(int frameNumber);
 	void			Draw();
 	void			DrawTimerAboveHead(unsigned char timer);
 	bool			InUnderCursorPosition();
+	bool			IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror);
 	unsigned char	GetCurrentState()		{ return mCurrentState;}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
 	void			PromoteClimber()		{ mIsAClimber = 1; }

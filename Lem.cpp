@@ -2,6 +2,7 @@
 #include "Lem.h"
 #include "SpriteData.h"
 #include "MapManager.h"
+#include "LemManager.h"
 #include "HUD.h"
 
 void Lem::Spawn(unsigned char x, unsigned char y)
@@ -107,8 +108,18 @@ void Lem::UpdateWalk()
 		return;
 	}
 
+	// get the x pixel in front of me
+	int inFrontX = isMirrored ? mPosX-1 : mPosX+3;
+
+	// check if there's no blocker in front of me, then I would need to reverse my direction
+	if (LemManager::IsThereABlockerAt(inFrontX, posY+2, isMirrored))
+	{
+		ReverseMirroredDirection();
+		return;
+	}
+	
 	// now check for the stairs (a step of 2 pixel max)
-	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+3, posY+1);
+	int wallHeight = IsThereAWall(inFrontX, posY+1);
 	if (wallHeight < 3)
 	{
 		mPosY -= wallHeight;
@@ -121,6 +132,19 @@ void Lem::UpdateWalk()
 		else
 			ReverseMirroredDirection();
 	}
+}
+
+/*
+ * Tell if this lem is blocking the specified position.
+ */
+bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror)
+{
+	if ((mCurrentState == StateId::BLOCKER) && (worldY+3 > mPosY+2) && (worldY <= mPosY+6) && (worldX >= mPosX) && (worldX < mPosX+5))
+	{
+		int xBefore = worldX + (isWalkingInMirror ? 1 : -1);
+		return ((xBefore < mPosX) || (xBefore > mPosX+4));
+	}
+	return false;
 }
 
 void Lem::UpdateBlocker()

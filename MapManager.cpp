@@ -163,10 +163,11 @@ void MapManager::Update(int frameNumber)
 */
 
 	// debug paint pixels on screen
-	if (arduboy.pressed(B_BUTTON))
+/*	if (arduboy.pressed(B_BUTTON))
 		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), true);
 	if (arduboy.pressed(A_BUTTON))
 		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), false);
+*/
 }
 
 inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col)
