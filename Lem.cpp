@@ -633,8 +633,8 @@ void Lem::Draw()
 
 void Lem::DrawTimerAboveHead(unsigned char timer)
 {
-	if (MapManager::IsOnScreen(mPosX))
-		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mPosX), mPosY-5, sprite_TinyNumbers[timer], 3, 8, WHITE);
+	if (MapManager::IsOnScreen(mPosX) || MapManager::IsOnScreen(mPosX+5))
+		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mCurrentState == StateId::WALK ? mPosX : mPosX+1), mPosY-5, sprite_TinyNumbers[timer], 3, 8, WHITE);
 }
 
 /*

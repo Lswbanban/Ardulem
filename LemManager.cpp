@@ -42,11 +42,11 @@ namespace LemManager
 	void UpdateInput(int frameNumber);
 	void UpdateLemUnderCursor();
 	void CheckLemTimers(int frameNumber);
+	void MoveDeadLemToDeadPool();
 	
 	// lem array manipulation and sorting
 	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
 	void SwapTwoLems(unsigned char lemId1, unsigned char lemId2);
-	void MoveLemToOutList(unsigned char lemId);
 	void MoveLemToDeadList(unsigned char lemId);
 	void AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
 	bool ExtendTimerOfLem(unsigned char lemId);
@@ -75,6 +75,9 @@ void LemManager::Update(int frameNumber)
 		
 		// also override the state of the lem if they reach the end of their timer
 		CheckLemTimers(frameNumber);
+		
+		// remove dead lems
+		MoveDeadLemToDeadPool();
 	}
 }
 
@@ -259,20 +262,6 @@ void LemManager::SwapTwoLems(unsigned char lemId1, unsigned char lemId2)
 }
 
 /*
- * Move one specific lem id inside the out list. This can make revive a dead lem
- */
-void LemManager::MoveLemToOutList(unsigned char lemId)
-{
-	// Nothing to do if the lem is already out, but check if the lem is dead, and needs to revive
-	// in that case move it to the first dead lem position and increase the out counter
-	if (lemId >= OutLemCount)
-	{
-		SwapTwoLems(lemId, OutLemCount);
-		OutLemCount++;
-	}
-}
-
-/*
  * Move one specific lem id inside the dead list. This will adjust the out counter as needed.
  */
 void LemManager::MoveLemToDeadList(unsigned char lemId)
@@ -282,7 +271,32 @@ void LemManager::MoveLemToDeadList(unsigned char lemId)
 	{
 		OutLemCount--;
 		SwapTwoLems(lemId, OutLemCount);
+		
+		// if the lem had a timer(s), we should remove them
+		for (int i = 0; i < LemTimerCount; ++i)
+			if (LemTimerList[i].LemId == lemId)
+			{
+				// swap this timer with the end, and decrease the timer count
+				LemTimerCount--;
+				SwapTwoTimers(i, LemTimerCount);
+				// and decrease also i to check again the new guys that took his place
+				i--;
+			}
 	}
+}
+
+/*
+ * This function goes through all the out lem, and check the state of them. If there state is DEAD,
+ * it will move them in the dead pool to stop updating them
+ */
+void LemManager::MoveDeadLemToDeadPool()
+{
+	for (int i = 0; i < OutLemCount; ++i)
+		if (LemArray[i].GetCurrentState() == Lem::StateId::DEAD)
+		{
+			MoveLemToDeadList(i);
+			i--;
+		}
 }
 
 void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer)
@@ -389,6 +403,11 @@ bool LemManager::IsThereABlockerAt(unsigned char worldX, unsigned char worldY, b
  */
 void LemManager::KillAllLems()
 {
+}
+
+void LemManager::NotifyInHomeLem()
+{
+	InLemCount++;
 }
 
 void LemManager::Draw()
