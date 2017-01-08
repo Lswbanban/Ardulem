@@ -79,7 +79,7 @@ private:
 	bool	IsYInsideWorld(int y);
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
-	int		IsThereAWall(int x, int y, int height);
+	int		IsThereAWall(int x, int y, int height, bool shouldCheckGround = false);
 	bool	IsLastFrame(int frameNumber, int frameRateShifter = 0);
 	
 	// anim related functions

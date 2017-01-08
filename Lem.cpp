@@ -70,7 +70,7 @@ bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
 		return false;
 	
 	// pixel under
-	if (MapManager::GetPixel(x, y) == WHITE)
+	if (MapManager::GetPixel(x, y, true) == WHITE)
 		return true;
 	
 	// pixel in front
@@ -79,7 +79,7 @@ bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
 		int newX = mIsDirectionMirrored ? x-1 : x+1;
 		if (!IsXInsideWorld(newX))
 			return false;
-		if (MapManager::GetPixel(newX, y) == WHITE)
+		if (MapManager::GetPixel(newX, y, true) == WHITE)
 			return true;
 	}
 	
@@ -89,7 +89,7 @@ bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
 		int newX = mIsDirectionMirrored ? x+1 : x-1;
 		if (!IsXInsideWorld(newX))
 			return false;
-		if (MapManager::GetPixel(newX, y) == WHITE)
+		if (MapManager::GetPixel(newX, y, true) == WHITE)
 			return true;
 	}
 	return false;
@@ -97,7 +97,7 @@ bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
 
 bool Lem::IsThereRoofAt(int x, int y)
 {
-	return IsXInsideWorld(x) && IsYInsideWorld(y) && (MapManager::GetPixel(x, y) == WHITE);
+	return IsXInsideWorld(x) && IsYInsideWorld(y) && (MapManager::GetPixel(x, y, false) == WHITE);
 }
 
 /*
@@ -105,7 +105,7 @@ bool Lem::IsThereRoofAt(int x, int y)
  * y: y world pos of the top of the wall.
  * height: the height of the wall (downward from y) that you want to test
  */
-int Lem::IsThereAWall(int x, int y, int height)
+int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
 {
 	// if the x is outside the world, there's no wall
 	if (!IsXInsideWorld(x))
@@ -127,7 +127,7 @@ int Lem::IsThereAWall(int x, int y, int height)
 		return 0;
 	
 	// get the column of pixels
-	unsigned char pixelColumn = MapManager::GetPixelsColumn(x, y, height);
+	unsigned char pixelColumn = MapManager::GetPixelsColumn(x, y, height, shouldCheckGround);
 	// and try to find the highest pixel to determines the height of the wall
 	int wallHeight = 0;
 	for (int i = 0; i < height; ++i)
@@ -162,7 +162,7 @@ void Lem::UpdateWalk()
 
 	// check if there's a stair in front of me, or a ground under my feet, if no ground, I start to fall
 	int inFrontXInside = isMirrored ? mPosX : mPosX+2;
-	int wallHeight = IsThereAWall(inFrontXInside, posY+4, 3);
+	int wallHeight = IsThereAWall(inFrontXInside, posY+4, 3, true);
 	if (wallHeight > 0)
 	{
 		// step on the stair
@@ -289,6 +289,44 @@ void Lem::UpdateDigVert()
 
 void Lem::UpdateStair()
 {
+	// ground position to test
+	int groundX = mPosX+1;
+	
+	// remove specific pixels depending on the frame num
+	switch (mCurrentAnimFrame)
+	{
+		case 3:
+			if (mIsDirectionMirrored)
+			{
+				int x = mPosX;
+				int y = mPosY + 5;
+				MapManager::SetPixel(x,   y,  true);
+				MapManager::SetPixel(x+1, y,  true);
+				MapManager::SetPixel(x+1, y+1, true);
+			}
+			else
+			{
+				int x = mPosX + 3;
+				int y = mPosY + 5;
+				MapManager::SetPixel(x,   y,  true);
+				MapManager::SetPixel(x+1, y,  true);
+				MapManager::SetPixel(x,	  y+1, true);
+			}
+		break;
+		
+		case 4:
+			groundX++;
+			break;
+
+		case 5:
+			groundX += 2;
+			break;
+	}
+	
+	// get the pixel under my feet, if no ground, I start to fall
+	if (mCurrentAnimFrame < 4)
+		if (!IsThereGroundAt(groundX, mPosY+6, true, true))
+			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 }
 
 void Lem::UpdateShrug()
@@ -499,6 +537,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				break;
 			case StateId::STAIR:
 				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
+				doesNeedUpdate = (currentFrame == 3);
 				break;
 			case StateId::SHRUG:
 //				hasMoved = UpdateOneAnimFrame(anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]));

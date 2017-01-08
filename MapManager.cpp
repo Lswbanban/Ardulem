@@ -82,8 +82,8 @@ namespace MapManager
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
-	char Get8PixelsOutsideScreen(int worldX, int worldY);
-	char GetPixelOutsideScreen(int worldX, int worldY);
+	char Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
+	char GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
 	
 	void ClearModificationList();
 	void DrawModifications();
@@ -289,7 +289,7 @@ unsigned char MapManager::ConvertToScreenCoord(int worldX)
 /*
  * Get the column of 8 pixels at the specified worldX and that contains the worldY.
  */
-char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY)
+char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
 {
 	// compute the sprite row and column from the x and y pixel coord
 	unsigned char col = worldX >> 3;
@@ -328,13 +328,24 @@ char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY)
 		int modifIndex = GetModificationIndex(col, bitX, row);
 		if (modifIndex < MODIFICATION_LIST_SIZE)
 		{
-			// if there's a modif, apply it to the original map data with a XOR
+			// if there's a modif, apply it to the original map data depending if we need the added pixels
+			// If we want the added pixels, we can use a XOR
 			// | original pixel | modif | result pixel
 			// |        0       |   1   |   1
 			// |        0       |   0   |   0
 			// |        1       |   1   |   0
 			// |        1       |   0   |   1
-			heightPixelsColumn ^= ModificationList[modifIndex];
+			//
+			// but if we only want the deleted pixels, we can use an AND + NOT modif:
+			// | original pixel | modif | ~modif | result pixel
+			// |        0       |   1   |    0   |      0   (this was an added pixel -> ignore it)
+			// |        0       |   0   |    1   |      0   (pixel not modified)
+			// |        1       |   1   |    0   |      0   (this was a deleted pixel -> take the modif)
+			// |        1       |   0   |    1   |      1   (pixel not modified)
+			if (considerAddedPixels)
+				heightPixelsColumn ^= ModificationList[modifIndex];
+			else
+				heightPixelsColumn &= ~ModificationList[modifIndex];
 		}
 	}
 
@@ -346,10 +357,10 @@ char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY)
  * Get a column of pixel at the specified position downward up to a specified number of pixel (no more that 8), 
  * no matter if the specified position is inside the screen or outside the screen.
  */
-unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height)
+unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height, bool considerAddedPixels)
 {
-	// first check if the pixel is inside the screen or not.
-	if (IsOnScreen(worldX))
+	// first check if the pixel is inside the screen or not, and if we should consider the added pixels
+	if (considerAddedPixels && IsOnScreen(worldX))
 	{
 		// simply get the column of pixel from the frame buffer
 		int screenX = ConvertToScreenCoord(worldX);
@@ -363,9 +374,9 @@ unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height)
 	{
 		int yNormalized = (worldY % 8);
 		// get one or two column of 8 pixels, depending where is the worldY and the required height
-		int height16PixelsColumn = Get8PixelsOutsideScreen(worldX, worldY);
+		int height16PixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
 		if ((yNormalized > height-1) && (worldY < 56))
-			height16PixelsColumn |= Get8PixelsOutsideScreen(worldX, worldY + 8) << 8;
+			height16PixelsColumn |= Get8PixelsOutsideScreen(worldX, worldY + 8, considerAddedPixels) << 8;
 		// return the value, shifted and masked according to the height required (shift in both direction)
 		int leftShift = (16 - yNormalized - height);
 		return (unsigned char)((height16PixelsColumn << leftShift) >> (leftShift + yNormalized));
@@ -375,9 +386,9 @@ unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height)
 /*
  * get the specific pixel at the specific world x and world y specified position
  */
-char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
+char MapManager::GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
 {
-	char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY);
+	char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
 	return (heightPixelsColumn >> (worldY % 8)) & 0x01;
 }
 
@@ -386,20 +397,27 @@ char MapManager::GetPixelOutsideScreen(int worldX, int worldY)
  * if the pixel is on screen or not. If it is on the screen return it directly (of course we
  * assume that the map is drawn first before anything else, so only the map data cover the screen
  * at that point). Otherwise, if the pixel is outside the screen, we will compute it directly.
+ * You can specify a flag to tell if you want to consider (true) or ignore (false) the added pixel.
+ * The this function will always consider the deleted pixels (no parameter for now, cause no need for gameplay)
+ * The added consideration is usefull for the stairs. You want the lem to go through the stair, but walk on them
+ * therefore you will consider added pixel for checking the ground under lem feet, but ignore them
+ * while checking the wall in front of the lem.
  */
-char MapManager::GetPixel(int worldX, int worldY)
+char MapManager::GetPixel(int worldX, int worldY, bool considerAddedPixels)
 {
 	// first check if the pixel is inside the screen or not.
-	if (IsOnScreen(worldX))
+	// also check if we should consider the added pixel. If we have to ignore them, we cannot use directly
+	// the pixel on screen, so we use the method to find the pixel from the data
+	if (considerAddedPixels && IsOnScreen(worldX))
 		return arduboy.getPixel(ConvertToScreenCoord(worldX), worldY);
 	else
-		return GetPixelOutsideScreen(worldX, worldY);
+		return GetPixelOutsideScreen(worldX, worldY, considerAddedPixels);
 }
 
 void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 {
 	// get the current pixel at the position of the modification.
-	char currentPixel = GetPixel(worldX, worldY);
+	char currentPixel = GetPixel(worldX, worldY, true);
 	
 	// if we want to add a pixel, but the pixel is already set, or, if we want to remove a pixel, but there's nothing,
 	// then we have nothing to do. So call the modification only if the SetPixel will actually modify the map
