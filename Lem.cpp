@@ -179,7 +179,7 @@ void Lem::UpdateWalk()
 	int inFrontXOutside = isMirrored ? mPosX-1 : mPosX+3;
 
 	// check if there's no blocker in front of me, then I would need to reverse my direction
-	if (LemManager::IsThereABlockerAt(inFrontXOutside, mPosY+2, isMirrored))
+	if (LemManager::IsThereABlockerAt(inFrontXOutside, mPosY+1, isMirrored))
 	{
 		ReverseMirroredDirection();
 		return;
@@ -202,7 +202,7 @@ void Lem::UpdateWalk()
  */
 bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror)
 {
-	if ((mCurrentState == StateId::BLOCKER) && (worldY+3 > mPosY+2) && (worldY <= mPosY+5) && (worldX >= mPosX) && (worldX < mPosX+5))
+	if ((mCurrentState == StateId::BLOCKER) && (worldY+4 >= mPosY+1) && (worldY <= mPosY+5) && (worldX >= mPosX) && (worldX < mPosX+5))
 	{
 		int xBefore = worldX + (isWalkingInMirror ? 1 : -1);
 		return ((xBefore < mPosX) || (xBefore > mPosX+4));
@@ -289,12 +289,27 @@ void Lem::UpdateDigVert()
 
 void Lem::UpdateStair()
 {
-	// ground position to test
-	int groundX = mPosX+1;
-	
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
+		case 1:
+		{
+			int inFrontX = mIsDirectionMirrored ? mPosX+2 : mPosX+3;
+			// check if there's a blocker or a wall, after steping on the step
+			if (LemManager::IsThereABlockerAt(inFrontX, mPosY+1, mIsDirectionMirrored) || 
+				LemManager::IsThereABlockerAt(inFrontX-1, mPosY+1, mIsDirectionMirrored) || 
+				(IsThereAWall(inFrontX, mPosY+1, 5) > 2) || (IsThereAWall(inFrontX-1, mPosY+1, 5) > 2))
+			{
+				ReverseMirroredDirection();
+				if (mIsDirectionMirrored)
+					mPosX--;
+				else
+					mPosX++;
+				return;
+			}
+		}
+		break;
+
 		case 3:
 			if (mIsDirectionMirrored)
 			{
@@ -313,20 +328,11 @@ void Lem::UpdateStair()
 				MapManager::SetPixel(x,	  y+1, true);
 			}
 		break;
-		
-		case 4:
-			groundX++;
-			break;
-
-		case 5:
-			groundX += 2;
-			break;
 	}
 	
 	// get the pixel under my feet, if no ground, I start to fall
-	if (mCurrentAnimFrame < 4)
-		if (!IsThereGroundAt(groundX, mPosY+6, true, true))
-			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, true))
+		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 }
 
 void Lem::UpdateShrug()
@@ -537,7 +543,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				break;
 			case StateId::STAIR:
 				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
-				doesNeedUpdate = (currentFrame == 3);
+				doesNeedUpdate = ((currentFrame == 1) || (currentFrame == 3));
 				break;
 			case StateId::SHRUG:
 //				hasMoved = UpdateOneAnimFrame(anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]));

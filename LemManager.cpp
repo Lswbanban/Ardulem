@@ -240,10 +240,13 @@ void LemManager::UpdateLemUnderCursor()
  */
 void LemManager::SwapTwoTimers(unsigned char timerId1, unsigned char timerId2)
 {
-	LemTimer swap;
-	memccpy(&swap,                     &(LemTimerList[timerId1]), 1, sizeof(swap));
-	memccpy(&(LemTimerList[timerId1]), &(LemTimerList[timerId2]), 1, sizeof(swap));
-	memccpy(&(LemTimerList[timerId2]), &swap,                     1, sizeof(swap));
+	if (timerId1 != timerId2)
+	{
+		LemTimer swap;
+		memccpy(&swap,                     &(LemTimerList[timerId1]), 1, sizeof(swap));
+		memccpy(&(LemTimerList[timerId1]), &(LemTimerList[timerId2]), 1, sizeof(swap));
+		memccpy(&(LemTimerList[timerId2]), &swap,                     1, sizeof(swap));
+	}
 }
 
 /*
@@ -270,15 +273,15 @@ void LemManager::MoveLemToDeadList(unsigned char lemId)
 	if (lemId < OutLemCount)
 	{
 		OutLemCount--;
-		SwapTwoLems(lemId, OutLemCount);
+		if (OutLemCount > 0)
+			SwapTwoLems(lemId, OutLemCount);
 		
 		// if the lem had a timer(s), we should remove them
 		for (int i = 0; i < LemTimerCount; ++i)
 			if (LemTimerList[i].LemId == lemId)
 			{
-				// swap this timer with the end, and decrease the timer count
-				LemTimerCount--;
-				SwapTwoTimers(i, LemTimerCount);
+				// remove this timer from the list
+				RemoveTimerToLem(i);
 				// and decrease also i to check again the new guys that took his place
 				i--;
 			}
@@ -349,6 +352,14 @@ bool LemManager::ExtendTimerOfLem(unsigned char lemId)
 	return false;
 }
 
+void LemManager::RemoveTimerToLem(unsigned char lemId)
+{
+	// swap the specified timer with the end, and decrease the timer count
+	LemTimerCount--;
+	if (LemTimerCount > 0)
+		SwapTwoTimers(lemId, LemTimerCount);
+}
+
 /*
  * This function check all the timer and may update the lem status if the timer reach zero
  */
@@ -359,10 +370,11 @@ void LemManager::CheckLemTimers(int frameNumber)
 	{
 		// get the lemId
 		int lemId = LemTimerList[i].LemId;
+		int remainingTicks = LemTimerList[i].RemainingTick;
 
 		// draw the time abobe his head for the bombers
-		if (LemTimerList[i].IsBombTimer)
-			LemArray[lemId].DrawTimerAboveHead(LemTimerList[i].RemainingTick);
+		if (remainingTicks < 4)
+			LemArray[lemId].DrawTimerAboveHead(remainingTicks);
 
 		// check if it's time to tick the stair
 		if ((frameNumber % TIMER_DURATION) == LemTimerList[i].TimeModulo)
@@ -377,9 +389,8 @@ void LemManager::CheckLemTimers(int frameNumber)
 				else
 					LemArray[lemId].SetCurrentState(Lem::StateId::WALK);
 				
-				// then swap this timer with the end, and decrease the timer count
-				LemTimerCount--;
-				SwapTwoTimers(i, LemTimerCount);
+				// remove the timer for the current lem
+				RemoveTimerToLem(i);
 				// and decrease also i to check again the new guys that took his place
 				i--;
 			}
