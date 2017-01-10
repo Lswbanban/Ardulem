@@ -45,10 +45,12 @@ namespace LemManager
 	
 	// lem array manipulation and sorting
 	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
+	void RemoveTimer(unsigned char timerId);
 	void SwapTwoLems(unsigned char lemId1, unsigned char lemId2);
 	void MoveLemToDeadList(unsigned char lemId);
 	void AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
 	bool ExtendTimerOfLem(unsigned char lemId);
+	void RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer);
 }
 
 void LemManager::Update(int frameNumber)
@@ -71,7 +73,8 @@ void LemManager::Update(int frameNumber)
 		
 		// then update each Lem
 		for (int i = 0; i < OutLemCount; ++i)
-			LemArray[i].Update(frameNumber);
+			if (LemArray[i].Update(frameNumber))
+				RemoveTimerOfLem(i, false);
 		
 		// also override the state of the lem if they reach the end of their timer
 		CheckLemTimers(frameNumber);
@@ -250,6 +253,17 @@ void LemManager::SwapTwoTimers(unsigned char timerId1, unsigned char timerId2)
 }
 
 /*
+ * Remove the specified timer id from the list of timer
+ */
+void LemManager::RemoveTimer(unsigned char timerId)
+{
+	// swap the specified timer with the end, and decrease the timer count
+	LemTimerCount--;
+	if (LemTimerCount > 0)
+		SwapTwoTimers(timerId, LemTimerCount);
+}
+
+/*
  * Swap the two specified lem in the lem array. This is used to reorder the lem array.
  */
 void LemManager::SwapTwoLems(unsigned char lemId1, unsigned char lemId2)
@@ -277,14 +291,7 @@ void LemManager::MoveLemToDeadList(unsigned char lemId)
 			SwapTwoLems(lemId, OutLemCount);
 		
 		// if the lem had a timer(s), we should remove them
-		for (int i = 0; i < LemTimerCount; ++i)
-			if (LemTimerList[i].LemId == lemId)
-			{
-				// remove this timer from the list
-				RemoveTimerToLem(i);
-				// and decrease also i to check again the new guys that took his place
-				i--;
-			}
+		RemoveTimerOfLem(lemId, true);
 	}
 }
 
@@ -352,12 +359,17 @@ bool LemManager::ExtendTimerOfLem(unsigned char lemId)
 	return false;
 }
 
-void LemManager::RemoveTimerToLem(unsigned char lemId)
+void LemManager::RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer)
 {
-	// swap the specified timer with the end, and decrease the timer count
-	LemTimerCount--;
-	if (LemTimerCount > 0)
-		SwapTwoTimers(lemId, LemTimerCount);
+	// iterate the timer list to find all the timers with the specified lemId
+	for (int i = 0; i < LemTimerCount; ++i)
+		if ((LemTimerList[i].LemId == lemId) && (removeAllTimer || !LemTimerList[i].IsBombTimer))
+		{
+			// remove this timer from the list
+			RemoveTimer(i);
+			// and decrease also i to check again the new guys that took his place
+			i--;
+		}
 }
 
 /*
@@ -390,7 +402,7 @@ void LemManager::CheckLemTimers(int frameNumber)
 					LemArray[lemId].SetCurrentState(Lem::StateId::WALK);
 				
 				// remove the timer for the current lem
-				RemoveTimerToLem(i);
+				RemoveTimer(i);
 				// and decrease also i to check again the new guys that took his place
 				i--;
 			}

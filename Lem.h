@@ -29,7 +29,7 @@ public:
 	};
 	
 	void			Spawn(unsigned char x, unsigned char y);
-	void			Update(int frameNumber);
+	bool			Update(int frameNumber);
 	void			Draw();
 	void			DrawTimerAboveHead(unsigned char timer);
 	bool			InUnderCursorPosition();
@@ -57,14 +57,14 @@ private:
 	
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
-	void 	UpdateState(int frameNumber);
+	bool 	UpdateState(int frameNumber);
 	void 	UpdateByeByeBoom();
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
 	void 	UpdateDigDiag();
 	void 	UpdateDigHoriz();
 	void 	UpdateDigVert();
-	void 	UpdateStair();
+	bool 	UpdateStair();
 	void 	UpdateShrug();
 	void 	UpdateClimb();
 	void 	UpdateClimbTop(int frameNumber);

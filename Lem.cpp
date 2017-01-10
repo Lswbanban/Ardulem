@@ -17,7 +17,7 @@ void Lem::Spawn(unsigned char x, unsigned char y)
 	mCurrentState = StateId::FALL; // set directly the value to override the other mirror flag;
 }
 
-void Lem::Update(int frameNumber)
+bool Lem::Update(int frameNumber)
 {
 	// do nothing if the Lem is not alive
 	if (GetCurrentState() > StateId::DEAD)
@@ -27,11 +27,12 @@ void Lem::Update(int frameNumber)
 		
 		// update the ai of the lem depending on the new position if it has moved
 		if (doesNeedUpdate)
-			UpdateState(frameNumber);
+			return UpdateState(frameNumber);
 	}
+	return false;
 }
 
-void Lem::UpdateState(int frameNumber)
+bool Lem::UpdateState(int frameNumber)
 {
 	switch (GetCurrentState())
 	{
@@ -42,7 +43,7 @@ void Lem::UpdateState(int frameNumber)
 		case StateId::DIG_DIAG: UpdateDigDiag(); break;
 		case StateId::DIG_HORIZ: UpdateDigHoriz(); break;
 		case StateId::DIG_VERT: UpdateDigVert(); break;
-		case StateId::STAIR: UpdateStair(); break;
+		case StateId::STAIR: return UpdateStair();
 		case StateId::SHRUG: UpdateShrug(); break;
 		case StateId::CLIMB: UpdateClimb(); break;
 		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
@@ -51,6 +52,7 @@ void Lem::UpdateState(int frameNumber)
 		case StateId::FALL_TO_DEATH: UpdateFallToDeath(); break;
 		case StateId::PARACHUTE: UpdateParachute(); break;
 	}
+	return false;
 }
 
 bool Lem::IsXInsideWorld(int x)
@@ -287,7 +289,7 @@ void Lem::UpdateDigVert()
 {
 }
 
-void Lem::UpdateStair()
+bool Lem::UpdateStair()
 {
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
@@ -305,7 +307,7 @@ void Lem::UpdateStair()
 					mPosX--;
 				else
 					mPosX++;
-				return;
+				return false;
 			}
 		}
 		break;
@@ -332,7 +334,13 @@ void Lem::UpdateStair()
 	
 	// get the pixel under my feet, if no ground, I start to fall
 	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, true))
+	{
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+		return true;
+	}
+	
+	// no need to cancel my timer
+	return false;
 }
 
 void Lem::UpdateShrug()
