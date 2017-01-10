@@ -42,14 +42,15 @@ namespace LemManager
 	void UpdateLemUnderCursor();
 	void CheckLemTimers(int frameNumber);
 	void MoveDeadLemToDeadPool();
-	
+	bool ChangeLemStateIfPossible(int lemId, Lem::StateId newState);
+
 	// lem array manipulation and sorting
 	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
 	void RemoveTimer(unsigned char timerId);
 	void SwapTwoLems(unsigned char lemId1, unsigned char lemId2);
 	void MoveLemToDeadList(unsigned char lemId);
-	void AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
-	bool ExtendTimerOfLem(unsigned char lemId);
+	bool AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
+	bool ExtendStairTimerOfLem(unsigned char lemId);
 	void RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer);
 }
 
@@ -134,40 +135,28 @@ void LemManager::UpdateInput(int frameNumber)
 			switch (HUD::GetSelectedButton())
 			{
 				case HUD::Button::LEM_BLOCKER:
-					if ((lemState != Lem::StateId::BLOCKER) && (lemState < Lem::StateId::CLIMB))
-					{
-						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::BLOCKER);
+					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::BLOCKER))
 						MapManager::DecreaseBlockerCount();
-					}
 					break;
 					
 				case HUD::Button::LEM_BOMB:
-					AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, true);
-					MapManager::DecreaseBomberCount();
+					if (AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, true))
+						MapManager::DecreaseBomberCount();
 					break;
 					
 				case HUD::Button::LEM_DIG_DIAG:
-					if ((lemState != Lem::StateId::DIG_DIAG) && (lemState < Lem::StateId::CLIMB))
-					{
-						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_DIAG);
+					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_DIAG))
 						MapManager::DecreaseDiggerDiagonalCount();
-					}
 					break;
 					
 				case HUD::Button::LEM_DIG_HORIZ:
-					if ((lemState != Lem::StateId::DIG_HORIZ) && (lemState < Lem::StateId::CLIMB))
-					{
-						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_HORIZ);
+					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_HORIZ))
 						MapManager::DecreaseDiggerHorizontalCount();
-					}
 					break;
 					
 				case HUD::Button::LEM_DIG_VERT:
-					if ((lemState != Lem::StateId::DIG_VERT) && (lemState < Lem::StateId::CLIMB))
-					{
-						LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::DIG_VERT);
+					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_VERT))
 						MapManager::DecreaseDiggerVerticalCount();
-					}
 					break;
 					
 				case HUD::Button::LEM_STAIR:
@@ -176,14 +165,14 @@ void LemManager::UpdateInput(int frameNumber)
 						// check if it is already a stairer that should be extended, or if we get a new one
 						if (lemState == Lem::StateId::STAIR)
 						{
-							if (ExtendTimerOfLem(CurrentLemIndexUnderCursor))
+							if (ExtendStairTimerOfLem(CurrentLemIndexUnderCursor))
 								MapManager::DecreaseStairerCount();
 						}
 						else
 						{
 							LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
-							AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, false);
-							MapManager::DecreaseStairerCount();
+							if (AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, false))
+								MapManager::DecreaseStairerCount();
 						}
 					}
 					break;
@@ -202,6 +191,23 @@ void LemManager::UpdateInput(int frameNumber)
 			}
 		}
 	}
+}
+
+bool LemManager::ChangeLemStateIfPossible(int lemId, Lem::StateId newState)
+{
+	// get the current state of the lem
+	unsigned char currentState = LemArray[lemId].GetCurrentState();
+	if ((currentState != newState) && (currentState < Lem::StateId::CLIMB))
+	{
+		// give the new state
+		LemArray[lemId].SetCurrentState(newState);
+		// and remove the timer, as the lem may be a stairer before
+		RemoveTimerOfLem(lemId, false);
+		// return true if we changed the state
+		return true;
+	}
+	// return false as we didn't changed the state
+	return false;
 }
 
 /*
@@ -309,17 +315,20 @@ void LemManager::MoveDeadLemToDeadPool()
 		}
 }
 
-void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer)
+bool LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer)
 {
+	const int LEM_ID_MAX_STORABLE_VALUE = 32; //We use 32 because LemTimer.LemId use 5 bits
+	
 	// check if the current lem id is sufficiently low so that we can save it's id in the timer instance
 	// in such case, we don't need to swap his place to move it at the beginning of the LemArray list
-	// but if the lem id is too big, we need to swap it first
-	if (lemId >= MAX_LEM_TIMER_COUNT)
+	// but if the lem id is too big, we need to swap it first.
+	if (lemId >= LEM_ID_MAX_STORABLE_VALUE)
 	{
 		// if the lem id is too far in the lem array, we need to swap it closer to the beggining,
+		// and we are sure that it is not already inside the timer array (because it could not have been stored)
 		// so we will search for a free space (a lem that doesn't have a timer) starting from the beggining
 		int newIndex = 0;
-		for (int i = 0; i < MAX_LEM_TIMER_COUNT; ++i)
+		for (int i = 0; i < LEM_ID_MAX_STORABLE_VALUE; ++i)
 		{
 			bool isAnyTimerFound = false;
 			for (int j = 0; j < LemTimerCount; ++j)
@@ -339,6 +348,15 @@ void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool is
 		SwapTwoLems(lemId, newIndex);
 		lemId = newIndex;
 	}
+	else
+	{
+		// If the lem id is small, maybe this lem already has a timer, so we should check and early exit if it is the case
+		// iterate on the timer list to check if the lem doesn't already have a timer of the speciified type
+		// if we found one, return false, meaning no timer was added
+		for (int i = 0; i < LemTimerCount; ++i)
+			if ((LemTimerList[i].LemId == lemId) && (LemTimerList[i].IsBombTimer == isBombTimer))
+				return false;
+	}
 	
 	// now insert the timer in the timer array
 	LemTimerList[LemTimerCount].IsBombTimer = isBombTimer;
@@ -346,16 +364,20 @@ void LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool is
 	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 10;
 	LemTimerList[LemTimerCount].TimeModulo = timer % TIMER_DURATION;
 	LemTimerCount++;
+	
+	// return true because the timer has been added.
+	return true;
 }
 
-bool LemManager::ExtendTimerOfLem(unsigned char lemId)
+bool LemManager::ExtendStairTimerOfLem(unsigned char lemId)
 {
 	// normally the lemId should always be valid, but test if we are et the end of the stair
-	if ((lemId < LemTimerCount) && (LemTimerList[lemId].RemainingTick < 4))
-	{
-		LemTimerList[lemId].RemainingTick += 10;
-		return true;
-	}
+	for (int i = 0; i < LemTimerCount; ++i)
+		if ((LemTimerList[i].LemId == lemId) && !LemTimerList[i].IsBombTimer && (LemTimerList[i].RemainingTick < 4))
+		{
+			LemTimerList[i].RemainingTick += 10;
+			return true;
+		}
 	return false;
 }
 
