@@ -11,6 +11,7 @@ public:
 	{
 		DEAD = 0, // the lem is not yet spawned, saved or dead
 		// the following states, are anim state
+		EXPLOSION_FX,
 		CRASH,
 		BYE_BYE_BOOM,
 		WALK,
@@ -19,7 +20,6 @@ public:
 		DIG_HORIZ,
 		DIG_VERT,
 		STAIR,
-		SHRUG,
 		CLIMB,
 		CLIMB_TOP,
 		START_FALL,
@@ -58,14 +58,14 @@ private:
 	// state update
 	bool	UpdateCurrentAnim(int frameNumber);
 	bool 	UpdateState(int frameNumber);
-	void 	UpdateByeByeBoom();
+	void 	UpdateExplosion(int frameNumber);
+	void 	UpdateByeByeBoom(int frameNumber);
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
 	void 	UpdateDigDiag();
 	void 	UpdateDigHoriz();
 	void 	UpdateDigVert();
 	bool 	UpdateStair();
-	void 	UpdateShrug();
 	void 	UpdateClimb();
 	void 	UpdateClimbTop(int frameNumber);
 	void 	UpdateStartFall(int frameNumber);
@@ -73,6 +73,7 @@ private:
 	void 	UpdateFallToDeath();
 	void 	UpdateCrash(int frameNumber);
 	void 	UpdateParachute();
+	void	DrawExplosiontFx();
 	
 	// helper functions for update
 	bool	IsXInsideWorld(int x);

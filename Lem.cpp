@@ -36,15 +36,15 @@ bool Lem::UpdateState(int frameNumber)
 {
 	switch (GetCurrentState())
 	{
+		case StateId::EXPLOSION_FX: UpdateExplosion(frameNumber); break;
 		case StateId::CRASH: UpdateCrash(frameNumber); break;
-		case StateId::BYE_BYE_BOOM: UpdateByeByeBoom(); break;
+		case StateId::BYE_BYE_BOOM: UpdateByeByeBoom(frameNumber); break;
 		case StateId::WALK: UpdateWalk(); break;
 		case StateId::BLOCKER: UpdateBlocker(); break;
 		case StateId::DIG_DIAG: UpdateDigDiag(); break;
 		case StateId::DIG_HORIZ: UpdateDigHoriz(); break;
 		case StateId::DIG_VERT: UpdateDigVert(); break;
 		case StateId::STAIR: return UpdateStair();
-		case StateId::SHRUG: UpdateShrug(); break;
 		case StateId::CLIMB: UpdateClimb(); break;
 		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
 		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
@@ -152,8 +152,16 @@ bool Lem::IsLastFrame(int frameNumber, int frameRateShifter)
 			!((frameNumber+1) % GetFrameRateForCurrentAnim() << frameRateShifter);
 }
 
-void Lem::UpdateByeByeBoom()
+void Lem::UpdateByeByeBoom(int frameNumber)
 {
+	// if it's the last frame, make a hole in the level, and change state for the explosion
+	if (IsLastFrame(frameNumber))
+	{
+		mIsAClimber = 0;
+		mIsAParachuter = 0;
+		mIsDirectionMirrored = 0;
+		SetCurrentState(StateId::EXPLOSION_FX);
+	}
 }
 
 void Lem::UpdateWalk()
@@ -221,6 +229,13 @@ void Lem::UpdateBlocker()
 		mIsDirectionMirrored = !IsThereGroundAt(mPosX+1, mPosY+6, false, false) ? 1 : 0;
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
+}
+
+void Lem::UpdateExplosion(int frameNumber)
+{
+	// check if it is a climber because we use the 3 flags to extends the frame count of the explosion
+	if (mIsAClimber && IsLastFrame(frameNumber))
+		SetCurrentState(StateId::DEAD);
 }
 
 void Lem::UpdateDigDiag()
@@ -343,10 +358,6 @@ bool Lem::UpdateStair()
 	return false;
 }
 
-void Lem::UpdateShrug()
-{
-}
-
 void Lem::UpdateClimb()
 {
 	unsigned char posY = mPosY;
@@ -443,6 +454,8 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 {
 	switch (GetCurrentState())
 	{
+		case StateId::EXPLOSION_FX:
+			return 1;
 		case StateId::FALL:
 		case StateId::FALL_TO_DEATH:
 			return 2;
@@ -465,6 +478,7 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 {
 	switch (GetCurrentState())
 	{
+		case StateId::EXPLOSION_FX: return 8; // use all available frame count
 		case StateId::CRASH: return ANIM_LEM_CRASH_FRAME_COUNT;
 		case StateId::BYE_BYE_BOOM: return ANIM_LEM_BOMB_FRAME_COUNT;
 		case StateId::WALK: return ANIM_LEM_WALK_FRAME_COUNT;
@@ -473,7 +487,6 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
 		case StateId::DIG_HORIZ: return ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
 		case StateId::DIG_VERT: return ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
 		case StateId::STAIR: return ANIM_LEM_STAIR_FRAME_COUNT;
-		case StateId::SHRUG: 1;//return ANIM_LEM_SHRUG_FRAME_COUNT;
 		case StateId::CLIMB: return ANIM_LEM_CLIMB_FRAME_COUNT;
 		case StateId::CLIMB_TOP: return ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
 		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
@@ -499,7 +512,6 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 		case StateId::DIG_HORIZ: return sizeof(anim_LemDigHorizontal[0]);
 		case StateId::DIG_VERT: return sizeof(anim_LemDigVertical[0]);
 		case StateId::STAIR: return sizeof(anim_LemStair[0]);
-		case StateId::SHRUG: 1;//return sizeof(anim_LemShrug[0]);
 		case StateId::CLIMB: return sizeof(anim_LemClimb[0]);
 		case StateId::CLIMB_TOP: return sizeof(anim_LemClimbTop[0]);
 		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
@@ -507,7 +519,7 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 		case StateId::FALL_TO_DEATH: return sizeof(anim_LemFallToDeath[0]);
 		case StateId::PARACHUTE: return sizeof(anim_LemPara[0]);
 	}
-	return 5;
+	return 0;
 }
 
 bool Lem::UpdateCurrentAnim(int frameNumber)
@@ -526,6 +538,28 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		// and find the correct animation frame
 		switch (mCurrentState)
 		{
+			case StateId::EXPLOSION_FX:
+				if (currentFrame == 0)
+				{
+					// simulate a bigger frame count number (up to 63, using 6 bits) by using the flag single bits
+					if (mIsDirectionMirrored == 0)
+					{
+						mIsDirectionMirrored = 1;
+					}
+					else if (mIsAParachuter == 0)
+					{
+						mIsAParachuter = 1;
+						mIsDirectionMirrored = 0;
+					}
+					else
+					{
+						mIsAClimber = 1;
+						mIsAParachuter = 0;
+						mIsDirectionMirrored = 0;
+					}
+				}
+				doesNeedUpdate = true; // the explosion FX does need update for every frame of the frame rate
+				break;
 			case StateId::CRASH:
 				hasMoved = UpdateOneAnimFrame(anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]));
 				break;
@@ -552,9 +586,6 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 			case StateId::STAIR:
 				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
 				doesNeedUpdate = ((currentFrame == 1) || (currentFrame == 3));
-				break;
-			case StateId::SHRUG:
-//				hasMoved = UpdateOneAnimFrame(anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]));
 				break;
 			case StateId::CLIMB:
 				hasMoved = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));
@@ -588,6 +619,7 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 	{
 		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
 						(mCurrentState == StateId::DIG_HORIZ) || (mCurrentState == StateId::CRASH) || 
+						(mCurrentState == StateId::BYE_BYE_BOOM) || (mCurrentState == StateId::EXPLOSION_FX) ||
 						((mCurrentState == StateId::FALL) && IsLastFrame(frameNumber, 1));
 	}
 	
@@ -667,6 +699,9 @@ void Lem::Draw()
 		// and draw the correct animation frame
 		switch (mCurrentState)
 		{
+			case StateId::EXPLOSION_FX:
+				DrawExplosiontFx();
+				break;
 			case StateId::CRASH:
 				DrawOneAnimFrame(screenX, screenY, anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]), isMirrored, WHITE);
 				break;
@@ -690,9 +725,6 @@ void Lem::Draw()
 				break;
 			case StateId::STAIR:
 				DrawOneAnimFrame(screenX, screenY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
-				break;
-			case StateId::SHRUG:
-//				DrawOneAnimFrame(screenX, screenY, anim_LemShrug[currentFrame], sizeof(anim_LemShrug[0]), isMirrored, WHITE);
 				break;
 			case StateId::CLIMB:
 				DrawOneAnimFrame(screenX, screenY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);
@@ -735,6 +767,27 @@ void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char
 	
 	// then draw the frame
 	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
+}
+
+void Lem::DrawExplosiontFx()
+{
+	const int T_NORMALIZATION_SHIFT = 3;
+	const int EXPLOSION_PIXEL_COUNT = 20;
+	const int MIN_PIXEL_VELOCITY_X = -20;
+	const int MAX_PIXEL_VELOCITY_X = 20;
+	const int MIN_PIXEL_VELOCITY_Y = -30;
+	const int MAX_PIXEL_VELOCITY_Y = -15;
+	
+	// seed the random generato with the posx, so that I always get the same series of random numbers
+	randomSeed(mPosX);
+	int t = (mIsDirectionMirrored ? mCurrentAnimFrame + 8 : mCurrentAnimFrame) + (mIsAParachuter ? 16 : 0) + (mIsAClimber ? 32 : 0);
+	int minusHalfGTSquaredPlusPosY = (int)mPosY + ((5*t*t) >> (T_NORMALIZATION_SHIFT*2));
+	for (int i = 0; i < EXPLOSION_PIXEL_COUNT; ++i)
+	{
+		int x = MapManager::ConvertToScreenCoord(mPosX + ((random(MIN_PIXEL_VELOCITY_X, MAX_PIXEL_VELOCITY_X) * t)  >> T_NORMALIZATION_SHIFT));
+		int y = minusHalfGTSquaredPlusPosY + ((random(MIN_PIXEL_VELOCITY_Y, MAX_PIXEL_VELOCITY_Y) * t) >> T_NORMALIZATION_SHIFT);
+		arduboy.drawPixel(x, y, INVERT);
+	}
 }
 
 void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)

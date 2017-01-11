@@ -45,6 +45,8 @@ void loop()
 	// increase the frame counter to pass it to the managers
 	frameNumber++;
 	
+	//Serial.println(arduboy.cpuLoad());
+	
 	// update the various managers
 	Input::Update(frameNumber);
 	// at first draw the Map (and nothing else before, because the lem will use the screen buffer information)
