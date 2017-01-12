@@ -4,6 +4,7 @@
 #include "HUD.h"
 #include "MapManager.h"
 #include "Input.h"
+#include "MainMenu.h"
 
 namespace LemManager
 {
@@ -63,7 +64,7 @@ void LemManager::Update()
 	// Search the lem under the cursor
 	UpdateLemUnderCursor();
 	
-	if (HUD::GetCurrentGameState() == HUD::GameState::PLAYING)
+	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING)
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
 		if ((SpawnLemCount < MapManager::GetAvailableLemCount()) && arduboy.everyXFrames(HUD::GetLemDropFrameRate()))

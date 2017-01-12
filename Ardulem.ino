@@ -14,6 +14,8 @@
 #include "HUD.h"
 #include "Input.h"
 #include "MapManager.h"
+#include "MainMenu.h"
+#include "HelpMenu.h"
 
 // instance of the arduboy class
 CustomArduboy arduboy;
@@ -38,23 +40,38 @@ void loop()
 	if (!arduboy.nextFrame())
 		return;
 
+	//Serial.println(arduboy.cpuLoad());
+
 	// clear the screen
 	arduboy.clear();
 
-	//Serial.println(arduboy.cpuLoad());
-	
-	// update the various managers
+	// update the input
 	Input::Update();
-	// at first draw the Map (and nothing else before, because the lem will use the screen buffer information)
-	MapManager::Update();
-	// then update the lem and draw them in two pass, so that all the lems have updated their logic, before being drawn
-	// and polluting the screen buffer.
-	LemManager::Update();
-	LemManager::Draw();
-	// then draw the start and home
-	MapManager::DrawStartAndHome();
-	// finally draw the HUD that will override the map and lem which has been drawn behind
-	HUD::Update();
+
+	// and draw the correct scene according to the current game state
+	MainMenu::GameState currentGameState = MainMenu::GetCurrentGameState();
+	if (currentGameState == MainMenu::GameState::MENU)
+	{
+		MainMenu::Update();
+	}
+	else if (currentGameState == MainMenu::GameState::HOW_TO_PLAY)
+	{
+		HelpMenu::Update();
+	}
+	else
+	{
+		// update the various managers
+		// at first draw the Map (and nothing else before, because the lem will use the screen buffer information)
+		MapManager::Update();
+		// then update the lem and draw them in two pass, so that all the lems have updated their logic, before being drawn
+		// and polluting the screen buffer.
+		LemManager::Update();
+		LemManager::Draw();
+		// then draw the start and home
+		MapManager::DrawStartAndHome();
+		// finally draw the HUD that will override the map and lem which has been drawn behind
+		HUD::Update();
+	}
 	
 	// draw the frame buffer
 	arduboy.display();

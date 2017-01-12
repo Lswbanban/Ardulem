@@ -4,6 +4,7 @@
 #include "HUD.h"
 #include "Input.h"
 #include "SpriteData.h"
+#include "MainMenu.h"
 
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
@@ -178,7 +179,7 @@ void MapManager::DrawStartAndHome()
 	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
 	{
 		// compute the current frame index
-		if ((HUD::GetCurrentGameState() == HUD::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
+		if ((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
 			IntroAnimFrameIndex++;
 		
 		// copy the current frame

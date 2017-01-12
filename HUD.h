@@ -9,15 +9,6 @@ namespace HUD
 	// constants
 	const unsigned int HUD_WIDTH = 30;
 	
-	enum GameState
-	{
-		INTRO = 0,
-		PLAYING,
-		PAUSED,
-		QUIT_WARNING,
-		OUTRO
-	};
-	
 	enum Button
 	{
 		TIMER = 0,
@@ -33,9 +24,6 @@ namespace HUD
 		DROP_SPEED,
 		COUNTER
 	};
-	
-	// get the current game state
-	extern GameState GetCurrentGameState();
 	
 	// the button currently selected in the HUD
 	extern Button GetSelectedButton();

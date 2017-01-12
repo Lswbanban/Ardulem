@@ -5,13 +5,10 @@
 #include "Lem.h"
 #include "MapManager.h"
 #include "LemManager.h"
+#include "MainMenu.h"
 
 namespace HUD
 {
-	// the current game state of the game
-	GameState CurrentGameState = GameState::PAUSED;
-	GameState GetCurrentGameState() { return CurrentGameState; }
-	
 	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
 	Button GetSelectedButton() { return SelectedButton; }
@@ -120,7 +117,7 @@ void HUD::UpdateInput()
 		inputFrameCountFirstModulo = INPUT_FRAME_COUNT_FIRST_MODULO_FOR_DROP_SPEED;
 		inputFrameCountSecondModulo = INPUT_FRAME_COUNT_SECOND_MODULO_FOR_DROP_SPEED;
 	}
-	
+
 	// check if we just pressed A
 	if (Input::IsJustPressed(A_BUTTON))
 	{
@@ -128,15 +125,15 @@ void HUD::UpdateInput()
 		WasArrowButtonUsedInHUD = false;
 		
 		// now if we are in GameState quit warning, pressing A is a quit confirmation
-		if (CurrentGameState == GameState::QUIT_WARNING)
+		if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 		{
 			LemManager::KillAllLems();
-			CurrentGameState = OUTRO;
+			MainMenu::SetCurrentGameState(MainMenu::GameState::MENU);
 		}
 	}
 	
 	// prevent navigating in the HUD menu, if we have a game state message
-	if ((CurrentGameState == GameState::PLAYING) || (CurrentGameState == GameState::INTRO))
+	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING)
 	{
 		if (Input::IsDownModulo(A_BUTTON + LEFT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
 		{
@@ -222,10 +219,10 @@ void HUD::UpdateInput()
 		switch (SelectedButton)
 		{
 			case Button::TIMER:
-				CurrentGameState = (CurrentGameState == GameState::PLAYING) ? GameState::PAUSED : GameState::PLAYING;
+				MainMenu::SetCurrentGameState((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) ? MainMenu::GameState::PAUSED : MainMenu::GameState::PLAYING);
 				break;
 			case Button::COUNTER:
-				CurrentGameState = (CurrentGameState == GameState::PLAYING) ? GameState::QUIT_WARNING : GameState::PLAYING;
+				MainMenu::SetCurrentGameState((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) ? MainMenu::GameState::QUIT_WARNING : MainMenu::GameState::PLAYING);
 				break;
 		}
 	}
@@ -240,7 +237,7 @@ void HUD::DrawTimer()
 	const int START_Y = 24;
 
 	// if the game is paused, pushed the end of game time
-	if (CurrentGameState == GameState::PAUSED)
+	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PAUSED)
 		FrameNumberOfTheGameEnd++;
 
 	// get the number of frame the game will continue to play
@@ -444,7 +441,7 @@ void HUD::DrawGameState()
 	if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
 		return;
 	
-	if (CurrentGameState == GameState::PAUSED)
+	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PAUSED)
 	{
 		const int TEXT_WIDTH = 12*6;
 		const int CORNER_SIZE = 3;
@@ -455,7 +452,7 @@ void HUD::DrawGameState()
 		arduboy.setCursor(X, Y);
 		arduboy.print(F("Game Paused!"));
 	}
-	else if (CurrentGameState == GameState::QUIT_WARNING)
+	else if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 	{
 		const int TEXT_WIDTH = 10*6;
 		const int CORNER_SIZE = 3;
