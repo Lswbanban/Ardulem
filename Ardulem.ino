@@ -17,7 +17,6 @@
 
 // instance of the arduboy class
 CustomArduboy arduboy;
-int frameNumber = 0;
 
 void setup()
 {
@@ -42,23 +41,20 @@ void loop()
 	// clear the screen
 	arduboy.clear();
 
-	// increase the frame counter to pass it to the managers
-	frameNumber++;
-	
 	//Serial.println(arduboy.cpuLoad());
 	
 	// update the various managers
-	Input::Update(frameNumber);
+	Input::Update();
 	// at first draw the Map (and nothing else before, because the lem will use the screen buffer information)
-	MapManager::Update(frameNumber);
+	MapManager::Update();
 	// then update the lem and draw them in two pass, so that all the lems have updated their logic, before being drawn
 	// and polluting the screen buffer.
-	LemManager::Update(frameNumber);
+	LemManager::Update();
 	LemManager::Draw();
 	// then draw the start and home
-	MapManager::DrawStartAndHome(frameNumber);
+	MapManager::DrawStartAndHome();
 	// finally draw the HUD that will override the map and lem which has been drawn behind
-	HUD::Update(frameNumber);
+	HUD::Update();
 	
 	// draw the frame buffer
 	arduboy.display();

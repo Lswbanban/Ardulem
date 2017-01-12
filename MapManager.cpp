@@ -153,7 +153,7 @@ void MapManager::ClearModificationList()
 	memset(ModificationList, 0, sizeof(ModificationList));
 }
 
-void MapManager::Update(int frameNumber)
+void MapManager::Update()
 {
 	DrawMap();
 	DrawModifications();
@@ -171,14 +171,14 @@ void MapManager::Update(int frameNumber)
 		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), false);
 */
 }
-void MapManager::DrawStartAndHome(int frameNumber)
+void MapManager::DrawStartAndHome()
 {
 	// draw start
 	int startX = CurrentMapDescription.StartX-8;
 	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
 	{
 		// compute the current frame index
-		if ((HUD::GetCurrentGameState() == HUD::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && !(frameNumber % 5))
+		if ((HUD::GetCurrentGameState() == HUD::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
 			IntroAnimFrameIndex++;
 		
 		// copy the current frame
@@ -201,7 +201,7 @@ void MapManager::DrawStartAndHome(int frameNumber)
 		int screenY = CurrentMapDescription.HomeY - 7;
 		arduboy.drawBitmap(screenX,   screenY,   sprite_HomeBottom, 15, 8, WHITE);
 		arduboy.drawBitmap(screenX+5, screenY-4, sprite_HomeTop, 5, 8, WHITE);
-		arduboy.drawBitmap(screenX+6, screenY-11, anim_HUDFlag[(frameNumber >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), 8, WHITE);
+		arduboy.drawBitmap(screenX+6, screenY-11, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), 8, WHITE);
 	}
 }
 

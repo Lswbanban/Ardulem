@@ -30,18 +30,18 @@ const unsigned char Map01IdList[] PROGMEM = {
  */
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
-		15, //StartX
-		40, //StartY
+		30, //StartX
+		17, //StartY
 		212, //HomeX
 		55, //HomeY
 		20, //Time In Multiple Of 10 seconds
 		1, //MinDropSpeed
-		1, //AvailableLemCount (NO MORE THAN 100!!!!)
+		10, //AvailableLemCount (NO MORE THAN 100!!!!)
 		1, //RequiredLemCount (obviously less or equals than the previous number)
-		3, //Nb of available Blocker,
-		2, //Nb of available Bomb,
-		4, //Nb of available Dig diagonal,
-		5, //Nb of available Dig horizontal
+		9, //Nb of available Blocker,
+		9, //Nb of available Bomb,
+		9, //Nb of available Dig diagonal,
+		9, //Nb of available Dig horizontal
 		9, //Nb of available Dig vertical
 		9, //Nb of available Stair
 		9, //Nb of available Climb

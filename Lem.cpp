@@ -17,28 +17,28 @@ void Lem::Spawn(unsigned char x, unsigned char y)
 	mCurrentState = StateId::FALL; // set directly the value to override the other mirror flag;
 }
 
-bool Lem::Update(int frameNumber)
+bool Lem::Update()
 {
 	// do nothing if the Lem is not alive
 	if (GetCurrentState() > StateId::DEAD)
 	{
 		// update the current animation (which will make the lem position move)
-		bool doesNeedUpdate = UpdateCurrentAnim(frameNumber);
+		bool doesNeedUpdate = UpdateCurrentAnim();
 		
 		// update the ai of the lem depending on the new position if it has moved
 		if (doesNeedUpdate)
-			return UpdateState(frameNumber);
+			return UpdateState();
 	}
 	return false;
 }
 
-bool Lem::UpdateState(int frameNumber)
+bool Lem::UpdateState()
 {
 	switch (GetCurrentState())
 	{
-		case StateId::EXPLOSION_FX: UpdateExplosion(frameNumber); break;
-		case StateId::CRASH: UpdateCrash(frameNumber); break;
-		case StateId::BYE_BYE_BOOM: UpdateByeByeBoom(frameNumber); break;
+		case StateId::EXPLOSION_FX: UpdateExplosion(); break;
+		case StateId::CRASH: UpdateCrash(); break;
+		case StateId::BYE_BYE_BOOM: UpdateByeByeBoom(); break;
 		case StateId::WALK: UpdateWalk(); break;
 		case StateId::BLOCKER: UpdateBlocker(); break;
 		case StateId::DIG_DIAG: UpdateDigDiag(); break;
@@ -46,9 +46,9 @@ bool Lem::UpdateState(int frameNumber)
 		case StateId::DIG_VERT: UpdateDigVert(); break;
 		case StateId::STAIR: return UpdateStair();
 		case StateId::CLIMB: UpdateClimb(); break;
-		case StateId::CLIMB_TOP: UpdateClimbTop(frameNumber); break;
-		case StateId::START_FALL: UpdateStartFall(frameNumber); break;
-		case StateId::FALL: UpdateFall(frameNumber); break;
+		case StateId::CLIMB_TOP: UpdateClimbTop(); break;
+		case StateId::START_FALL: UpdateStartFall(); break;
+		case StateId::FALL: UpdateFall(); break;
 		case StateId::FALL_TO_DEATH: UpdateFallToDeath(); break;
 		case StateId::PARACHUTE: UpdateParachute(); break;
 	}
@@ -146,16 +146,16 @@ int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
  * Tell if it is the last frame of the last anim frame for the current anim 
  *(i.e. next loop, the anim will return to the first frame)
  */
-bool Lem::IsLastFrame(int frameNumber, int frameRateShifter)
+bool Lem::IsLastFrame(int frameRateShifter)
 {
 	return (mCurrentAnimFrame == GetFrameCountForCurrentAnim()-1) &&
-			!((frameNumber+1) % GetFrameRateForCurrentAnim() << frameRateShifter);
+			!((arduboy.frameCount+1) % GetFrameRateForCurrentAnim() << frameRateShifter);
 }
 
-void Lem::UpdateByeByeBoom(int frameNumber)
+void Lem::UpdateByeByeBoom()
 {
 	// if it's the last frame, make a hole in the level, and change state for the explosion
-	if (IsLastFrame(frameNumber))
+	if (IsLastFrame())
 	{
 		mIsAClimber = 0;
 		mIsAParachuter = 0;
@@ -231,10 +231,10 @@ void Lem::UpdateBlocker()
 	}
 }
 
-void Lem::UpdateExplosion(int frameNumber)
+void Lem::UpdateExplosion()
 {
 	// check if it is a climber because we use the 3 flags to extends the frame count of the explosion
-	if (mIsAClimber && IsLastFrame(frameNumber))
+	if (mIsAClimber && IsLastFrame())
 		SetCurrentState(StateId::DEAD);
 }
 
@@ -380,15 +380,15 @@ void Lem::UpdateClimb()
 	}
 }
 
-void Lem::UpdateClimbTop(int frameNumber)
+void Lem::UpdateClimbTop()
 {
 	// no need to check the ground during that anim, because the whole anim is played on the wall edge
 	// and when I have finished the climb top anim, I go to Walk
-	if (IsLastFrame(frameNumber))
+	if (IsLastFrame())
 		SetCurrentState(StateId::WALK);
 }
 
-void Lem::UpdateStartFall(int frameNumber)
+void Lem::UpdateStartFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
@@ -398,18 +398,18 @@ void Lem::UpdateStartFall(int frameNumber)
 	}
 	
 	// and when I have finished the start to Fall anim, I go to Fall
-	if (IsLastFrame(frameNumber))
+	if (IsLastFrame())
 		SetCurrentState(StateId::FALL);
 }
 
-void Lem::UpdateFall(int frameNumber)
+void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
 	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
 		SetCurrentState(StateId::WALK, 1, 0);
 	
 	// if there's no ground and it is the last frame, we move to the fall to death anim
-	if (IsLastFrame(frameNumber))
+	if (IsLastFrame())
 	{
 		// check if I got a parachute, or not
 		if (mIsAParachuter)
@@ -433,10 +433,10 @@ void Lem::UpdateFallToDeath()
 		SetCurrentState(StateId::CRASH, 0, -1);
 }
 
-void Lem::UpdateCrash(int frameNumber)
+void Lem::UpdateCrash()
 {
 	// if it's the last frame, we are dead
-	if (IsLastFrame(frameNumber))
+	if (IsLastFrame())
 		SetCurrentState(StateId::DEAD);
 }
 
@@ -522,14 +522,14 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 	return 0;
 }
 
-bool Lem::UpdateCurrentAnim(int frameNumber)
+bool Lem::UpdateCurrentAnim()
 {
 	// declare the return value
 	bool hasMoved = false;
 	bool doesNeedUpdate = false;
 
 	// check if we need to change the animation frame
-	if (!(frameNumber % GetFrameRateForCurrentAnim()))
+	if (arduboy.everyXFrames(GetFrameRateForCurrentAnim()))
 	{
 		// get the current frame counter and increase it
 		unsigned char currentFrame = (mCurrentAnimFrame + 1) % GetFrameCountForCurrentAnim();
@@ -597,8 +597,8 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 				hasMoved = UpdateOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]));
 				break;
 			case StateId::FALL:
-				// special case for the fall we want to change the frame less often than we cann the update one frame to move
-				if (frameNumber % (GetFrameRateForCurrentAnim() << 1))
+				// special case for the fall we want to change the frame less often than we can the update one frame to move
+				if (!arduboy.everyXFrames(GetFrameRateForCurrentAnim() << 1))
 				{
 					// so cancel the increase of the current frame in that case
 					currentFrame--;
@@ -615,12 +615,12 @@ bool Lem::UpdateCurrentAnim(int frameNumber)
 		}
 	}
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
-	else if (IsLastFrame(frameNumber))
+	else if (IsLastFrame())
 	{
 		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
 						(mCurrentState == StateId::DIG_HORIZ) || (mCurrentState == StateId::CRASH) || 
 						(mCurrentState == StateId::BYE_BYE_BOOM) || (mCurrentState == StateId::EXPLOSION_FX) ||
-						((mCurrentState == StateId::FALL) && IsLastFrame(frameNumber, 1));
+						((mCurrentState == StateId::FALL) && IsLastFrame(1));
 	}
 	
 	// return the flag

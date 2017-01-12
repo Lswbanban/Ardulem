@@ -38,9 +38,9 @@ namespace LemManager
 	int GetInLemPercentage()	{ return ((int)InLemCount * 100) / MapManager::GetAvailableLemCount(); }
 
 	// private functions
-	void UpdateInput(int frameNumber);
+	void UpdateInput();
 	void UpdateLemUnderCursor();
-	void CheckLemTimers(int frameNumber);
+	void CheckLemTimers();
 	void MoveDeadLemToDeadPool();
 	bool ChangeLemStateIfPossible(int lemId, Lem::StateId newState);
 
@@ -49,16 +49,16 @@ namespace LemManager
 	void RemoveTimer(unsigned char timerId);
 	void SwapTwoLems(unsigned char lemId1, unsigned char lemId2);
 	void MoveLemToDeadList(unsigned char lemId);
-	bool AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer);
+	bool AddTimerToLem(unsigned char lemId, bool isBombTimer);
 	bool ExtendStairTimerOfLem(unsigned char lemId);
 	void RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer);
 }
 
-void LemManager::Update(int frameNumber)
+void LemManager::Update()
 {
 	// update the input of game play (move cursor, and click on lem).
 	// Some inputs are directly handled in the HUD (like button to navigate in HUD)
-	UpdateInput(frameNumber);
+	UpdateInput();
 
 	// Search the lem under the cursor
 	UpdateLemUnderCursor();
@@ -66,7 +66,7 @@ void LemManager::Update(int frameNumber)
 	if (HUD::GetCurrentGameState() == HUD::GameState::PLAYING)
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
-		if ((SpawnLemCount < MapManager::GetAvailableLemCount()) && !(frameNumber % HUD::GetLemDropFrameRate()))
+		if ((SpawnLemCount < MapManager::GetAvailableLemCount()) && arduboy.everyXFrames(HUD::GetLemDropFrameRate()))
 		{
 			LemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
 			SpawnLemCount++;
@@ -74,18 +74,18 @@ void LemManager::Update(int frameNumber)
 		
 		// then update each Lem
 		for (int i = 0; i < OutLemCount; ++i)
-			if (LemArray[i].Update(frameNumber))
+			if (LemArray[i].Update())
 				RemoveTimerOfLem(i, false);
 		
 		// also override the state of the lem if they reach the end of their timer
-		CheckLemTimers(frameNumber);
+		CheckLemTimers();
 		
 		// remove dead lems
 		MoveDeadLemToDeadPool();
 	}
 }
 
-void LemManager::UpdateInput(int frameNumber)
+void LemManager::UpdateInput()
 {
 	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
 	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
@@ -140,7 +140,7 @@ void LemManager::UpdateInput(int frameNumber)
 					break;
 					
 				case HUD::Button::LEM_BOMB:
-					if (AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, true))
+					if (AddTimerToLem(CurrentLemIndexUnderCursor, true))
 						MapManager::DecreaseBomberCount();
 					break;
 					
@@ -171,7 +171,7 @@ void LemManager::UpdateInput(int frameNumber)
 						else
 						{
 							LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
-							if (AddTimerToLem(CurrentLemIndexUnderCursor, frameNumber, false))
+							if (AddTimerToLem(CurrentLemIndexUnderCursor, false))
 								MapManager::DecreaseStairerCount();
 						}
 					}
@@ -315,7 +315,7 @@ void LemManager::MoveDeadLemToDeadPool()
 		}
 }
 
-bool LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool isBombTimer)
+bool LemManager::AddTimerToLem(unsigned char lemId, bool isBombTimer)
 {
 	const int LEM_ID_MAX_STORABLE_VALUE = 32; //We use 32 because LemTimer.LemId use 5 bits
 	
@@ -362,7 +362,7 @@ bool LemManager::AddTimerToLem(unsigned char lemId, unsigned char timer, bool is
 	LemTimerList[LemTimerCount].IsBombTimer = isBombTimer;
 	LemTimerList[LemTimerCount].LemId = lemId;
 	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 10;
-	LemTimerList[LemTimerCount].TimeModulo = timer % TIMER_DURATION;
+	LemTimerList[LemTimerCount].TimeModulo = arduboy.frameCount % TIMER_DURATION;
 	LemTimerCount++;
 	
 	// return true because the timer has been added.
@@ -397,7 +397,7 @@ void LemManager::RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer)
 /*
  * This function check all the timer and may update the lem status if the timer reach zero
  */
-void LemManager::CheckLemTimers(int frameNumber)
+void LemManager::CheckLemTimers()
 {
 	// check the stair timer
 	for (int i = 0; i < LemTimerCount; ++i)
@@ -411,7 +411,7 @@ void LemManager::CheckLemTimers(int frameNumber)
 			LemArray[lemId].DrawTimerAboveHead(remainingTicks);
 
 		// check if it's time to tick the stair
-		if ((frameNumber % TIMER_DURATION) == LemTimerList[i].TimeModulo)
+		if ((arduboy.frameCount % TIMER_DURATION) == LemTimerList[i].TimeModulo)
 		{
 			// decrease the tick and check if it reaches zero
 			LemTimerList[i].RemainingTick--;

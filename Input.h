@@ -6,7 +6,7 @@
 
 namespace Input
 {
-	extern void Update(int frameNumber);
+	extern void Update();
 
 	extern bool IsJustPressed(unsigned char buttons);
 	extern bool IsDown(unsigned char buttons);

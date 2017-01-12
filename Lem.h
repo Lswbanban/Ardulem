@@ -29,7 +29,7 @@ public:
 	};
 	
 	void			Spawn(unsigned char x, unsigned char y);
-	bool			Update(int frameNumber);
+	bool			Update();
 	void			Draw();
 	void			DrawTimerAboveHead(unsigned char timer);
 	bool			InUnderCursorPosition();
@@ -56,10 +56,10 @@ private:
 	void			ReverseMirroredDirection()	{ mIsDirectionMirrored = !mIsDirectionMirrored; }
 	
 	// state update
-	bool	UpdateCurrentAnim(int frameNumber);
-	bool 	UpdateState(int frameNumber);
-	void 	UpdateExplosion(int frameNumber);
-	void 	UpdateByeByeBoom(int frameNumber);
+	bool	UpdateCurrentAnim();
+	bool 	UpdateState();
+	void 	UpdateExplosion();
+	void 	UpdateByeByeBoom();
 	void 	UpdateWalk();
 	void 	UpdateBlocker();
 	void 	UpdateDigDiag();
@@ -67,11 +67,11 @@ private:
 	void 	UpdateDigVert();
 	bool 	UpdateStair();
 	void 	UpdateClimb();
-	void 	UpdateClimbTop(int frameNumber);
-	void 	UpdateStartFall(int frameNumber);
-	void 	UpdateFall(int frameNumber);
+	void 	UpdateClimbTop();
+	void 	UpdateStartFall();
+	void 	UpdateFall();
 	void 	UpdateFallToDeath();
-	void 	UpdateCrash(int frameNumber);
+	void 	UpdateCrash();
 	void 	UpdateParachute();
 	void	DrawExplosiontFx();
 	
@@ -81,7 +81,7 @@ private:
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
 	int		IsThereAWall(int x, int y, int height, bool shouldCheckGround = false);
-	bool	IsLastFrame(int frameNumber, int frameRateShifter = 0);
+	bool	IsLastFrame(int frameRateShifter = 0);
 	
 	// anim related functions
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);

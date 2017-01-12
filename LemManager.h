@@ -15,7 +15,7 @@ namespace LemManager
 	extern void KillAllLems();
 	extern void NotifyInHomeLem();
 	
-	extern void Update(int frameNumber);
+	extern void Update();
 	extern void Draw();
 	
 	// helper function for Lem AI

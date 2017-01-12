@@ -11,7 +11,7 @@ unsigned int NumberOfFrameSinceLastChange = 0;
 /*
  * Call this update function at the end of the loop, so that it can reset internal states.
  */
-void Input::Update(int frameNumber)
+void Input::Update()
 {
 	// save the previous state and record the new state
 	PreviousButtonState = CurrentButtonState; 

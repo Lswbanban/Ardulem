@@ -53,13 +53,13 @@ namespace HUD
 	
 	// forward declaration of the private function
 	void UpdateInput();
-	void DrawTimer(int frameNumber);
-	void DrawLemButton(int frameNumber, Button button, int startY, int width, int height, int lemCount);
-	void DrawLemButtons(int frameNumber);
-	void DrawDropVelocity(int frameNumber);
+	void DrawTimer();
+	void DrawLemButton(int animFrameIndex, Button button, int startY, int width, int height, int lemCount);
+	void DrawLemButtons();
+	void DrawDropVelocity();
 	void DrawLemCounter();
-	void DrawGameState(int frameNumber);
-	void DrawCursor(int frameNumber);
+	void DrawGameState();
+	void DrawCursor();
 	
 	char GetButtonColor(Button button);
 	int PrintChar(int x, int y, unsigned char c, char color);
@@ -73,7 +73,7 @@ namespace HUD
 /*
  * General update method for HUD, that will update all the HUD
  */
-void HUD::Update(int frameNumber)
+void HUD::Update()
 {
 	// update the inputs related to the HUD
 	UpdateInput();
@@ -82,19 +82,19 @@ void HUD::Update(int frameNumber)
 	arduboy.fillRect(0, 0, HUD_WIDTH, HEIGHT, BLACK);
 	
 	// draw the various HUD elements
-	DrawTimer(frameNumber);
-	DrawLemButtons(frameNumber);
-	DrawDropVelocity(frameNumber);
+	DrawTimer();
+	DrawLemButtons();
+	DrawDropVelocity();
 	DrawLemCounter();
 	
 	// draw the vertical line that separate the hud bar from the game area
 	arduboy.drawFastVLine(HUD_WIDTH - 1, 0, HEIGHT, WHITE);
 	
 	// draw eventually the game state
-	DrawGameState(frameNumber);
+	DrawGameState();
 	
 	// draw the cursor
-	DrawCursor(frameNumber);
+	DrawCursor();
 }
 
 /*
@@ -235,7 +235,7 @@ void HUD::UpdateInput()
  * Draw the timer on the top of the bar, that display the remaining time of the game.
  * The timer can be selected and clicked to pause the game.
  */ 
-void HUD::DrawTimer(int frameNumber)
+void HUD::DrawTimer()
 {
 	const int START_Y = 24;
 
@@ -245,8 +245,8 @@ void HUD::DrawTimer(int frameNumber)
 
 	// get the number of frame the game will continue to play
 	int remainingTimeInSecond = 0;
-	if (frameNumber < FrameNumberOfTheGameEnd)
-		remainingTimeInSecond = (FrameNumberOfTheGameEnd - frameNumber) / 60; //divide by the FPS
+	if (arduboy.frameCount < FrameNumberOfTheGameEnd)
+		remainingTimeInSecond = (FrameNumberOfTheGameEnd - arduboy.frameCount) / 60; //divide by the FPS
 
 	// compute the minute from the seconds (there's 60 seconds in one minute)
 	int remainingMinutes = remainingTimeInSecond / 60;
@@ -329,7 +329,7 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 /*
  * Draw the 3x3 matrix of the 9 button that allow to give an order to a Lem
  */
-void HUD::DrawLemButtons(int frameNumber)
+void HUD::DrawLemButtons()
 {
 	const int START_Y = 33;
 	const int BUTTON_WIDTH = 9;
@@ -344,8 +344,8 @@ void HUD::DrawLemButtons(int frameNumber)
 	arduboy.drawFastHLine(0, START_Y+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
 	arduboy.drawFastHLine(0, START_Y+CELL_HEIGHT+BUTTON_HEIGHT, HUD_WIDTH, WHITE);
 	
-	// compute the curren anim Frame index from the frame number, divided by the wanted FPS of the animation
-	int animFrameIndex = frameNumber / 10;
+	// compute the current anim Frame index from the frame number, divided by the wanted FPS of the animation
+	int animFrameIndex = arduboy.frameCount / 10;
 	
 	// draw the 9 buttons
 	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, -1);
@@ -362,7 +362,7 @@ void HUD::DrawLemButtons(int frameNumber)
 /*
  * Draw the drop velocity bar. The bar show the speed at which the lem will drop
  */
-void HUD::DrawDropVelocity(int frameNumber)
+void HUD::DrawDropVelocity()
 {
 	const int START_Y = 56;
 	const int DROP_VELOCITY_HEIGHT = 8;
@@ -384,7 +384,7 @@ void HUD::DrawDropVelocity(int frameNumber)
 	arduboy.drawBitmap(cursorBitmapPosition, START_Y+4, sprite_HUDVelocityCursor, 3, 2, color);
 	
 	// draw the animated cursor
-	int normalizedFrameNumberInsideFrameRate = frameNumber % GetLemDropFrameRate();
+	int normalizedFrameNumberInsideFrameRate = arduboy.frameCount % GetLemDropFrameRate();
 	int animatedCursorPosition = 2 + ((normalizedFrameNumberInsideFrameRate * VELOCITY_BAR_INNER_WIDTH) / GetLemDropFrameRate());
 	arduboy.drawPixel(animatedCursorPosition, START_Y+2, color);
 	arduboy.drawPixel(animatedCursorPosition, START_Y+3, color);
@@ -433,12 +433,12 @@ void HUD::DrawLemCounter()
  * Draw optionnal text in the center of the screen when the game is paused for example
  * return true if it draws something (usefull to skip some other drawing like the cursor)
  */
-void HUD::DrawGameState(int frameNumber)
+void HUD::DrawGameState()
 {
 	// first check the frame count for making the message blink
 	const unsigned int TEXT_BLINKING_TIME_OFF = 5;
 	const unsigned int TEXT_BLINKING_TIME_ON = 8;
-	int normalizeFrameNumber = frameNumber % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
+	int normalizeFrameNumber = arduboy.frameCount % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
 	
 	// early exit if it is not the time to draw
 	if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
@@ -473,11 +473,11 @@ void HUD::DrawGameState(int frameNumber)
 /*
  * Draw a blinking cursor that the player can move in the view
  */
-void HUD::DrawCursor(int frameNumber)
+void HUD::DrawCursor()
 {
 	const unsigned int CURSOR_BLINKING_TIME_OFF = 2;
 	const unsigned int CURSOR_BLINKING_TIME_ON = 4;
-	int normalizeFrameNumber = frameNumber % (CURSOR_BLINKING_TIME_OFF + CURSOR_BLINKING_TIME_ON);
+	int normalizeFrameNumber = arduboy.frameCount % (CURSOR_BLINKING_TIME_OFF + CURSOR_BLINKING_TIME_ON);
 	
 	// draw for the major part of the time, and draw in invert color
 	if (normalizeFrameNumber >= CURSOR_BLINKING_TIME_OFF)

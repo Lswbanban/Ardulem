@@ -54,7 +54,7 @@ namespace HUD
 	// cursor shape (square or cross)
 	extern void SetCursorShape(bool isSquared);
 	
-	extern void Update(int frameNumber);
+	extern void Update();
 }
 
 #endif
