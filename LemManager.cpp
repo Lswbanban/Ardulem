@@ -28,7 +28,7 @@ namespace LemManager
 		unsigned int	TimeModulo		: 6; // (0-63) the value that should be tested when doing the modulo on the current frame counter
 	};
 	const int TIMER_DURATION = 60;
-	const int MAX_LEM_TIMER_COUNT = 18; // if 9 stair + 9 bomb, then total can be 18.
+	const int MAX_LEM_TIMER_COUNT = 16; // if 8 stair + 8 bomb, then total can be 16.
 	LemTimer LemTimerList[MAX_LEM_TIMER_COUNT];
 	unsigned char LemTimerCount = 0; // the number of timer currently reccorded in the LemTimerList
 	

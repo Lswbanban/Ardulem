@@ -29,9 +29,6 @@ void setup()
 	arduboy.beginNoLogo();
 //	arduboy.begin();
 	arduboy.clear();
-	
-	// create the map
-	MapManager::InitMap(0);
 }
 
 void loop()

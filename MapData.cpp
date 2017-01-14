@@ -38,7 +38,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		212, //HomeX
 		55, //HomeY
 		20, //Time In Multiple Of 10 seconds
-		1, //MinDropSpeed
+		6, //MinDropSpeed
 		10, //AvailableLemCount (NO MORE THAN 100!!!!)
 		1, //RequiredLemCount (obviously less or equals than the previous number)
 		9, //Nb of available Blocker,

@@ -42,6 +42,7 @@ namespace HUD
 	// cursor shape (square or cross)
 	extern void SetCursorShape(bool isSquared);
 	
+	extern void Init(int timeInSecond);
 	extern void Update();
 	extern bool DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking);
 }

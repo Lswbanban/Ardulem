@@ -5,7 +5,7 @@
  */
 namespace MapManager
 {
-	extern void InitMap(int mapId);
+	extern void InitMap();
 	extern void Update();
 	extern void DrawStartAndHome();
 
@@ -18,7 +18,6 @@ namespace MapManager
 	extern unsigned char GetStartY();
 	extern unsigned char GetHomeX();
 	extern unsigned char GetHomeY();
-	extern int GetMapTimeInSecond();
 	extern unsigned char GetMinDropSpeed();
 	extern unsigned char GetAvailableLemCount();
 	extern int GetRequiredLemPercentage();

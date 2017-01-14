@@ -16,7 +16,8 @@ namespace HUD
 	bool IsSelectedButtonValid() { return mIsSelectedButtonValid; }
 	
 	// The frame number (time) when the game will end.
-	int FrameNumberOfTheGameEnd = 4320;
+	int FrameNumberOfTheGameEnd = 0;
+	void Init(int timeInSecond);
 	
 	// cursor X position
 	unsigned char CursorX = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
@@ -32,10 +33,9 @@ namespace HUD
 	void SetCursorShape(bool isSquared) { IsCursorSquared = isSquared; }
 	
 	// the position of the cursor of the drop velocity bar, and a multiplier to get the frame rate drop velocity
-	const int BAR_CURSOR_TO_FRAMERATE_MULTIPLIER = 6;
 	const int VELOCITY_BAR_WIDTH = HUD_WIDTH - 3;
 	int LemDropBarCursorInPixel = 15; 
-	int GetLemDropFrameRate() { return (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * BAR_CURSOR_TO_FRAMERATE_MULTIPLIER; }
+	int GetLemDropFrameRate() { return (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * MapManager::GetMinDropSpeed(); }
 	
 	//------------- private part -------------------------------
 	enum InputAction
@@ -65,6 +65,14 @@ namespace HUD
 	
 	// private variables
 	bool WasArrowButtonUsedInHUD = false;
+}
+
+/*
+ * Init the HUD with the correct data
+ */
+void HUD::Init(int timeInSecond)
+{
+	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * 60); // multiply by the FPS
 }
 
 /*

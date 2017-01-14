@@ -45,6 +45,7 @@ namespace MapManager
 	// the current map Description we are playing
 	unsigned char CurrentMapId = 0;
 	MapData::MapDescription CurrentMapDescription;
+	
 	unsigned char RequiredLemPercentage = 0; // computed in the init function from the ratio required lem count by available lem count
 	unsigned char IntroAnimFrameIndex = 0;
 	
@@ -109,48 +110,45 @@ bool MapManager::ScrollView(int scrollMoveInPixel)
 	return (previousValue != ScrollValue);
 }
 
-void MapManager::InitMap(int mapId)
+void MapManager::InitMap()
 {
 	// copy the map description of the specified map id into my RAM instance of Map description
-	CurrentMapDescription.StartX = pgm_read_byte_near(&(MapData::AllMaps[mapId].StartX));
-	CurrentMapDescription.StartY = pgm_read_byte_near(&(MapData::AllMaps[mapId].StartY));
-	CurrentMapDescription.HomeX = pgm_read_byte_near(&(MapData::AllMaps[mapId].HomeX));
-	CurrentMapDescription.HomeY = pgm_read_byte_near(&(MapData::AllMaps[mapId].HomeY));
-	CurrentMapDescription.TimeInMultipleOf10s = pgm_read_byte_near(&(MapData::AllMaps[mapId].TimeInMultipleOf10s));
-	CurrentMapDescription.MinDropSpeed = pgm_read_byte_near(&(MapData::AllMaps[mapId].MinDropSpeed));
-	CurrentMapDescription.AvailableLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].AvailableLemCount));
-	CurrentMapDescription.RequiredLemCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].RequiredLemCount));
+	CurrentMapDescription.StartX = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].StartX));
+	CurrentMapDescription.StartY = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].StartY));
+	CurrentMapDescription.HomeX = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].HomeX));
+	CurrentMapDescription.HomeY = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].HomeY));
+	CurrentMapDescription.MinDropSpeed = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].MinDropSpeed));
+	CurrentMapDescription.AvailableLemCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].AvailableLemCount));
+	CurrentMapDescription.RequiredLemCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount));
 	// for the bitfield, we need to read the whole int and unpack, 
 	// and we need to use the adress of the previous variable to work around a compiler error
-	int lemCount = pgm_read_word_near(&(MapData::AllMaps[mapId].RequiredLemCount) + 1);
+	int lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount) + 1);
 	CurrentMapDescription.LemBlockCount = lemCount & 0x000F;
 	CurrentMapDescription.LemBombCount = (lemCount >> 4) & 0x000F;
 	CurrentMapDescription.LemDigDiagCount = (lemCount >> 8) & 0x000F;
 	CurrentMapDescription.LemDigHorizCount = lemCount >> 12;
 	// read the second bitfield
-	lemCount = pgm_read_word_near(&(MapData::AllMaps[mapId].RequiredLemCount) + 3);
+	lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount) + 3);
 	CurrentMapDescription.LemDigVertCount = lemCount & 0x000F;
 	CurrentMapDescription.LemStairCount = (lemCount >> 4) & 0x000F;
 	CurrentMapDescription.LemClimbCount = (lemCount >> 8) & 0x000F;
 	CurrentMapDescription.LemParaCount = lemCount >> 12;
 	// now read the pointer tables
 	CurrentMapDescription.StriteIDRemapingTable = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].StriteIDRemapingTable));
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].StriteIDRemapingTable));
 	CurrentMapDescription.SpriteLocalization = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalization));
-	CurrentMapDescription.SpriteColumnCount = pgm_read_byte_near(&(MapData::AllMaps[mapId].SpriteColumnCount));
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalization));
+	CurrentMapDescription.SpriteColumnCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].SpriteColumnCount));
 	CurrentMapDescription.SpriteLocalIdList = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[mapId].SpriteLocalIdList));
+		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalIdList));
 	
 	// compute the required lem percentage
 	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
+
+	// init the HUD with the data of the map
+	HUD::Init(pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s)) * 10);
 	
 	// clear the modification list
-	ClearModificationList();
-}
-
-void MapManager::ClearModificationList()
-{
 	memset(ModificationMap, 0, sizeof(ModificationMap));
 	memset(ModificationList, 0, sizeof(ModificationList));
 }
@@ -159,20 +157,8 @@ void MapManager::Update()
 {
 	DrawMap();
 	DrawModifications();
-	
-/*	char pixel = GetPixel(ScrollValue + 108, 50);
-	arduboy.drawFastVLine(HUD::HUD_WIDTH + 10, 40, 10, WHITE);
-	arduboy.drawFastHLine(HUD::HUD_WIDTH, 50, 10, WHITE);
-	arduboy.fillRect(HUD::HUD_WIDTH + 11, 40, 5, 5, pixel);
-*/
-
-	// debug paint pixels on screen
-/*	if (arduboy.pressed(B_BUTTON))
-		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), true);
-	if (arduboy.pressed(A_BUTTON))
-		SetPixel(HUD::GetCursorX() + ScrollValue - HUD::HUD_WIDTH, HUD::GetCursorY(), false);
-*/
 }
+
 void MapManager::DrawStartAndHome()
 {
 	// draw start

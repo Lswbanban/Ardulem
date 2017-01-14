@@ -36,7 +36,11 @@ void MainMenu::UpdateInput()
 	{
 		case GameState::MENU_PLAY:
 			if (Input::IsJustPressed(B_BUTTON))
+			{
+				// init the map and change the state
+				MapManager::InitMap();
 				CurrentGameState = GameState::PLAYING;
+			}
 			break;
 		case GameState::MENU_LEVEL:
 			if (Input::IsJustPressed(LEFT_BUTTON))
