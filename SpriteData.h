@@ -14,7 +14,7 @@ extern const unsigned char sprite_Cursor[][7];
 const unsigned int ANIM_HUD_FLAG_FRAME_COUNT = 4;
 extern const unsigned char anim_HUDFlag[][6];
  
-const unsigned int SPRITE_TINY_NUMBERS_COUNT = 14;
+const unsigned int SPRITE_TINY_NUMBERS_COUNT = 10;
 extern const unsigned char sprite_TinyNumbers[][3];
 
 const unsigned int ANIM_PARA_BUTTON_FRAME_COUNT = 4;
