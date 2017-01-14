@@ -43,6 +43,7 @@ namespace MapManager
 	unsigned int ModificationListCount = 0;
 	
 	// the current map Description we are playing
+	unsigned char CurrentMapId = 0;
 	MapData::MapDescription CurrentMapDescription;
 	unsigned char RequiredLemPercentage = 0; // computed in the init function from the ratio required lem count by available lem count
 	unsigned char IntroAnimFrameIndex = 0;

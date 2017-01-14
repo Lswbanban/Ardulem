@@ -50,7 +50,7 @@ void loop()
 
 	// and draw the correct scene according to the current game state
 	MainMenu::GameState currentGameState = MainMenu::GetCurrentGameState();
-	if (currentGameState == MainMenu::GameState::MENU)
+	if (currentGameState < MainMenu::GameState::HOW_TO_PLAY)
 	{
 		MainMenu::Update();
 	}

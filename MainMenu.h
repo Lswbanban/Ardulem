@@ -8,7 +8,10 @@ namespace MainMenu
 {
 	enum GameState
 	{
-		MENU = 0,
+		MENU_PLAY = 0,
+		MENU_LEVEL,
+		MENU_RESET_SAVE,
+		MENU_HOW_TO_PLAY,
 		HOW_TO_PLAY,
 		PLAYING,
 		PAUSED,

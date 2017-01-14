@@ -55,3 +55,8 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		(const unsigned char *)Map01IdList //SpriteLocalIdList
 	},
 };
+
+unsigned char MapData::GetMapCount()
+{
+	return sizeof(MapData::AllMaps) / sizeof(MapData::AllMaps[0]);
+}

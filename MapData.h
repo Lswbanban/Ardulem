@@ -65,5 +65,8 @@ namespace MapData
 	
 	// the instance of all the maps
 	extern const MapDescription AllMaps[];
+	
+	// get the number of map in the all map array
+	extern unsigned char GetMapCount();
 }
  #endif

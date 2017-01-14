@@ -128,7 +128,7 @@ void HUD::UpdateInput()
 		if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 		{
 			LemManager::KillAllLems();
-			MainMenu::SetCurrentGameState(MainMenu::GameState::MENU);
+			MainMenu::SetCurrentGameState(MainMenu::GameState::MENU_PLAY);
 		}
 	}
 	
@@ -429,8 +429,9 @@ void HUD::DrawLemCounter()
 /*
  * Draw the specified string (declared with the F macro) at the specified position and
  * with blinking status if the isBlinking is set to true.
+ * This function returns true if something was drawn this frame (meaning it's the time on of the blinking time)
  */
-void HUD::DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking)
+bool HUD::DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking)
 {
 	const unsigned int TEXT_BLINKING_TIME_OFF = 5;
 	const unsigned int TEXT_BLINKING_TIME_ON = 8;
@@ -440,12 +441,13 @@ void HUD::DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool 
 		int normalizeFrameNumber = arduboy.frameCount % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
 		// early exit if it is not the time to draw
 		if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
-			return;
+			return false;
 	}
 	
 	// draw the text
 	arduboy.setCursor(x, y);
 	arduboy.print(text);
+	return true;
 }
 
 /*

@@ -13,6 +13,7 @@ namespace MapManager
 	bool ScrollView(int scrollMoveInPixel);
 	
 	// map config
+	extern unsigned char CurrentMapId;
 	extern unsigned char GetStartX();
 	extern unsigned char GetStartY();
 	extern unsigned char GetHomeX();

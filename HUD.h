@@ -43,7 +43,7 @@ namespace HUD
 	extern void SetCursorShape(bool isSquared);
 	
 	extern void Update();
-	extern void DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking);
+	extern bool DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking);
 }
 
 #endif
