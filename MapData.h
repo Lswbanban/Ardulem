@@ -26,14 +26,13 @@ namespace MapData
 		// The time in multiple of 10 seconds
 		unsigned char TimeInMultipleOf10s;
 		
+		// the lem count in the level
+		unsigned char AvailableLemCount		: 4; // The number of Lem that will be spawned in the Map
+		unsigned char RequiredLemCount		: 4; // The required number of Lem to save, in order to win
+
 		// the minimum drop speed allowed
-		unsigned char MinDropSpeed;
-		
-		// The number of Lem that will be spawned in the Map
-		unsigned char AvailableLemCount;
-		
-		// The required number of Lem to save, in order to win
-		unsigned char RequiredLemCount;
+		unsigned char MinDropSpeed		: 4;
+		unsigned char LemWalkCount		: 4;
 		
 		// Lems button configuration (how many lem per type, can you use)
 		unsigned int LemBlockCount		: 4;

@@ -60,9 +60,8 @@ namespace MapManager
 	unsigned char GetStartY()				{ return CurrentMapDescription.StartY; }
 	unsigned char GetHomeX()				{ return CurrentMapDescription.HomeX; }
 	unsigned char GetHomeY()				{ return CurrentMapDescription.HomeY; }
-	int GetMapTimeInSecond()				{ return (CurrentMapDescription.TimeInMultipleOf10s * 10); }
 	unsigned char GetMinDropSpeed()			{ return CurrentMapDescription.MinDropSpeed; }
-	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount; }
+	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount * 5; }
 	int GetRequiredLemPercentage()			{ return RequiredLemPercentage; }
 	int GetBlockerCount()					{ return CurrentMapDescription.LemBlockCount; }
 	int GetBomberCount()					{ return CurrentMapDescription.LemBombCount; }
@@ -117,18 +116,23 @@ void MapManager::InitMap()
 	CurrentMapDescription.StartY = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].StartY));
 	CurrentMapDescription.HomeX = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].HomeX));
 	CurrentMapDescription.HomeY = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].HomeY));
-	CurrentMapDescription.MinDropSpeed = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].MinDropSpeed));
-	CurrentMapDescription.AvailableLemCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].AvailableLemCount));
-	CurrentMapDescription.RequiredLemCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount));
+	// get the pack lem count number
+	unsigned char packedChar = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s) + 1);
+	CurrentMapDescription.AvailableLemCount = packedChar & 0x0F;
+	CurrentMapDescription.RequiredLemCount = packedChar >> 4;
+	// get the pack drop speed and walker count
+	packedChar = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s) + 2);
+	CurrentMapDescription.MinDropSpeed = packedChar & 0x0F;
+	CurrentMapDescription.LemWalkCount = packedChar >> 4;
 	// for the bitfield, we need to read the whole int and unpack, 
 	// and we need to use the adress of the previous variable to work around a compiler error
-	int lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount) + 1);
+	int lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s) + 3);
 	CurrentMapDescription.LemBlockCount = lemCount & 0x000F;
 	CurrentMapDescription.LemBombCount = (lemCount >> 4) & 0x000F;
 	CurrentMapDescription.LemDigDiagCount = (lemCount >> 8) & 0x000F;
 	CurrentMapDescription.LemDigHorizCount = lemCount >> 12;
 	// read the second bitfield
-	lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].RequiredLemCount) + 3);
+	lemCount = pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s) + 5);
 	CurrentMapDescription.LemDigVertCount = lemCount & 0x000F;
 	CurrentMapDescription.LemStairCount = (lemCount >> 4) & 0x000F;
 	CurrentMapDescription.LemClimbCount = (lemCount >> 8) & 0x000F;
