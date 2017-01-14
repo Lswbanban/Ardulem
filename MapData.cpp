@@ -35,7 +35,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
 		30, //StartX
 		17, //StartY
-		212, //HomeX
+		45, //HomeX
 		55, //HomeY
 		20, //Time In Multiple Of 10 seconds
 		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)

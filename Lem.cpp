@@ -34,6 +34,15 @@ bool Lem::Update()
 
 bool Lem::UpdateState()
 {
+	// check if the lem arrived in home
+	if ((mPosX+3 >= MapManager::GetHomeX()) && (mPosX <= MapManager::GetHomeX()) && (mPosY+5 >= MapManager::GetHomeY()) && (mPosY <= MapManager::GetHomeY()))
+	{
+		LemManager::NotifyInHomeLem();
+		SetCurrentState(StateId::DEAD);
+		return true;
+	}
+
+	// then update its current state
 	switch (GetCurrentState())
 	{
 		case StateId::EXPLOSION_FX: UpdateExplosion(); break;
