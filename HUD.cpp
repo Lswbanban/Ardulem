@@ -427,20 +427,33 @@ void HUD::DrawLemCounter()
 }
 
 /*
+ * Draw the specified string (declared with the F macro) at the specified position and
+ * with blinking status if the isBlinking is set to true.
+ */
+void HUD::DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking)
+{
+	const unsigned int TEXT_BLINKING_TIME_OFF = 5;
+	const unsigned int TEXT_BLINKING_TIME_ON = 8;
+
+	if (isBlinking)
+	{
+		int normalizeFrameNumber = arduboy.frameCount % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
+		// early exit if it is not the time to draw
+		if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
+			return;
+	}
+	
+	// draw the text
+	arduboy.setCursor(x, y);
+	arduboy.print(text);
+}
+
+/*
  * Draw optionnal text in the center of the screen when the game is paused for example
  * return true if it draws something (usefull to skip some other drawing like the cursor)
  */
 void HUD::DrawGameState()
 {
-	// first check the frame count for making the message blink
-	const unsigned int TEXT_BLINKING_TIME_OFF = 5;
-	const unsigned int TEXT_BLINKING_TIME_ON = 8;
-	int normalizeFrameNumber = arduboy.frameCount % (TEXT_BLINKING_TIME_OFF + TEXT_BLINKING_TIME_ON);
-	
-	// early exit if it is not the time to draw
-	if (normalizeFrameNumber < TEXT_BLINKING_TIME_OFF)
-		return;
-	
 	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PAUSED)
 	{
 		const int TEXT_WIDTH = 12*6;
@@ -449,8 +462,7 @@ void HUD::DrawGameState()
 		const int Y = 10;
 		arduboy.fillRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-2, 7+(CORNER_SIZE*2), CORNER_SIZE, BLACK);
 		arduboy.drawRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-2, 7+(CORNER_SIZE*2), CORNER_SIZE, WHITE);
-		arduboy.setCursor(X, Y);
-		arduboy.print(F("Game Paused!"));
+		DrawBlinkingText(X, Y, F("Game Paused!"), true);
 	}
 	else if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 	{
@@ -460,10 +472,8 @@ void HUD::DrawGameState()
 		const int Y = 4;
 		arduboy.fillRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-1, 15+(CORNER_SIZE*2), CORNER_SIZE, BLACK);
 		arduboy.drawRoundRect(X-CORNER_SIZE, Y-CORNER_SIZE, TEXT_WIDTH+(CORNER_SIZE*2)-1, 15+(CORNER_SIZE*2), CORNER_SIZE, WHITE);
-		arduboy.setCursor(X+6, Y);
-		arduboy.print(F("Abandon?"));
-		arduboy.setCursor(X, Y+8);
-		arduboy.print(F("A=YES B=NO"));
+		DrawBlinkingText(X+6, Y, F("Abandon?"), true);
+		DrawBlinkingText(X, Y+8, F("A=Yes B=No"), true);
 	}
 }
 
