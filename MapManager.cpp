@@ -62,15 +62,17 @@ namespace MapManager
 	unsigned char GetHomeY()				{ return CurrentMapDescription.HomeY; }
 	unsigned char GetMinDropSpeed()			{ return CurrentMapDescription.MinDropSpeed; }
 	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount * 5; }
-	int GetRequiredLemPercentage()			{ return RequiredLemPercentage; }
-	int GetBlockerCount()					{ return CurrentMapDescription.LemBlockCount; }
-	int GetBomberCount()					{ return CurrentMapDescription.LemBombCount; }
-	int GetDiggerDiagonalCount()			{ return CurrentMapDescription.LemDigDiagCount; }
-	int GetDiggerHorizontalCount()			{ return CurrentMapDescription.LemDigHorizCount; }
-	int GetDiggerVerticalCount()			{ return CurrentMapDescription.LemDigVertCount; }
-	int GetStairerCount()					{ return CurrentMapDescription.LemStairCount; }
-	int GetClimberCount()					{ return CurrentMapDescription.LemClimbCount; }
-	int GetParachuterCount()				{ return CurrentMapDescription.LemParaCount; }
+	unsigned char GetRequiredLemPercentage(){ return RequiredLemPercentage; }
+	unsigned char GetWalkerCount()			{ return CurrentMapDescription.LemWalkCount; }
+	unsigned char GetBlockerCount()			{ return CurrentMapDescription.LemBlockCount; }
+	unsigned char GetBomberCount()			{ return CurrentMapDescription.LemBombCount; }
+	unsigned char GetDiggerDiagonalCount()	{ return CurrentMapDescription.LemDigDiagCount; }
+	unsigned char GetDiggerHorizontalCount(){ return CurrentMapDescription.LemDigHorizCount; }
+	unsigned char GetDiggerVerticalCount()	{ return CurrentMapDescription.LemDigVertCount; }
+	unsigned char GetStairerCount()			{ return CurrentMapDescription.LemStairCount; }
+	unsigned char GetClimberCount()			{ return CurrentMapDescription.LemClimbCount; }
+	unsigned char GetParachuterCount()		{ return CurrentMapDescription.LemParaCount; }
+	void DecreaseWalkerCount()				{ CurrentMapDescription.LemWalkCount--; }
 	void DecreaseBlockerCount()				{ CurrentMapDescription.LemBlockCount--; }
 	void DecreaseBomberCount()				{ CurrentMapDescription.LemBombCount--; }
 	void DecreaseDiggerDiagonalCount()		{ CurrentMapDescription.LemDigDiagCount--; }
@@ -165,14 +167,14 @@ void MapManager::Update()
 
 void MapManager::DrawStartAndHome()
 {
+	// compute the current frame index
+	if ((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
+		IntroAnimFrameIndex++;
+
 	// draw start
 	int startX = CurrentMapDescription.StartX-8;
 	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
 	{
-		// compute the current frame index
-		if ((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
-			IntroAnimFrameIndex++;
-		
 		// copy the current frame
 		unsigned char animStartMirrored[sizeof(anim_Start[0])];
 		for (int i = 0; i < sizeof(anim_Start[0]); ++i)
@@ -269,8 +271,8 @@ bool MapManager::IsOnScreen(int worldX)
  */
 bool MapManager::IsInMapBoundary(int worldX, int worldY)
 {
-	// for the y, the map is 64 pixel + 5 pixel height of the lem itself
-	return (worldY < 69) && (worldX >= 0) && (worldX < (CurrentMapDescription.SpriteColumnCount << 3));
+	// for the y, the map is 64 pixel
+	return (worldY < 64) && (worldX >= 0) && (worldX < (CurrentMapDescription.SpriteColumnCount << 3));
 }
 
 unsigned char MapManager::ConvertToScreenCoord(int worldX)

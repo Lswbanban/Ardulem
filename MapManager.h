@@ -20,17 +20,19 @@ namespace MapManager
 	extern unsigned char GetHomeY();
 	extern unsigned char GetMinDropSpeed();
 	extern unsigned char GetAvailableLemCount();
-	extern int GetRequiredLemPercentage();
-	extern int GetBlockerCount();
-	extern int GetBomberCount();
-	extern int GetDiggerDiagonalCount();
-	extern int GetDiggerHorizontalCount();
-	extern int GetDiggerVerticalCount();
-	extern int GetStairerCount();
-	extern int GetClimberCount();
-	extern int GetParachuterCount();
+	extern unsigned char GetRequiredLemPercentage();
+	extern unsigned char GetWalkerCount();
+	extern unsigned char GetBlockerCount();
+	extern unsigned char GetBomberCount();
+	extern unsigned char GetDiggerDiagonalCount();
+	extern unsigned char GetDiggerHorizontalCount();
+	extern unsigned char GetDiggerVerticalCount();
+	extern unsigned char GetStairerCount();
+	extern unsigned char GetClimberCount();
+	extern unsigned char GetParachuterCount();
 	
 	// decrease lem count
+	extern void DecreaseWalkerCount();
 	extern void DecreaseBlockerCount();
 	extern void DecreaseBomberCount();
 	extern void DecreaseDiggerDiagonalCount();

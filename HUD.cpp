@@ -14,7 +14,9 @@ namespace HUD
 	Button GetSelectedButton() { return SelectedButton; }
 	bool mIsSelectedButtonValid = true;
 	bool IsSelectedButtonValid() { return mIsSelectedButtonValid; }
-	
+	// a bool to check if the arrow was used in previous frames
+	bool mWasArrowButtonUsedInHUD = false;
+
 	// The frame number (time) when the game will end.
 	int FrameNumberOfTheGameEnd = 0;
 	void Init(int timeInSecond);
@@ -62,9 +64,6 @@ namespace HUD
 	int PrintChar(int x, int y, unsigned char c, char color);
 	int PrintTinyDigit(int x, int y, int digit, char color, int charWidth = 3, int charHeight = 5);
 	int PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZerosInFront, char color, bool useTinyFont = false);
-	
-	// private variables
-	bool WasArrowButtonUsedInHUD = false;
 }
 
 /*
@@ -130,7 +129,7 @@ void HUD::UpdateInput()
 	if (Input::IsJustPressed(A_BUTTON))
 	{
 		// first in anyway reset the flag if we just press the A button
-		WasArrowButtonUsedInHUD = false;
+		mWasArrowButtonUsedInHUD = false;
 		
 		// now if we are in GameState quit warning, pressing A is a quit confirmation
 		if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
@@ -146,29 +145,29 @@ void HUD::UpdateInput()
 		if (Input::IsDownModulo(A_BUTTON + LEFT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
 		{
 			action = InputAction::LEFT;
-			WasArrowButtonUsedInHUD = true;
+			mWasArrowButtonUsedInHUD = true;
 		}
 		else if (Input::IsDownModulo(A_BUTTON + RIGHT_BUTTON, inputFrameCountFirstModulo, inputFrameCountSecondModulo))
 		{
 			action = InputAction::RIGHT;
-			WasArrowButtonUsedInHUD = true;
+			mWasArrowButtonUsedInHUD = true;
 		}
 		else if (Input::IsDownModulo(A_BUTTON + UP_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
 		{
 			action = InputAction::UP;
-			WasArrowButtonUsedInHUD = true;
+			mWasArrowButtonUsedInHUD = true;
 		}
 		else if (Input::IsDownModulo(A_BUTTON + DOWN_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
 		{
 			action = InputAction::DOWN;
-			WasArrowButtonUsedInHUD = true;
+			mWasArrowButtonUsedInHUD = true;
 		}
 		else if (Input::IsJustReleased(A_BUTTON))
 		{
-			if (!WasArrowButtonUsedInHUD)
+			if (!mWasArrowButtonUsedInHUD)
 				action = InputAction::NEXT;
 			// reset the flag
-			WasArrowButtonUsedInHUD = false;
+			mWasArrowButtonUsedInHUD = false;
 		}
 	}
 	
@@ -353,7 +352,7 @@ void HUD::DrawLemButtons()
 	int animFrameIndex = arduboy.frameCount / 10;
 	
 	// draw the 9 buttons
-	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, -1);
+	DrawLemButton(animFrameIndex, Button::LEM_WALK, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetWalkerCount());
 	DrawLemButton(animFrameIndex, Button::LEM_BLOCKER, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetBlockerCount());
 	DrawLemButton(animFrameIndex, Button::LEM_BOMB, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetBomberCount());
 	DrawLemButton(animFrameIndex, Button::LEM_DIG_DIAG, START_Y, BUTTON_WIDTH, BUTTON_HEIGHT, MapManager::GetDiggerDiagonalCount());
