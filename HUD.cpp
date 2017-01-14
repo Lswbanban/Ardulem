@@ -428,7 +428,10 @@ void HUD::DrawLemCounter()
 	y += COUNTER_HEIGHT;
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
-	arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
+	if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
+		arduboy.drawBitmap(0, y, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), COUNTER_HEIGHT, color);
+	else
+		arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
 	x = PrintNumber(x, y, MapManager::GetRequiredLemPercentage(), 3, false, color);
 	PrintChar(x, y, '%', color);
 }
