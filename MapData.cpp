@@ -34,7 +34,7 @@ const unsigned char Map01IdList[] PROGMEM = {
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
 		30, //StartX
-		17, //StartY
+		47, //StartY
 		45, //HomeX
 		55, //HomeY
 		20, //Time In Multiple Of 10 seconds
@@ -48,6 +48,29 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		9, //Nb of available Dig horizontal
 		9, //Nb of available Dig vertical
 		9, //Nb of available Stair
+		9, //Nb of available Climb
+		9, //Nb of available Parachute
+		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
+		(const unsigned char *)Map01Loca, //SpriteLocalization
+		sizeof(Map01Loca), // size of the Map in number of sprite columns
+		(const unsigned char *)Map01IdList //SpriteLocalIdList
+	},
+	{ // -------- LEVEL 02 -----------
+		30, //StartX
+		47, //StartY
+		45, //HomeX
+		55, //HomeY
+		20, //Time In Multiple Of 10 seconds
+		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)
+		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames)
+		3, //Nb of available Walker,
+		4, //Nb of available Blocker,
+		5, //Nb of available Bomb,
+		6, //Nb of available Dig diagonal,
+		7, //Nb of available Dig horizontal
+		7, //Nb of available Dig vertical
+		8, //Nb of available Stair
 		9, //Nb of available Climb
 		9, //Nb of available Parachute
 		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable

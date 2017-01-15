@@ -16,6 +16,7 @@
 #include "MapManager.h"
 #include "MainMenu.h"
 #include "HelpMenu.h"
+#include "MapData.h"
 
 // instance of the arduboy class
 CustomArduboy arduboy;
@@ -29,6 +30,19 @@ void setup()
 	arduboy.beginNoLogo();
 //	arduboy.begin();
 	arduboy.clear();
+	
+	// read the current progression from the save, and set the current map id with it
+	unsigned char progressionValue = EEPROM.read(MainMenu::PROGRESSION_SAVE_ADDRESS);
+	// check if the value as been saved before
+	if (progressionValue == 255)
+	{
+		MainMenu::ResetSavedProgression();
+	}
+	else
+	{
+		// modulo the value, in case a previous value from another game was saved at that place
+		MapManager::CurrentMapId = progressionValue % MapData::GetMapCount();
+	}
 }
 
 void loop()

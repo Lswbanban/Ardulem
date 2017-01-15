@@ -53,12 +53,32 @@ void MainMenu::UpdateInput()
 			if (Input::IsJustPressed(RIGHT_BUTTON))
 				MapManager::CurrentMapId = ((int)MapManager::CurrentMapId + 1) % MapData::GetMapCount();
 			break;
-		case  GameState::RESULT_PAGE:
-			// just change state when the player press a button
+		case GameState::MENU_RESET_SAVE:
+			// if player press the button while on the reset, just save the progression to 0
 			if (Input::IsJustPressed(B_BUTTON))
+				ResetSavedProgression();
+			break;
+		case  GameState::RESULT_PAGE:
+			// save progression if needed and go back to menu when the player press a button
+			if (Input::IsJustPressed(B_BUTTON))
+			{
+				// increase the current level index and save the current progression in EEPROM, if we succeeded
+				if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
+				{
+					MapManager::CurrentMapId = ((int)MapManager::CurrentMapId + 1) % MapData::GetMapCount();
+					EEPROM.write(PROGRESSION_SAVE_ADDRESS, MapManager::CurrentMapId);
+				}
+				// change state to go back to menu
 				CurrentGameState = GameState::MENU_PLAY;
+			}
 			break;
 	}
+}
+
+void MainMenu::ResetSavedProgression()
+{
+	MapManager::CurrentMapId = 0;
+	EEPROM.write(MainMenu::PROGRESSION_SAVE_ADDRESS, 0);
 }
 
 void MainMenu::PrintNumber(int x, int y, int number)

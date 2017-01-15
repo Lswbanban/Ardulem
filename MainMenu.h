@@ -6,6 +6,9 @@
 
 namespace MainMenu
 {
+	// an address in the EEPROM to save the progression (the last level played and successful)
+	const int PROGRESSION_SAVE_ADDRESS = 10;
+	
 	enum GameState
 	{
 		MENU_PLAY = 0,
@@ -22,7 +25,8 @@ namespace MainMenu
 	// get the current game state
 	extern GameState	GetCurrentGameState();
 	extern void 		SetCurrentGameState(GameState state);
-
+	extern void 		ResetSavedProgression();
+	
 	extern void Update();
 }
 
