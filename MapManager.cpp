@@ -424,6 +424,21 @@ void MapManager::SetPixel(int worldX, int worldY, bool isAdded)
 }
 
 /*
+ * Modify the Map by deleting a column of 8 veritcal pixels. The column must be aligned on Y sprite line.
+ * This function only delete pixels, it doesn't add a column of pixels.
+ */
+void MapManager::Delete8AlignedPixels(int worldX, int lineY, unsigned char pixelToDelete)
+{
+	// get the current column of pixels at the position of the modification.
+	// make an AND operation, as we want both the current pixel set, and a modification for that pixel
+	pixelToDelete &= GetPixelsColumn(worldX, lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT, 8, true);
+	
+	// check if there's any remaining pixel to modify
+	if (__builtin_popcount((int)pixelToDelete) != 0)
+		Modify8Pixels(worldX, lineY, pixelToDelete);
+}
+
+/*
  * Return the number of modification before the specified col x and bit x inside that col,
  * and the specified line y (between 0 and 8). If there's a modification at the specified coord, this modification
  * is not counted. Therefore this function returns the number of modification BEFORE the specified coord,

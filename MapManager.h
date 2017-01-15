@@ -52,6 +52,7 @@ namespace MapManager
 	extern unsigned char GetPixelsColumn(int worldX, int worldY, int height, bool considerAddedPixels);
 	extern char GetPixel(int worldX, int worldY, bool considerAddedPixels);
 	extern void SetPixel(int worldX, int worldY, bool isAdded);
+	extern void Delete8AlignedPixels(int worldX, int LineY, unsigned char pixelToDelete);
 }
 
 #endif

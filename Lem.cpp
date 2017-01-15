@@ -166,6 +166,35 @@ void Lem::UpdateByeByeBoom()
 	// if it's the last frame, make a hole in the level, and change state for the explosion
 	if (IsLastFrame())
 	{
+		// carve the map with a round explosion
+		int exploX = mPosX - 3;
+		int exploY = mPosY - 1;
+		unsigned char lineY = (exploY >= 0) ? exploY >> 3 : 0;
+		unsigned char bitShift = exploY % 8;
+		
+		// iterate on all the columns
+		for (int i = 0; i < 11; ++i)
+		{
+			unsigned char topPixelToDelete = 0xFF << bitShift;
+			unsigned char bottomPixelToDelete = 0xFF >> (7 - bitShift);
+			if ((i == 0) || (i == 10))
+			{
+				topPixelToDelete = 0x7C << bitShift;
+				bottomPixelToDelete = 0x7C >> (7 - bitShift);
+			}
+			else if ((i < 3) || (i > 7))
+			{
+				topPixelToDelete <<= 1;
+				bottomPixelToDelete >>= 1;
+			}
+			// apply the modification for the current column
+			if (topPixelToDelete != 0)
+				MapManager::Delete8AlignedPixels(exploX + i, lineY, topPixelToDelete);
+			if (bottomPixelToDelete)
+				MapManager::Delete8AlignedPixels(exploX + i, lineY+1, bottomPixelToDelete);
+		}
+		
+		// and set the new state of the lem to explosion, in order to display the nice VFX
 		mIsAClimber = 0;
 		mIsAParachuter = 0;
 		mIsDirectionMirrored = 0;
