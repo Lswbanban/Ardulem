@@ -135,7 +135,7 @@ void HUD::UpdateInput()
 		if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 		{
 			LemManager::KillAllLems();
-			MainMenu::SetCurrentGameState(MainMenu::GameState::MENU_PLAY);
+			MainMenu::SetCurrentGameState(MainMenu::GameState::PLAYING);
 		}
 	}
 	

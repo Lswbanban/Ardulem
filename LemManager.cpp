@@ -67,10 +67,19 @@ void LemManager::Update()
 	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING)
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
-		if ((SpawnLemCount < MapManager::GetAvailableLemCount()) && arduboy.everyXFrames(HUD::GetLemDropFrameRate()))
+		if (SpawnLemCount < MapManager::GetAvailableLemCount())
 		{
-			LemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
-			SpawnLemCount++;
+			if (arduboy.everyXFrames(HUD::GetLemDropFrameRate()))
+			{
+				LemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+				SpawnLemCount++;
+			}
+		}
+		else
+		{
+			// check if all spawned and all dead
+			if (OutLemCount == 0)
+				MainMenu::SetCurrentGameState(MainMenu::GameState::MENU_PLAY);
 		}
 		
 		// then update each Lem
@@ -449,6 +458,15 @@ bool LemManager::IsThereABlockerAt(unsigned char worldX, unsigned char worldY, b
  */
 void LemManager::KillAllLems()
 {
+	// stop all the timers
+	LemTimerCount = 0;
+	
+	// set the spawn count to the max to avoid new spawn
+	SpawnLemCount = MapManager::GetAvailableLemCount();
+	
+	// and set all lem in BYE_BYE_BOOM state
+	for (int i = 0; i < OutLemCount; ++i)
+		LemArray[i].SetCurrentState(Lem::StateId::BYE_BYE_BOOM);
 }
 
 void LemManager::NotifyInHomeLem()
