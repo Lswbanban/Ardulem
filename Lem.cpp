@@ -128,13 +128,12 @@ int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
 		height += y;
 		y == 0;
 	}
-	else if (y > 58)
+	else if (y + height > 63)
 	{
-		height -= (y - 63);
-		y == 58;
+		height = 63 - y;
 	}
 	// if there's no height anymore, return 0
-	if (height == 0)
+	if (height <= 0)
 		return 0;
 	
 	// get the column of pixels
