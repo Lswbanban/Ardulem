@@ -62,6 +62,7 @@ namespace MapManager
 	unsigned char GetHomeY()				{ return CurrentMapDescription.HomeY; }
 	unsigned char GetMinDropSpeed()			{ return CurrentMapDescription.MinDropSpeed; }
 	unsigned char GetAvailableLemCount()	{ return CurrentMapDescription.AvailableLemCount * 5; }
+	unsigned char GetRequiredLemCount()		{ return CurrentMapDescription.RequiredLemCount * 5; }
 	unsigned char GetRequiredLemPercentage(){ return RequiredLemPercentage; }
 	unsigned char GetWalkerCount()			{ return CurrentMapDescription.LemWalkCount; }
 	unsigned char GetBlockerCount()			{ return CurrentMapDescription.LemBlockCount; }

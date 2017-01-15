@@ -15,7 +15,8 @@ namespace LemManager
 	unsigned char OutLemCount = 0; // the number of lem currently out and that should be managed in the LemArray
 	unsigned char SpawnLemCount = 0; // the total number of lem that was spawned since the beginning of the game
 	unsigned char InLemCount = 0; // this one is used to compute the score, but the end of the list is not sorted
-
+	unsigned char GetInLemCount() { return InLemCount; }
+	
 	// for the lem that need to be stopped to do something (like the stairer that build a stair only for x turns, 
 	// or the bomber that start their bye bye anim, after x seconds) we use another limited array to store their
 	// remaining time. It's an array of bitfield, the bitfield contains a normalized frame count (generally inside a seconde)
@@ -79,7 +80,7 @@ void LemManager::Update()
 		{
 			// check if all spawned and all dead
 			if (OutLemCount == 0)
-				MainMenu::SetCurrentGameState(MainMenu::GameState::MENU_PLAY);
+				MainMenu::SetCurrentGameState(MainMenu::GameState::RESULT_PAGE);
 		}
 		
 		// then update each Lem

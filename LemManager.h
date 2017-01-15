@@ -12,6 +12,7 @@ namespace LemManager
 	
 	extern int GetSpawnLemPercentage();
 	extern int GetInLemPercentage();
+	extern unsigned char GetInLemCount();
 	extern void KillAllLems();
 	extern void NotifyInHomeLem();
 	

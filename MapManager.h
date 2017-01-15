@@ -20,6 +20,7 @@ namespace MapManager
 	extern unsigned char GetHomeY();
 	extern unsigned char GetMinDropSpeed();
 	extern unsigned char GetAvailableLemCount();
+	extern unsigned char GetRequiredLemCount();
 	extern unsigned char GetRequiredLemPercentage();
 	extern unsigned char GetWalkerCount();
 	extern unsigned char GetBlockerCount();

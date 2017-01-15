@@ -45,6 +45,7 @@ namespace HUD
 	extern void Init(int timeInSecond);
 	extern void Update();
 	extern bool DrawBlinkingText(int x, int y, const __FlashStringHelper * text, bool isBlinking);
+	extern int PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZerosInFront, char color, bool useTinyFont);
 }
 
 #endif
