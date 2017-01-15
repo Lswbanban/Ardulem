@@ -48,10 +48,10 @@ void MainMenu::UpdateInput()
 			}
 			break;
 		case GameState::MENU_LEVEL:
-			if (Input::IsJustPressed(LEFT_BUTTON))
-				MapManager::CurrentMapId = ((int)MapManager::CurrentMapId - 1) % MapData::GetMapCount();
-			if (Input::IsJustPressed(RIGHT_BUTTON))
-				MapManager::CurrentMapId = ((int)MapManager::CurrentMapId + 1) % MapData::GetMapCount();
+			if (Input::IsJustPressed(LEFT_BUTTON) && (MapManager::CurrentMapId > 0))
+				MapManager::CurrentMapId--;
+			if (Input::IsJustPressed(RIGHT_BUTTON) && (MapManager::CurrentMapId < MapData::GetMapCount()-1))
+				MapManager::CurrentMapId++;
 			break;
 		case GameState::MENU_RESET_SAVE:
 			// if player press the button while on the reset, just save the progression to 0
@@ -105,7 +105,7 @@ void MainMenu::Draw()
 	
 	// print the line of sprite to underline the title
 	arduboy.drawBitmap(UNDERLINE_START_X, UNDERLINE_Y, MapData::MapSprite[4], 8, 8, WHITE);
-	randomSeed(UNDERLINE_END_X);
+	randomSeed((int)MapManager::CurrentMapId + 1);
 	for (int i = UNDERLINE_START_X+8; i < UNDERLINE_END_X; i += 8)
 		arduboy.drawBitmap(i, UNDERLINE_Y, MapData::MapSprite[random(6,8)], 8, 8, WHITE);
 	arduboy.drawBitmap(UNDERLINE_END_X, UNDERLINE_Y, MapData::MapSprite[5], 8, 8, WHITE);

@@ -130,7 +130,7 @@ int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
 	}
 	else if (y + height > 63)
 	{
-		height = 63 - y;
+		height = 64 - y;
 	}
 	// if there's no height anymore, return 0
 	if (height <= 0)
