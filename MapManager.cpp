@@ -153,12 +153,17 @@ void MapManager::InitMap()
 	// compute the required lem percentage
 	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
 
-	// init the HUD with the data of the map
-	HUD::Init(pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s)) * 10);
+	// init other variables
+	ScrollValue = 0;
+	IntroAnimFrameIndex = 0;
 	
 	// clear the modification list
 	memset(ModificationMap, 0, sizeof(ModificationMap));
 	memset(ModificationList, 0, sizeof(ModificationList));
+	ModificationListCount = 0;
+	
+	// init the HUD with the data of the map
+	HUD::Init(pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s)) * 10);
 }
 
 void MapManager::Update()

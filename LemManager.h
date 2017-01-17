@@ -16,6 +16,7 @@ namespace LemManager
 	extern void KillAllLems();
 	extern void NotifyInHomeLem();
 	
+	extern void Init();
 	extern void Update();
 	extern void Draw();
 	

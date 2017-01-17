@@ -42,7 +42,8 @@ void MainMenu::UpdateInput()
 		case GameState::MENU_PLAY:
 			if (Input::IsJustPressed(B_BUTTON))
 			{
-				// init the map and change the state
+				// init the lems, the map and change the state (note that the init of the HUD is called by the MapManager)
+				LemManager::Init();
 				MapManager::InitMap();
 				CurrentGameState = GameState::PLAYING;
 			}

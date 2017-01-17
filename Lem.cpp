@@ -14,7 +14,7 @@ void Lem::Spawn(unsigned char x, unsigned char y)
 	mIsAParachuter = 0;
 	mIsDirectionMirrored = 0;
 	mCurrentAnimFrame = 0;
-	mCurrentState = StateId::FALL; // set directly the value to override the other mirror flag;
+	mCurrentState = StateId::FALL;
 }
 
 bool Lem::Update()

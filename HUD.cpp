@@ -22,12 +22,12 @@ namespace HUD
 	void Init(int timeInSecond);
 	
 	// cursor X position
-	unsigned char CursorX = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
+	unsigned char CursorX = 0;
 	unsigned char GetCursorX() { return CursorX; }
 	void SetCursorX(unsigned char x) { CursorX = x; }
 
 	// cursor Y position
-	unsigned char CursorY = HEIGHT/2;
+	unsigned char CursorY = 0;
 	unsigned char GetCursorY() { return CursorY; }
 	void SetCursorY(unsigned char y) { CursorY = y; }
 	
@@ -72,6 +72,12 @@ namespace HUD
 void HUD::Init(int timeInSecond)
 {
 	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * 60); // multiply by the FPS
+	LemDropBarCursorInPixel = 15;
+	SelectedButton = Button::TIMER;
+	CursorX = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
+	CursorY = HEIGHT/2;
+	IsCursorSquared = false;
+	mWasArrowButtonUsedInHUD = false;
 }
 
 /*

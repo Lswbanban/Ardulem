@@ -34,7 +34,7 @@ namespace LemManager
 	unsigned char LemTimerCount = 0; // the number of timer currently reccorded in the LemTimerList
 	
 	// the current lem targeted by the cursor
-	char CurrentLemIndexUnderCursor = -1;
+	char CurrentLemIndexUnderCursor;
 	
 	int GetSpawnLemPercentage()	{ return ((int)SpawnLemCount * 100) / MapManager::GetAvailableLemCount(); }
 	int GetInLemPercentage()	{ return ((int)InLemCount * 100) / MapManager::GetAvailableLemCount(); }
@@ -54,6 +54,15 @@ namespace LemManager
 	bool AddTimerToLem(unsigned char lemId, bool isBombTimer);
 	bool ExtendStairTimerOfLem(unsigned char lemId);
 	void RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer);
+}
+
+void LemManager::Init()
+{
+	// reset the lem counters
+	OutLemCount = 0;
+	SpawnLemCount = 0;
+	InLemCount = 0;
+	LemTimerCount = 0;
 }
 
 void LemManager::Update()
