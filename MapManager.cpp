@@ -94,6 +94,7 @@ namespace MapManager
 	void DrawModifications();
 	int GetModificationIndex(int colX, int bitX, int lineY);
 	void Modify8Pixels(int worldX, int lineY, unsigned char pixels);
+	void Delete8AlignedPixels(int worldX, int LineY, unsigned char pixelToDelete);
 }
 
 bool MapManager::ScrollView(int scrollMoveInPixel)
@@ -436,6 +437,24 @@ void MapManager::Delete8AlignedPixels(int worldX, int lineY, unsigned char pixel
 	// check if there's any remaining pixel to modify
 	if (__builtin_popcount((int)pixelToDelete) != 0)
 		Modify8Pixels(worldX, lineY, pixelToDelete);
+}
+
+/*
+ * Modify the Map by deleting a column of 8 veritcal pixels.
+ * The Y parameter must be aligned on Y sprite line, but then you can specify the rest inside in the yBitShift
+ * This function only delete pixels, it doesn't add a column of pixels.
+ */
+void MapManager::Delete8Pixels(int worldX, int lineY, char yBitShift, unsigned char pixelToDelete)
+{
+	// compute the top and bottom pixels to delete after applying the specified shift
+	unsigned char topPixelToDelete = pixelToDelete << yBitShift;
+	unsigned char bottomPixelToDelete = pixelToDelete >> (7 - yBitShift);
+	
+	// delete the pixels if there's any remaining
+	if (topPixelToDelete != 0)
+		Delete8AlignedPixels(worldX, lineY, topPixelToDelete);
+	if ((bottomPixelToDelete != 0) && (lineY < 7))
+		Delete8AlignedPixels(worldX, lineY+1, bottomPixelToDelete);
 }
 
 /*

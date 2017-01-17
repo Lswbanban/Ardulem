@@ -174,23 +174,12 @@ void Lem::UpdateByeByeBoom()
 		// iterate on all the columns
 		for (int i = 0; i < 11; ++i)
 		{
-			unsigned char topPixelToDelete = 0xFF << bitShift;
-			unsigned char bottomPixelToDelete = 0xFF >> (7 - bitShift);
 			if ((i == 0) || (i == 10))
-			{
-				topPixelToDelete = 0x7C << bitShift;
-				bottomPixelToDelete = 0x7C >> (7 - bitShift);
-			}
+				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0x7C);
 			else if ((i < 3) || (i > 7))
-			{
-				topPixelToDelete <<= 1;
-				bottomPixelToDelete >>= 1;
-			}
-			// apply the modification for the current column
-			if (topPixelToDelete != 0)
-				MapManager::Delete8AlignedPixels(exploX + i, lineY, topPixelToDelete);
-			if (bottomPixelToDelete)
-				MapManager::Delete8AlignedPixels(exploX + i, lineY+1, bottomPixelToDelete);
+				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0xFE);
+			else
+				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0xFF);
 		}
 		
 		// and set the new state of the lem to explosion, in order to display the nice VFX
@@ -288,23 +277,26 @@ void Lem::UpdateDigHoriz()
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
-		case 0:
+/*		case 0:
 		{
 			MapManager::SetPixel(x, mPosY, false);
 			MapManager::SetPixel(x, mPosY+1, false);
 			MapManager::SetPixel(x+1 ,mPosY, false);
 			MapManager::SetPixel(x+1, mPosY+1, false);
 			break;
-		}
+		}*/
 		case 1:
 		{
+			unsigned char lineY = mPosY >> 3;
+			unsigned char bitShift = mPosY % 8;
+
 			MapManager::SetPixel(x, mPosY+2, false);
 			MapManager::SetPixel(x, mPosY+3, false);
 			MapManager::SetPixel(x+1, mPosY+2, false);
 			MapManager::SetPixel(x+1, mPosY+3, false);
 			break;
 		}
-		case 2:
+/*		case 2:
 		{
 			shouldTestGround = true;
 			MapManager::SetPixel(x, mPosY+4, false);
@@ -312,7 +304,7 @@ void Lem::UpdateDigHoriz()
 			MapManager::SetPixel(x+1, mPosY+4, false);
 			MapManager::SetPixel(x+1, mPosY+5, false);
 			break;
-		}
+		}*/
 		case 3:
 		{
 			shouldTestGround = true;
@@ -562,7 +554,6 @@ unsigned int Lem::GetFrameWidthForCurrentAnim()
 bool Lem::UpdateCurrentAnim()
 {
 	// declare the return value
-	bool hasMoved = false;
 	bool doesNeedUpdate = false;
 
 	// check if we need to change the animation frame
@@ -598,40 +589,40 @@ bool Lem::UpdateCurrentAnim()
 				doesNeedUpdate = true; // the explosion FX does need update for every frame of the frame rate
 				break;
 			case StateId::CRASH:
-				hasMoved = UpdateOneAnimFrame(anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]));
 				break;
 			case StateId::BYE_BYE_BOOM:
-				hasMoved = UpdateOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]));
 				break;
 			case StateId::WALK:
-				hasMoved = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]));
 				break;
 			case StateId::BLOCKER:
 				UpdateOneAnimFrame(anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]));
-				hasMoved = true; // blocker never move, but we can dig under their feet, so they have to check their state every frame
+				doesNeedUpdate = true; // blocker never move, but we can dig under their feet, so they have to check their state some times to time
 				break;
 			case StateId::DIG_DIAG:
-				hasMoved = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
 				break;
 			case StateId::DIG_HORIZ:
-				hasMoved = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]));
-				doesNeedUpdate = (currentFrame < 3); // need to dig on the first frame
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0])) 
+								|| (currentFrame == 1); // need to dig on the first frame
 				break;
 			case StateId::DIG_VERT:
-				hasMoved = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
 				break;
 			case StateId::STAIR:
-				hasMoved = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
-				doesNeedUpdate = ((currentFrame == 1) || (currentFrame == 3));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]))
+								|| ((currentFrame == 1) || (currentFrame == 3));
 				break;
 			case StateId::CLIMB:
-				hasMoved = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));
 				break;
 			case StateId::CLIMB_TOP:
-				hasMoved = UpdateOneAnimFrame(anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]));
 				break;
 			case StateId::START_FALL:
-				hasMoved = UpdateOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]));
 				break;
 			case StateId::FALL:
 				// special case for the fall we want to change the frame less often than we can the update one frame to move
@@ -641,13 +632,13 @@ bool Lem::UpdateCurrentAnim()
 					currentFrame--;
 					mCurrentAnimFrame = currentFrame;
 				}
-				hasMoved = UpdateOneAnimFrame(anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]));
 				break;
 			case StateId::FALL_TO_DEATH:
-				hasMoved = UpdateOneAnimFrame(anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]));
 				break;
 			case StateId::PARACHUTE:
-				hasMoved = UpdateOneAnimFrame(anim_LemPara[currentFrame], sizeof(anim_LemPara[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemPara[currentFrame], sizeof(anim_LemPara[0]));
 				break;
 		}
 	}
@@ -661,7 +652,7 @@ bool Lem::UpdateCurrentAnim()
 	}
 	
 	// return the flag
-	return hasMoved || doesNeedUpdate;
+	return doesNeedUpdate;
 }
 
 /*
