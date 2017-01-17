@@ -440,15 +440,15 @@ void MapManager::Delete8AlignedPixels(int worldX, int lineY, unsigned char pixel
 }
 
 /*
- * Modify the Map by deleting a column of 8 veritcal pixels.
- * The Y parameter must be aligned on Y sprite line, but then you can specify the rest inside in the yBitShift
+ * Modify the Map by deleting a column of 16 veritcal pixels. The column must be aligned on Y sprite line.
+ * You can use that function to delete 8 unaligned pixels, by shifting them inside the int.
  * This function only delete pixels, it doesn't add a column of pixels.
  */
-void MapManager::Delete8Pixels(int worldX, int lineY, char yBitShift, unsigned char pixelToDelete)
+void MapManager::Delete16AlignedPixels(int worldX, int lineY, unsigned int pixelToDelete)
 {
 	// compute the top and bottom pixels to delete after applying the specified shift
-	unsigned char topPixelToDelete = pixelToDelete << yBitShift;
-	unsigned char bottomPixelToDelete = pixelToDelete >> (7 - yBitShift);
+	unsigned char topPixelToDelete = (unsigned char)(pixelToDelete & 0xFF);
+	unsigned char bottomPixelToDelete = (unsigned char)(pixelToDelete >> 8);
 	
 	// delete the pixels if there's any remaining
 	if (topPixelToDelete != 0)

@@ -40,7 +40,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		20, //Time In Multiple Of 10 seconds
 		1, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)
 		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames)
+		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15) 
 		3, //Nb of available Walker,
 		9, //Nb of available Blocker,
 		9, //Nb of available Bomb,

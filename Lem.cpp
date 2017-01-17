@@ -175,11 +175,11 @@ void Lem::UpdateByeByeBoom()
 		for (int i = 0; i < 11; ++i)
 		{
 			if ((i == 0) || (i == 10))
-				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0x7C);
+				MapManager::Delete16AlignedPixels(exploX + i, lineY, 0x007C << bitShift);
 			else if ((i < 3) || (i > 7))
-				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0xFE);
+				MapManager::Delete16AlignedPixels(exploX + i, lineY, 0x00FE << bitShift);
 			else
-				MapManager::Delete8Pixels(exploX + i, lineY, bitShift, 0xFF);
+				MapManager::Delete16AlignedPixels(exploX + i, lineY, 0x01FF << bitShift);
 		}
 		
 		// and set the new state of the lem to explosion, in order to display the nice VFX
@@ -277,34 +277,14 @@ void Lem::UpdateDigHoriz()
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
-/*		case 0:
-		{
-			MapManager::SetPixel(x, mPosY, false);
-			MapManager::SetPixel(x, mPosY+1, false);
-			MapManager::SetPixel(x+1 ,mPosY, false);
-			MapManager::SetPixel(x+1, mPosY+1, false);
-			break;
-		}*/
 		case 1:
 		{
 			unsigned char lineY = mPosY >> 3;
-			unsigned char bitShift = mPosY % 8;
-
-			MapManager::SetPixel(x, mPosY+2, false);
-			MapManager::SetPixel(x, mPosY+3, false);
-			MapManager::SetPixel(x+1, mPosY+2, false);
-			MapManager::SetPixel(x+1, mPosY+3, false);
+			unsigned char bitShift = (mPosY % 8);
+			MapManager::Delete16AlignedPixels(x, lineY, 0x003F << bitShift);
+			MapManager::Delete16AlignedPixels(x+1, lineY, 0x003F << bitShift);
 			break;
 		}
-/*		case 2:
-		{
-			shouldTestGround = true;
-			MapManager::SetPixel(x, mPosY+4, false);
-			MapManager::SetPixel(x, mPosY+5, false);
-			MapManager::SetPixel(x+1, mPosY+4, false);
-			MapManager::SetPixel(x+1, mPosY+5, false);
-			break;
-		}*/
 		case 3:
 		{
 			shouldTestGround = true;
