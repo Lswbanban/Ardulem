@@ -255,8 +255,10 @@ void HUD::DrawTimer()
 
 	// get the number of frame the game will continue to play
 	int remainingTimeInSecond = 0;
-	if (arduboy.frameCount < FrameNumberOfTheGameEnd)
+	if (arduboy.frameCount <= FrameNumberOfTheGameEnd)
 		remainingTimeInSecond = (FrameNumberOfTheGameEnd - arduboy.frameCount) / 60; //divide by the FPS
+	else
+		MainMenu::SetCurrentGameState(MainMenu::GameState::RESULT_PAGE); // if it's times up, go to result page
 
 	// compute the minute from the seconds (there's 60 seconds in one minute)
 	int remainingMinutes = remainingTimeInSecond / 60;
