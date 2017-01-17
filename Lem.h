@@ -82,7 +82,8 @@ private:
 	bool	IsThereRoofAt(int x, int y);
 	int		IsThereAWall(int x, int y, int height, bool shouldCheckGround = false);
 	bool	IsLastFrame(int frameRateShifter = 0);
-	
+	void 	Dig8Pixels(int x, int y, unsigned int pixels);
+
 	// anim related functions
 	bool			UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth);
 	unsigned int	GetFrameRateForCurrentAnim();

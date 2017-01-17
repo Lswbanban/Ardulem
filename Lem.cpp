@@ -264,6 +264,11 @@ void Lem::UpdateExplosion()
 		SetCurrentState(StateId::DEAD);
 }
 
+void Lem::Dig8Pixels(int x, int y, unsigned int pixels)
+{
+	MapManager::Delete16AlignedPixels(x, (y >> 3), pixels << (y % 8));
+}
+
 void Lem::UpdateDigDiag()
 {
 }
@@ -277,12 +282,14 @@ void Lem::UpdateDigHoriz()
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
+		case 0:
+		{
+			Dig8Pixels(x, mPosY, 0x003F);
+			break;
+		}
 		case 1:
 		{
-			unsigned char lineY = mPosY >> 3;
-			unsigned char bitShift = (mPosY % 8);
-			MapManager::Delete16AlignedPixels(x, lineY, 0x003F << bitShift);
-			MapManager::Delete16AlignedPixels(x+1, lineY, 0x003F << bitShift);
+			Dig8Pixels(x+1, mPosY, 0x003F);
 			break;
 		}
 		case 3:
@@ -586,7 +593,7 @@ bool Lem::UpdateCurrentAnim()
 				break;
 			case StateId::DIG_HORIZ:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0])) 
-								|| (currentFrame == 1); // need to dig on the first frame
+								|| (currentFrame <= 1); // need to dig on the first frames
 				break;
 			case StateId::DIG_VERT:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
