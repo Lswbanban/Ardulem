@@ -318,6 +318,41 @@ void Lem::UpdateDigHoriz()
 
 void Lem::UpdateDigVert()
 {
+	// only test ground in specific frame id (when the lem is moving)
+	bool shouldTestGround = false;
+	
+	// remove specific pixels depending on the frame num
+	switch (mCurrentAnimFrame)
+	{
+		case 2:
+		{
+			int y = mPosY + 6;
+			MapManager::SetPixel(mPosX, y, false);
+			MapManager::SetPixel(mPosX+4, y, false);
+			break;
+		}
+		case 3:
+		{
+			int y = mPosY + 5;
+			MapManager::SetPixel(mPosX+1, y, false);
+			MapManager::SetPixel(mPosX+3, y, false);
+			break;
+		}
+		case 4:
+		{
+			int y = mPosY + 5;
+			MapManager::SetPixel(mPosX+2, y, false);
+			shouldTestGround = true;
+			break;
+		}
+	}
+	
+	// get the pixel under my feet, if no ground, I start to fall
+	if (shouldTestGround)
+	{
+		if (!IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+	}
 }
 
 bool Lem::UpdateStair()
@@ -596,7 +631,8 @@ bool Lem::UpdateCurrentAnim()
 								|| (currentFrame <= 1); // need to dig on the first frames
 				break;
 			case StateId::DIG_VERT:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]))
+								|| ((currentFrame >= 2) && (currentFrame <= 4)); // need to dig on the first frames
 				break;
 			case StateId::STAIR:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]))
