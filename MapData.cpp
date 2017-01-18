@@ -1,8 +1,8 @@
 #include <avr/pgmspace.h>
 #include "MapData.h"
 
-// The LID macro is used to pack two local id of the SpriteLocalIdList
-#define LID(id1, id2) (id1 | (id2<<4))
+// The ID macro is used to pack two local id of the SpriteIdList
+#define ID(id1, id2, id3) (id1 | (id2<<5) | (id3<<10))
 
 /*
  * All the sprite that can be used to create the maps (up to 256, because after that the remaping table cannot handle it)
@@ -15,18 +15,12 @@ const unsigned char MapData::MapSprite[][8] PROGMEM = {
 };
 
 /*
- * The various remaping table, to give variety of style to differents levels
- * Remaping table should have 16 chars.
- */
-const unsigned char MapData::PillarWorldRemapTable[] PROGMEM = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
-
-/*
  * The various map localization and id list
  */
 const unsigned char Map01Loca[] PROGMEM = { 0xe0, 0xc0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xf0, 0xf0, 0x80, 0x80, 0xe0, 0x80, 0x00, 0x40, 0x40, 0x40, 0x00, 0x10, 0x1c, 0x10, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x80, 0x80, 0x40, 0x40, 0x78, };
-const unsigned char Map01IdList[] PROGMEM = {
-	LID(0,2), LID(3,2), LID(3,3), LID(3,3), LID(3,3), LID(0,1), LID(2,3), LID(0,1), LID(2,3), LID(3,3), LID(0,2), LID(3,3), LID(3,3),
-	LID(3,3), LID(0,2), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(3,3), LID(0,1), LID(2,3)};
+const unsigned int Map01IdList[] PROGMEM = {
+	ID(0,2,3), ID(2,3,3), ID(3,3,3), ID(3,0,1), ID(2,3,0), ID(1,2,3), ID(3,3,0), ID(2,3,3), ID(3,3,3),
+	ID(3,0,2), ID(3,3,3), ID(3,3,3), ID(3,3,3), ID(3,3,3), ID(0,1,2), ID(3,0,0)};
 
 /*
  * The various maps
@@ -50,10 +44,9 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		9, //Nb of available Stair
 		9, //Nb of available Climb
 		9, //Nb of available Parachute
-		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		sizeof(Map01Loca), // size of the Map in number of sprite columns
-		(const unsigned char *)Map01IdList //SpriteLocalIdList
+		(const unsigned int *)Map01IdList //SpriteIdList
 	},
 	{ // -------- LEVEL 02 -----------
 		30, //StartX
@@ -73,10 +66,9 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		8, //Nb of available Stair
 		9, //Nb of available Climb
 		9, //Nb of available Parachute
-		(const unsigned char *)MapData::PillarWorldRemapTable, //StriteIDRemapingTable
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		sizeof(Map01Loca), // size of the Map in number of sprite columns
-		(const unsigned char *)Map01IdList //SpriteLocalIdList
+		(const unsigned int *)Map01IdList //SpriteIdList
 	},
 };
 

@@ -86,7 +86,7 @@ namespace MapManager
 
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
-	int GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex);
+	int GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubIndex);
 	char Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
 	char GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
 	
@@ -142,13 +142,9 @@ void MapManager::InitMap()
 	CurrentMapDescription.LemClimbCount = (lemCount >> 8) & 0x000F;
 	CurrentMapDescription.LemParaCount = lemCount >> 12;
 	// now read the pointer tables
-	CurrentMapDescription.StriteIDRemapingTable = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].StriteIDRemapingTable));
-	CurrentMapDescription.SpriteLocalization = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalization));
+	CurrentMapDescription.SpriteLocalization = (const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalization));
 	CurrentMapDescription.SpriteColumnCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].SpriteColumnCount));
-	CurrentMapDescription.SpriteLocalIdList = 
-		(const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalIdList));
+	CurrentMapDescription.SpriteIdList = (const unsigned int *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteIdList));
 	
 	// compute the required lem percentage
 	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
@@ -214,28 +210,26 @@ inline int MapManager::GetSpriteCountBeforeColumn(const unsigned char * mapLocal
 	return result;
 }
 
-inline int MapManager::GetSpriteGlobalId(const unsigned char * mapLocalSpriteIds, const unsigned char * mapIDRemapingTable, int spriteIndex)
+inline int MapManager::GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubIndex)
 {
 	// get the local id of that sprite
-	int TwoPackedLocIds = pgm_read_byte_near(CurrentMapDescription.SpriteLocalIdList + (spriteIndex >> 1));
-	int currentSpriteLocalId = (spriteIndex % 2) ? TwoPackedLocIds >> 4 : TwoPackedLocIds & 0x0F;
-	
-	// convert the local id to global id and return it
-	return pgm_read_byte_near(mapIDRemapingTable + currentSpriteLocalId);
+	int ThreePackedLocIds = pgm_read_word_near(CurrentMapDescription.SpriteIdList + spriteIdIndex);
+	// now return the good part
+	return (ThreePackedLocIds >> (5*spriteIdSubIndex)) & 0x001F;
 }
 
 void MapManager::DrawMap()
 {
 	// get the various pointer on the current map data
 	const unsigned char * mapLocalization = CurrentMapDescription.SpriteLocalization;
-	const unsigned char * mapLocalSpriteIds = CurrentMapDescription.SpriteLocalIdList;
-	const unsigned char * mapIDRemapingTable = CurrentMapDescription.StriteIDRemapingTable;
 	
 	// find the first map localization pixel from the scrolling value (by dividing by 8)
 	int firstSpriteColumn = ScrollValue >> 3;
 	
 	// get the number of sprites that should be ignored for the not drawn sprite columns
 	int currentSpriteDrawn = GetSpriteCountBeforeColumn(mapLocalization, firstSpriteColumn);
+	int currentSpriteIdIndex = currentSpriteDrawn / 3;
+	char currentSpriteIdSubIndex = currentSpriteDrawn % 3;
 	
 	// compute the last column drawn by adding the number of sprite column visible on the screen
 	int lastSpriteColumn = firstSpriteColumn + ((WIDTH - HUD::HUD_WIDTH)/8);
@@ -254,13 +248,18 @@ void MapManager::DrawMap()
 			if (currentSpriteColumnLocalization & (1<<i))
 			{
 				// we found a bit set, there's a sprite to draw, get it's global id
-				int currentSpriteGlobalId = GetSpriteGlobalId(mapLocalSpriteIds, mapIDRemapingTable, currentSpriteDrawn);
+				int currentSpriteGlobalId = GetSpriteGlobalId(currentSpriteIdIndex, currentSpriteIdSubIndex);
 				
 				// now draw the sprite, at the correct position
 				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
 				
 				// increase the sprite counter
-				currentSpriteDrawn++;
+				currentSpriteIdSubIndex++;
+				if (currentSpriteIdSubIndex == 3)
+				{
+					currentSpriteIdIndex++;
+					currentSpriteIdSubIndex = 0;
+				}
 			}
 	}
 }
@@ -311,7 +310,7 @@ char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAd
 		spriteIndex += __builtin_popcount((unsigned int)((currentSpriteColumnLocalization << (8 - row)) & 0xFF));
 
 		// get the global id of the sprite we need
-		int currentSpriteGlobalId = GetSpriteGlobalId(CurrentMapDescription.SpriteLocalIdList, CurrentMapDescription.StriteIDRemapingTable, spriteIndex);
+		int currentSpriteGlobalId = GetSpriteGlobalId(spriteIndex/3, spriteIndex%3);
 
 		// now get the correct column of the sprite
 		heightPixelsColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (worldX % 8));
