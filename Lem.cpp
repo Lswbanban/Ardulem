@@ -271,6 +271,37 @@ void Lem::Dig8Pixels(int x, int y, unsigned int pixels)
 
 void Lem::UpdateDigDiag()
 {
+	// only test ground in specific frame id (when the lem is moving)
+	bool shouldTestGround = false;
+	
+	// remove specific pixels depending on the frame num
+	switch (mCurrentAnimFrame)
+	{
+		case 0:
+		{
+			shouldTestGround = true;
+			break;
+		}
+		case 1:
+		{
+			int x = mIsDirectionMirrored ? mPosX+1 : mPosX+3;
+			Dig8Pixels(x, mPosY, 0x007F);
+			break;
+		}
+		case 2:
+		{
+			int x = mIsDirectionMirrored ? mPosX : mPosX+4;
+			Dig8Pixels(x, mPosY, 0x007F);
+			break;
+		}
+	}
+	
+	// get the pixel under my feet, if no ground, I start to fall
+	if (shouldTestGround)
+	{
+		if (!IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+	}
 }
 
 void Lem::UpdateDigHoriz()
@@ -624,7 +655,8 @@ bool Lem::UpdateCurrentAnim()
 				doesNeedUpdate = true; // blocker never move, but we can dig under their feet, so they have to check their state some times to time
 				break;
 			case StateId::DIG_DIAG:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
+				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]))
+								|| (currentFrame <= 2); // need to dig on the first frames
 				break;
 			case StateId::DIG_HORIZ:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0])) 
