@@ -11,7 +11,7 @@ extern int __builtin_popcount(unsigned int);
 
 //usefull macro for modif map manipulation
 // get the modif map index from (ool, line) index. Normally (lineY * MODIF_MAP_COLUMN_COUNT) + colX   but  MODIF_MAP_COLUMN_COUNT=16
-#define GET_MAP_INDEX(colX, lineY) ((lineY << 4) + colX)
+#define GET_MAP_INDEX(colX, lineY) (((int)lineY << 4) + colX)
 
 namespace MapManager
 {
@@ -93,6 +93,7 @@ namespace MapManager
 	void ClearModificationList();
 	void DrawModifications();
 	int GetModificationIndex(int colX, int bitX, int lineY);
+	int GetModificationIndex(int mapIndex, int bitX);
 	void Modify8Pixels(int worldX, int lineY, unsigned char pixels);
 	void Delete8AlignedPixels(int worldX, int LineY, unsigned char pixelToDelete);
 }
@@ -320,12 +321,13 @@ char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAd
 	// get the col and row in the modif map
 	col = worldX >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
 	int bitX = worldX % NB_BIT_MODIF_MAP_CELL;
+	int mapIndex = GET_MAP_INDEX(col, row);
 	
 	// check if there's a modif at the specified coordinate
-	if (ModificationMap[GET_MAP_INDEX(col, row)] & (1 << bitX))
+	if (ModificationMap[mapIndex] & (1 << bitX))
 	{
 		// we found a modif, get it from the list
-		int modifIndex = GetModificationIndex(col, bitX, row);
+		int modifIndex = GetModificationIndex(mapIndex, bitX);
 		if (modifIndex < MODIFICATION_LIST_SIZE)
 		{
 			// if there's a modif, apply it to the original map data depending if we need the added pixels
@@ -471,9 +473,20 @@ void MapManager::Delete16AlignedPixels(int worldX, int lineY, unsigned int pixel
  */
 int MapManager::GetModificationIndex(int colX, int bitX, int lineY)
 {
-	// compute the row and bit coord from x coord
-	int mapIndex = GET_MAP_INDEX(colX, lineY);
-	
+	// compute the map index and call the other function with different signature
+	return GetModificationIndex(GET_MAP_INDEX(colX, lineY), bitX);
+}
+
+/*
+ * Return the number of modification before the specified map index and bit x
+ * If there's a modification at the specified coord, this modification
+ * is not counted. Therefore this function returns the number of modification BEFORE the specified coord,
+ * which can safely be used as an index for the ModificationList array.
+ * So: if there's a modification at the specified position the returned value is the index of that modification,
+ * and if there's no modification at the specified position, the returned value is the insertion point.
+ */
+int MapManager::GetModificationIndex(int mapIndex, int bitX)
+{
 	// get the modif index in the modif list by counting the bit set to the coordinate
 	int modifIndex = 0;
 	for (int i = 0; i < mapIndex; ++i)
@@ -485,11 +498,12 @@ int MapManager::GetModificationIndex(int colX, int bitX, int lineY)
 	return modifIndex;
 }
 
-void MapManager::Modify8Pixels(int x, int lineY, unsigned char pixels)
+void MapManager::Modify8Pixels(int worldX, int lineY, unsigned char pixels)
 {
-	int colX = x >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
-	int bitX = x % NB_BIT_MODIF_MAP_CELL;
-	int modifIndex = GetModificationIndex(colX, bitX, lineY);
+	int colX = worldX >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
+	int bitX = worldX % NB_BIT_MODIF_MAP_CELL;
+	int mapIndex = GET_MAP_INDEX(colX, lineY);
+	int modifIndex = GetModificationIndex(mapIndex, bitX);
 	
 	// check if the modif index is inside the list
 	if (modifIndex < MODIFICATION_LIST_SIZE)
@@ -497,7 +511,7 @@ void MapManager::Modify8Pixels(int x, int lineY, unsigned char pixels)
 		int mapMaskForX = (1 << bitX);
 		
 		// check if there's already a modif of if we need to add one
-		if (ModificationMap[GET_MAP_INDEX(colX, lineY)] & mapMaskForX)
+		if (ModificationMap[mapIndex] & mapMaskForX)
 		{
 			// if there's already a modif, merge the new modif with the existing one with a XOR
 			// (if both not modified: it stay not modified, if one is modified, we take the modif,
@@ -507,7 +521,7 @@ void MapManager::Modify8Pixels(int x, int lineY, unsigned char pixels)
 			if (ModificationList[modifIndex] == 0)
 			{
 				// unset the bit in the modif map
-				ModificationMap[GET_MAP_INDEX(colX, lineY)] &= ~mapMaskForX;
+				ModificationMap[mapIndex] &= ~mapMaskForX;
 				
 				// and delete the modification in the modif list
 				for (int i = modifIndex; i < ModificationListCount ; ++i)
@@ -519,7 +533,7 @@ void MapManager::Modify8Pixels(int x, int lineY, unsigned char pixels)
 		else if (ModificationListCount < MODIFICATION_LIST_SIZE)
 		{
 			// otherwise we need to set the bit in the modif map
-			ModificationMap[GET_MAP_INDEX(colX, lineY)] |= mapMaskForX;
+			ModificationMap[mapIndex] |= mapMaskForX;
 			
 			// and insert the modification in the modif list
 			for (int i = ModificationListCount-1; i >= modifIndex; --i)
