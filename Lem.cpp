@@ -878,8 +878,6 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	// set the state id and reset the current frame
 	mCurrentState = stateId;
 	mCurrentAnimFrame = 0;
-	// update the state to get a chance for the first frame to be updated
-	UpdateState();
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
 	mPosY += shiftY;
