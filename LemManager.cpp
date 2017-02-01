@@ -259,9 +259,10 @@ void LemManager::UpdateLemUnderCursor()
 			// otherwise check if it is better one
 			// TODO
 		}
-		
+	
 	// Set the correct cursor depending if we found something or not
-	HUD::SetCursorShape(CurrentLemIndexUnderCursor != -1);
+	// (don't care if we read data outside the LemArray if the current lem is -1, has the data will not be used)
+	HUD::SetCursorShape(CurrentLemIndexUnderCursor != -1, LemArray[CurrentLemIndexUnderCursor].IsDirectionMirrored());
 }
 
 /*

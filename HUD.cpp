@@ -9,6 +9,21 @@
 
 namespace HUD
 {
+	/*
+	* A class that store the current state of the cursor, such as its position, its shape
+	* and the lem direction that it targets
+	*/
+	struct Cursor
+	{
+		// cursor X position
+		unsigned char X = 0;
+
+		// cursor Y position
+		unsigned char Y			: 6;
+		unsigned char IsSquared	: 1;
+		unsigned char Direction	: 1;
+	};
+
 	// The current selected button in the HUD
 	Button SelectedButton = Button::TIMER;
 	Button GetSelectedButton() { return SelectedButton; }
@@ -21,18 +36,15 @@ namespace HUD
 	int FrameNumberOfTheGameEnd = 0;
 	void Init(int timeInSecond);
 	
+	// the cursor instance and its accessors
+	Cursor mCursor;
 	// cursor X position
-	unsigned char CursorX = 0;
-	unsigned char GetCursorX() { return CursorX; }
-	void SetCursorX(unsigned char x) { CursorX = x; }
-
+	unsigned char GetCursorX() { return mCursor.X; }
+	void SetCursorX(unsigned char x) { mCursor.X = x; }
 	// cursor Y position
-	unsigned char CursorY = 0;
-	unsigned char GetCursorY() { return CursorY; }
-	void SetCursorY(unsigned char y) { CursorY = y; }
-	
-	bool IsCursorSquared = false;
-	void SetCursorShape(bool isSquared) { IsCursorSquared = isSquared; }
+	unsigned char GetCursorY() { return mCursor.Y; }
+	void SetCursorY(unsigned char y) { mCursor.Y = y; }
+	void SetCursorShape(bool isSquared, bool cursorDirection) { mCursor.IsSquared = isSquared; mCursor.Direction = cursorDirection; }
 	
 	// the position of the cursor of the drop velocity bar, and a multiplier to get the frame rate drop velocity
 	const int VELOCITY_BAR_WIDTH = HUD_WIDTH - 3;
@@ -74,9 +86,10 @@ void HUD::Init(int timeInSecond)
 	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * 60); // multiply by the FPS
 	LemDropBarCursorInPixel = 15;
 	SelectedButton = Button::TIMER;
-	CursorX = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
-	CursorY = HEIGHT/2;
-	IsCursorSquared = false;
+	mCursor.X = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
+	mCursor.Y = HEIGHT/2;
+	mCursor.IsSquared = 0;
+	mCursor.Direction = 0;
 	mWasArrowButtonUsedInHUD = false;
 }
 
@@ -510,7 +523,10 @@ void HUD::DrawCursor()
 	if (normalizeFrameNumber >= CURSOR_BLINKING_TIME_OFF)
 	{
 		// draw the square or the cross sprite
-		arduboy.drawBitmap(CursorX - 3, CursorY - 3, sprite_Cursor[IsCursorSquared ? 1 : 0], 7, 7, INVERT);
+		arduboy.drawBitmap((int)mCursor.X - 3, (int)mCursor.Y - 3, sprite_Cursor[mCursor.IsSquared], 7, 7, INVERT);
+		// if the cursor is squared, draw an arrow above it
+		if (mCursor.IsSquared)
+			arduboy.drawBitmap((int)mCursor.X - 2, (int)mCursor.Y - 8, sprite_CursorArrow[mCursor.Direction], 5, 8, INVERT);
 	}
 }
 

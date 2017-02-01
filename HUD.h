@@ -40,7 +40,7 @@ namespace HUD
 	extern void SetCursorY(unsigned char y);
 	
 	// cursor shape (square or cross)
-	extern void SetCursorShape(bool isSquared);
+	extern void SetCursorShape(bool isSquared, bool cursorDirection);
 	
 	extern void Init(int timeInSecond);
 	extern void Update();
