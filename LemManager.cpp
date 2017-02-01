@@ -136,6 +136,11 @@ void LemManager::UpdateInput()
 		{
 			switch (HUD::GetSelectedButton())
 			{
+				case HUD::Button::LEM_WALK:
+					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::WALK))
+						MapManager::DecreaseWalkerCount();
+					break;
+					
 				case HUD::Button::LEM_BLOCKER:
 					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::BLOCKER))
 						MapManager::DecreaseBlockerCount();
