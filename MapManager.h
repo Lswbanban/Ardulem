@@ -9,9 +9,6 @@ namespace MapManager
 	extern void Update();
 	extern void DrawStartAndHome();
 
-	// view scroll
-	bool ScrollView(int scrollMoveInPixel);
-	
 	// map config
 	extern unsigned char CurrentMapId;
 	extern unsigned char GetStartX();

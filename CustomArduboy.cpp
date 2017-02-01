@@ -43,3 +43,8 @@ void CustomArduboy::drawBitmapFromRAM(int16_t x, int16_t y, const uint8_t *bitma
     }
   }
 }
+
+uint8_t CustomArduboy::get8PixelsColumn(uint8_t x, uint8_t row)
+{
+  return sBuffer[(row*WIDTH) + x];
+}

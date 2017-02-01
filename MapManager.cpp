@@ -51,8 +51,10 @@ namespace MapManager
 	
 	// this variable store the current scrolling value of the map on the screen
 	int ScrollValue = 0;
+	bool ScrollView(int scrollMoveInPixel);
 	
 	// private functions
+	void UpdateInput();
 	void DrawMap();
 
 	// map config
@@ -87,9 +89,10 @@ namespace MapManager
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubIndex);
-	char Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
+	unsigned char Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
 	char GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
-	
+	unsigned char GetPixelsColumnAligned(int worldX, int lineY);
+
 	void ClearModificationList();
 	void DrawModifications();
 	int GetModificationIndex(int colX, int bitX, int lineY);
@@ -165,8 +168,52 @@ void MapManager::InitMap()
 
 void MapManager::Update()
 {
+	// update input before drawing, because we may update the ScrollValue and this value is used in DrawMap,
+	// and of course, we want the value to match with the map drawn this frame, otherwise there will be bugs with the lem logic
+	UpdateInput();
 	DrawMap();
 	DrawModifications();
+}
+
+void MapManager::UpdateInput()
+{
+	const int INPUT_FRAME_COUNT_FIRST_MODULO = 5;
+	const int INPUT_FRAME_COUNT_SECOND_MODULO = 1;
+	const int SCROLL_VIEW_SPEED = 2;
+
+	// early exit if button A is down, because that means we want to control the HUD
+	if (Input::IsDown(A_BUTTON))
+		return;
+
+	// get the current cursor position
+	unsigned char cursorX = HUD::GetCursorX();
+	unsigned char cursorY = HUD::GetCursorY();
+	
+	// Move the cursor and scroll the view if the cursor reach one border of the view
+	if (Input::IsDownModulo(LEFT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		if (cursorX == HUD::HUD_WIDTH)
+			MapManager::ScrollView(-SCROLL_VIEW_SPEED);
+		else
+			HUD::SetCursorX(cursorX - 1);
+	}
+	else if (Input::IsDownModulo(RIGHT_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		if (cursorX == WIDTH-1)
+			MapManager::ScrollView(SCROLL_VIEW_SPEED);
+		else
+			HUD::SetCursorX(cursorX + 1);
+	}
+	else if (Input::IsDownModulo(DOWN_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		if (cursorY < HEIGHT-1)
+			HUD::SetCursorY(cursorY + 1);
+	}
+	else if (Input::IsDownModulo(UP_BUTTON, INPUT_FRAME_COUNT_FIRST_MODULO, INPUT_FRAME_COUNT_SECOND_MODULO))
+	{
+		if (cursorY > 0)
+			HUD::SetCursorY(cursorY - 1);
+	}
 }
 
 void MapManager::DrawStartAndHome()
@@ -290,14 +337,14 @@ unsigned char MapManager::ConvertToScreenCoord(int worldX)
 /*
  * Get the column of 8 pixels at the specified worldX and that contains the worldY.
  */
-char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
+unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
 {
 	// compute the sprite row and column from the x and y pixel coord
 	unsigned char col = worldX >> 3;
 	unsigned char row = worldY >> 3;
 	
 	// start with a default black pixel
-	char heightPixelsColumn = 0;
+	unsigned char heightPixelsColumn = 0;
 	
 	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
@@ -385,12 +432,27 @@ unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height, bo
 	}
 }
 
+unsigned char MapManager::GetPixelsColumnAligned(int worldX, int lineY)
+{
+	// first check if the pixel is inside the screen or not, and if we should consider the added pixels
+	if (IsOnScreen(worldX))
+	{
+		// simply get the column of pixel from the frame buffer
+		return arduboy.get8PixelsColumn(ConvertToScreenCoord(worldX), lineY);
+	}
+	else
+	{
+		// get one or two column of 8 pixels, depending where is the worldY and the required height
+		return Get8PixelsOutsideScreen(worldX, lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT, true);
+	}
+}
+
 /*
  * get the specific pixel at the specific world x and world y specified position
  */
 char MapManager::GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
 {
-	char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
+	unsigned char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
 	return (heightPixelsColumn >> (worldY % 8)) & 0x01;
 }
 
@@ -438,7 +500,7 @@ void MapManager::Delete8AlignedPixels(int worldX, int lineY, unsigned char pixel
 {
 	// get the current column of pixels at the position of the modification.
 	// make an AND operation, as we want both the current pixel set, and a modification for that pixel
-	pixelToDelete &= GetPixelsColumn(worldX, lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT, 8, true);
+	pixelToDelete &= GetPixelsColumnAligned(worldX, lineY);
 	
 	// check if there's any remaining pixel to modify
 	if (__builtin_popcount((int)pixelToDelete) != 0)

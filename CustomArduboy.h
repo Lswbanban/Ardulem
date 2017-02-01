@@ -10,6 +10,7 @@ class CustomArduboy : public Arduboy
 {
 public:
 	void drawBitmapFromRAM(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h, uint8_t color);
+	uint8_t get8PixelsColumn(uint8_t x, uint8_t row);
 };
 
 #endif

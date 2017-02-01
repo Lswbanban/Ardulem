@@ -61,13 +61,9 @@ void loop()
 
 	// and draw the correct scene according to the current game state
 	MainMenu::GameState currentGameState = MainMenu::GetCurrentGameState();
-	if (currentGameState < MainMenu::GameState::HOW_TO_PLAY)
+	if (currentGameState < MainMenu::GameState::PLAYING)
 	{
 		MainMenu::Update();
-	}
-	else if (currentGameState == MainMenu::GameState::HOW_TO_PLAY)
-	{
-		HelpMenu::Update();
 	}
 	else
 	{
