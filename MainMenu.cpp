@@ -144,6 +144,5 @@ void MainMenu::Draw()
 		if (HUD::DrawBlinkingText(MENU_X, MENU_Y+8, F("Level:"), CurrentGameState == GameState::MENU_LEVEL))
 			PrintNumber(MENU_X+40, MENU_Y+8, MapManager::CurrentMapId); // draw the current level index
 		HUD::DrawBlinkingText(MENU_X, MENU_Y+16, F("Reset Save"), CurrentGameState == GameState::MENU_RESET_SAVE);
-		HUD::DrawBlinkingText(MENU_X, MENU_Y+24, F("How to Play"), CurrentGameState == GameState::MENU_HOW_TO_PLAY);
 	}
 }

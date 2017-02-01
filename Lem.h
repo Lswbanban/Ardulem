@@ -37,7 +37,9 @@ public:
 	unsigned char	GetCurrentState()		{ return mCurrentState;}
 	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
 	bool			PromoteClimber()		{ bool wasPromoted = (mIsAClimber == 0); mIsAClimber = 1; return wasPromoted; }
+	bool			IsAClimber()			{ return mIsAClimber; }
 	bool			PromoteParachuter()		{ bool wasPromoted = (mIsAParachuter == 0); mIsAParachuter = 1; return wasPromoted; }
+	bool			IsAParachuter()			{ return mIsAParachuter; }
 	bool			IsDirectionMirrored()	{ return mIsDirectionMirrored; }
 
 	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);

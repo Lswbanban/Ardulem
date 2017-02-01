@@ -8,6 +8,21 @@
 
 namespace LemManager
 {
+	// This enum is a helper for the function that choose the best lemming under the cursor
+	enum WalkerChoicePreference
+	{
+		DONT_CHOOSE = 0,
+		CHOOSE_AFTER_OTHER,
+		CHOOSE_BEFORE_OTHER,
+	};
+	
+	// This struct is used for searching the best lem under the cursor
+	struct LemChoice
+	{
+		char LemId;
+		unsigned char Score;
+	};
+	
 	// the array storing all the Lems
 	Lem LemArray[LemManager::MAX_LEM_COUNT];
 
@@ -45,6 +60,7 @@ namespace LemManager
 	void CheckLemTimers();
 	void MoveDeadLemToDeadPool();
 	bool ChangeLemStateIfPossible(int lemId, Lem::StateId newState);
+	void ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference);
 
 	// lem array manipulation and sorting
 	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
@@ -230,9 +246,72 @@ bool LemManager::ChangeLemStateIfPossible(int lemId, Lem::StateId newState)
 	return false;
 }
 
+void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference)
+{
+	unsigned char challengerLemState = LemArray[challengerLemId].GetCurrentState();
+	
+	// in any case, we don't choose a bomber (a bomber can never change role)
+	// and if we should also ignore the lem falling, don't choose the challenger if he is falling
+	// and similarly, ignore blockers if we need to
+	if ((challengerLemState <= Lem::StateId::BYE_BYE_BOOM) ||
+		(dontPickFallers && (challengerLemState >= Lem::StateId::START_FALL)) ||
+		(dontPickBlocker && (challengerLemState == Lem::StateId::BLOCKER)) )
+		return;
+	
+	// check if the challenger has any role
+	bool isChallengerAParachuter = LemArray[challengerLemId].IsAParachuter();
+	bool isChallengerAClimber = LemArray[challengerLemId].IsAClimber();
+	
+	// now check the prefered role in priority (if not equals to DEAD, which means we don't have a prefered role)
+	// if the challenger has the wanted role, return it
+	if (	(preferedRole != Lem::StateId::DEAD) &&
+			(	(preferedRole == challengerLemState) || 
+				((preferedRole == Lem::StateId::PARACHUTE) && isChallengerAParachuter) ||
+				((preferedRole == Lem::StateId::CLIMB) && isChallengerAClimber)
+			)
+		)
+		currentLem = {challengerLemId, 0};
+	
+	// if the score is too good, no need for doing further check
+	if (currentLem.Score <= 1)
+		return;
+
+	// now check if we need to select in priority the diggers
+	if (preferDiggers && (challengerLemState >= Lem::StateId::DIG_DIAG) && (challengerLemState <= Lem::StateId::DIG_VERT))
+		currentLem = {challengerLemId, 1};
+
+	// if the score is too good, no need for doing further check
+	if (currentLem.Score <= 2)
+		return;
+
+	bool hasChallengerARole = isChallengerAParachuter || isChallengerAClimber ||
+							((challengerLemState >= Lem::StateId::BLOCKER) && (challengerLemState <= Lem::StateId::STAIR));
+	
+	// now check if we need to choose walker before the other roles
+	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_BEFORE_OTHER) && !hasChallengerARole)
+		currentLem = {challengerLemId, 2};
+
+	// if the score is too good, no need for doing further check
+	if (currentLem.Score <= 3)
+		return;
+	
+	// now check if the challenger has any role (not a simple walker)
+	if (hasChallengerARole)
+		currentLem = {challengerLemId, 3};
+
+	// if the score is too good, no need for doing further check
+	if (currentLem.Score <= 4)
+		return;
+	
+	// finally check check again the walker if we need to choose walker after the other roles
+	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_AFTER_OTHER) && !hasChallengerARole)
+		currentLem = {challengerLemId, 4};
+}
+
 /*
  * This function try to find the best lem under the current cursor.
  * The function will choose in priority different type of lem depending on the HUD button selected:
+ * - If the walker is selected: it will choose a blocker first, then any lem with a function, (not a bomber/walker)
  * - If the blocker is selected: it will choose any lem with a function (not a blocker/bomber), then a walker
  * - If the bomb action is selected, it will choose a Blocker in priority, then any lem with a function (not a bomber), then a walker
  * - If a digger is selected, if will choose the same type of digger in priority, then any digger, then any function (not a bomber), then a walker
@@ -242,24 +321,69 @@ bool LemManager::ChangeLemStateIfPossible(int lemId, Lem::StateId newState)
  */
 void LemManager::UpdateLemUnderCursor()
 {
-	// reset the lem pointer
-	CurrentLemIndexUnderCursor = -1;
+	// declare a local lem choice struct and init its score with a high value
+	LemChoice currentLemChoice = {-1, 10 };
 	
 	// iterate on all lem to find the best candidate
-	for (int i = 0; i < OutLemCount; ++i)
+	for (char i = 0; i < OutLemCount; ++i)
 		if (LemArray[i].InUnderCursorPosition())
 		{
 			// we found a potential candidate, if it is the first one, take it
-			if (CurrentLemIndexUnderCursor == -1)
+			if (currentLemChoice.LemId == -1)
 			{
-				CurrentLemIndexUnderCursor = i;
+				currentLemChoice = {i, 10};
 				continue;
 			}
 			
 			// otherwise check if it is better one
-			// TODO
+			switch (HUD::GetSelectedButton())
+			{
+				case HUD::Button::LEM_WALK:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::DONT_CHOOSE);
+					break;
+				case HUD::Button::LEM_BLOCKER:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, true, Lem::StateId::DEAD, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_BOMB:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_DIG_DIAG:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_DIAG, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_DIG_HORIZ:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_HORIZ, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_DIG_VERT:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_VERT, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_STAIR:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::STAIR, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					break;
+				case HUD::Button::LEM_CLIMB:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::PARACHUTE, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER);
+					break;
+				case HUD::Button::LEM_PARACHUTE:
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
+					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::CLIMB, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER);
+					break;
+			}
+			
+			// if we found the best lem stop the loop
+			if (currentLemChoice.Score == 0)
+				break;
 		}
 	
+	// set the lem pointer with the one found in the current lem choice
+	CurrentLemIndexUnderCursor = currentLemChoice.LemId;
+
 	// Set the correct cursor depending if we found something or not
 	// (don't care if we read data outside the LemArray if the current lem is -1, has the data will not be used)
 	HUD::SetCursorShape(CurrentLemIndexUnderCursor != -1, LemArray[CurrentLemIndexUnderCursor].IsDirectionMirrored());
