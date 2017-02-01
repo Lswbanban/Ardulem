@@ -89,9 +89,9 @@ namespace MapManager
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubIndex);
-	unsigned char Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
+	unsigned char Get8PixelsOutsideScreen(int worldX, int lineY, bool considerAddedPixels);
 	char GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
-	unsigned char GetPixelsColumnAligned(int worldX, int lineY);
+	unsigned char GetPixelsColumnAligned(int worldX, int lineY, bool considerAddedPixels);
 
 	void ClearModificationList();
 	void DrawModifications();
@@ -337,11 +337,10 @@ unsigned char MapManager::ConvertToScreenCoord(int worldX)
 /*
  * Get the column of 8 pixels at the specified worldX and that contains the worldY.
  */
-unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
+unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool considerAddedPixels)
 {
-	// compute the sprite row and column from the x and y pixel coord
+	// compute the sprite column from the x and we already know the row (i.e. lineY)
 	unsigned char col = worldX >> 3;
-	unsigned char row = worldY >> 3;
 	
 	// start with a default black pixel
 	unsigned char heightPixelsColumn = 0;
@@ -349,13 +348,13 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool c
 	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
 	
-	// check if there's a sprite at the specified row and col
-	if (currentSpriteColumnLocalization & (0x01<<row))
+	// check if there's a sprite at the specified lineY and col
+	if (currentSpriteColumnLocalization & (0x01 << lineY))
 	{
 		// there's a sprite at the specified location, so count the number of sprite to ignore before that one
 		int spriteIndex = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, col);
 		// and add all the sprite if any before that one (shift the loca char before counting the remaining bits)
-		spriteIndex += __builtin_popcount((unsigned int)((currentSpriteColumnLocalization << (8 - row)) & 0xFF));
+		spriteIndex += __builtin_popcount((unsigned int)((currentSpriteColumnLocalization << (8 - lineY)) & 0xFF));
 
 		// get the global id of the sprite we need
 		int currentSpriteGlobalId = GetSpriteGlobalId(spriteIndex/3, spriteIndex%3);
@@ -365,10 +364,10 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool c
 	}
 	
 	// now apply the modification of that column of 8 pixels if needed
-	// get the col and row in the modif map
+	// get the col and lineY in the modif map
 	col = worldX >> X_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
 	int bitX = worldX % NB_BIT_MODIF_MAP_CELL;
-	int mapIndex = GET_MAP_INDEX(col, row);
+	int mapIndex = GET_MAP_INDEX(col, lineY);
 	
 	// check if there's a modif at the specified coordinate
 	if (ModificationMap[mapIndex] & (1 << bitX))
@@ -408,34 +407,21 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int worldY, bool c
  */
 unsigned char MapManager::GetPixelsColumn(int worldX, int worldY, int height, bool considerAddedPixels)
 {
-	// first check if the pixel is inside the screen or not, and if we should consider the added pixels
-	if (considerAddedPixels && IsOnScreen(worldX))
-	{
-		// simply get the column of pixel from the frame buffer
-		int screenX = ConvertToScreenCoord(worldX);
-		unsigned char result = 0;
-		for (int i = 0; i < height; ++i)
-			result |= arduboy.getPixel(screenX, worldY + i) << i;
-		// and return the result
-		return result;
-	}
-	else
-	{
-		int yNormalized = (worldY % 8);
-		// get one or two column of 8 pixels, depending where is the worldY and the required height
-		int height16PixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
-		if ((yNormalized > height-1) && (worldY < 56))
-			height16PixelsColumn |= Get8PixelsOutsideScreen(worldX, worldY + 8, considerAddedPixels) << 8;
-		// return the value, shifted and masked according to the height required (shift in both direction)
-		int leftShift = (16 - yNormalized - height);
-		return (unsigned char)((height16PixelsColumn << leftShift) >> (leftShift + yNormalized));
-	}
+	int lineY = worldY >> 3;
+	int yNormalized = (worldY % 8);
+	// get one or two column of 8 pixels, depending where is the worldY and the required height
+	int height16PixelsColumn = GetPixelsColumnAligned(worldX, lineY, considerAddedPixels);
+	if ((yNormalized > height-1) && (lineY < 7))
+		height16PixelsColumn |= GetPixelsColumnAligned(worldX, lineY + 1, considerAddedPixels) << 8;
+	// return the value, shifted and masked according to the height required (shift in both direction)
+	int leftShift = (16 - yNormalized - height);
+	return (unsigned char)((height16PixelsColumn << leftShift) >> (leftShift + yNormalized));
 }
 
-unsigned char MapManager::GetPixelsColumnAligned(int worldX, int lineY)
+unsigned char MapManager::GetPixelsColumnAligned(int worldX, int lineY, bool considerAddedPixels)
 {
 	// first check if the pixel is inside the screen or not, and if we should consider the added pixels
-	if (IsOnScreen(worldX))
+	if (considerAddedPixels && IsOnScreen(worldX))
 	{
 		// simply get the column of pixel from the frame buffer
 		return arduboy.get8PixelsColumn(ConvertToScreenCoord(worldX), lineY);
@@ -443,7 +429,7 @@ unsigned char MapManager::GetPixelsColumnAligned(int worldX, int lineY)
 	else
 	{
 		// get one or two column of 8 pixels, depending where is the worldY and the required height
-		return Get8PixelsOutsideScreen(worldX, lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT, true);
+		return Get8PixelsOutsideScreen(worldX, lineY, considerAddedPixels);
 	}
 }
 
@@ -452,7 +438,7 @@ unsigned char MapManager::GetPixelsColumnAligned(int worldX, int lineY)
  */
 char MapManager::GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels)
 {
-	unsigned char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY, considerAddedPixels);
+	unsigned char heightPixelsColumn = Get8PixelsOutsideScreen(worldX, worldY >> Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT, considerAddedPixels);
 	return (heightPixelsColumn >> (worldY % 8)) & 0x01;
 }
 
@@ -500,7 +486,7 @@ void MapManager::Delete8AlignedPixels(int worldX, int lineY, unsigned char pixel
 {
 	// get the current column of pixels at the position of the modification.
 	// make an AND operation, as we want both the current pixel set, and a modification for that pixel
-	pixelToDelete &= GetPixelsColumnAligned(worldX, lineY);
+	pixelToDelete &= GetPixelsColumnAligned(worldX, lineY, true);
 	
 	// check if there's any remaining pixel to modify
 	if (__builtin_popcount((int)pixelToDelete) != 0)
