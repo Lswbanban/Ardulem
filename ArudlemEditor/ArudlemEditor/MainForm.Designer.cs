@@ -34,6 +34,8 @@
             this.loadLevelFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveLevelToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.drawLevelGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.MapSpritePictureBox = new System.Windows.Forms.PictureBox();
@@ -53,7 +55,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem});
+            this.fileToolStripMenuItem,
+            this.editToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(733, 24);
@@ -83,6 +86,7 @@
             this.loadLevelFromClipboardToolStripMenuItem.Name = "loadLevelFromClipboardToolStripMenuItem";
             this.loadLevelFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.loadLevelFromClipboardToolStripMenuItem.Text = "Load Level from Clipboard";
+            this.loadLevelFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.loadLevelFromClipboardToolStripMenuItem_Click);
             // 
             // saveLevelToClipboardToolStripMenuItem
             // 
@@ -97,6 +101,24 @@
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.drawLevelGridToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // drawLevelGridToolStripMenuItem
+            // 
+            this.drawLevelGridToolStripMenuItem.Checked = true;
+            this.drawLevelGridToolStripMenuItem.CheckOnClick = true;
+            this.drawLevelGridToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.drawLevelGridToolStripMenuItem.Name = "drawLevelGridToolStripMenuItem";
+            this.drawLevelGridToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.drawLevelGridToolStripMenuItem.Text = "Draw Level Grid";
+            this.drawLevelGridToolStripMenuItem.Click += new System.EventHandler(this.drawLevelGridToolStripMenuItem_Click);
+            // 
             // splitContainer1
             // 
             this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -109,7 +131,7 @@
             // 
             this.splitContainer1.Panel1.Controls.Add(this.splitContainer2);
             this.splitContainer1.Size = new System.Drawing.Size(733, 422);
-            this.splitContainer1.SplitterDistance = 193;
+            this.splitContainer1.SplitterDistance = 192;
             this.splitContainer1.TabIndex = 1;
             // 
             // splitContainer2
@@ -126,7 +148,7 @@
             // splitContainer2.Panel2
             // 
             this.splitContainer2.Panel2.Controls.Add(this.LevelPictureBox);
-            this.splitContainer2.Size = new System.Drawing.Size(733, 193);
+            this.splitContainer2.Size = new System.Drawing.Size(733, 192);
             this.splitContainer2.SplitterDistance = 191;
             this.splitContainer2.TabIndex = 0;
             // 
@@ -135,7 +157,7 @@
             this.MapSpritePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MapSpritePictureBox.Location = new System.Drawing.Point(0, 0);
             this.MapSpritePictureBox.Name = "MapSpritePictureBox";
-            this.MapSpritePictureBox.Size = new System.Drawing.Size(187, 189);
+            this.MapSpritePictureBox.Size = new System.Drawing.Size(187, 188);
             this.MapSpritePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.MapSpritePictureBox.TabIndex = 0;
             this.MapSpritePictureBox.TabStop = false;
@@ -146,7 +168,7 @@
             this.LevelPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.LevelPictureBox.Location = new System.Drawing.Point(0, 0);
             this.LevelPictureBox.Name = "LevelPictureBox";
-            this.LevelPictureBox.Size = new System.Drawing.Size(534, 189);
+            this.LevelPictureBox.Size = new System.Drawing.Size(534, 188);
             this.LevelPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.LevelPictureBox.TabIndex = 0;
             this.LevelPictureBox.TabStop = false;
@@ -190,6 +212,8 @@
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.PictureBox MapSpritePictureBox;
         private System.Windows.Forms.PictureBox LevelPictureBox;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem drawLevelGridToolStripMenuItem;
     }
 }
 

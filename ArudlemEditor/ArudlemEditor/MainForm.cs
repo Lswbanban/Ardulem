@@ -16,13 +16,14 @@ namespace ArudlemEditor
         private const int MAP_SPRITE_WIDTH = 8;
         private const int MAP_SPRITE_HEIGHT = 4;
         // the zoom that should be applied on the original images used for the arduboy
-        private const int IMAGE_ZOOM_SCALE = 8;
+        private const int IMAGE_ZOOM_SCALE = 16;
         #endregion
 
         #region variables
-        private Bitmap m_OriginalMapSpriteImage = null;
-        private Pen m_MapSpriteLinesPen = new Pen(Color.Yellow, 1f);
-        private Pen m_MapSpriteSelectionPen = new Pen(Color.Red, 1f);        
+        private Bitmap m_MapSpriteImage = null;
+        private Pen m_MapSpriteLinesPen = new Pen(Color.Yellow, 4f);
+        private Pen m_MapSpriteSelectionPen = new Pen(Color.Red, 4f);
+        private Pen m_LevelLinesPen = new Pen(Color.Yellow, 1f);
 
         private int m_CurrentSpriteIndex = 0;
 
@@ -41,7 +42,8 @@ namespace ArudlemEditor
         {
             // get the original image
             string mapSpritePath = Application.StartupPath + @"/../../../../Assets/Maps/MapSprite.png";
-            m_OriginalMapSpriteImage = new Bitmap(mapSpritePath);
+            Bitmap originalMapSpriteImage = new Bitmap(mapSpritePath);
+            m_MapSpriteImage = new Bitmap(originalMapSpriteImage, originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
             // and init the image
             DrawMapSprite();
         }
@@ -58,7 +60,7 @@ namespace ArudlemEditor
             return new Size(size.Width / Level.LEVEL_WIDTH, size.Height / Level.LEVEL_HEIGHT);
         }
 
-        private void DrawMapSpriteLines(Graphics gc, Size imageSise, int horizontalCellCount, int verticalCellCount)
+        private void DrawMapSpriteLines(Graphics gc, Size imageSise, int horizontalCellCount, int verticalCellCount, Pen pen)
         {
             float cellWidth = imageSise.Width / horizontalCellCount;
             float cellHeight = imageSise.Height / verticalCellCount;
@@ -71,7 +73,7 @@ namespace ArudlemEditor
             for (int i = 1; i < horizontalCellCount; ++i)
             {
                 x = i * cellWidth;
-                gc.DrawLine(m_MapSpriteLinesPen, x, y, x, y + imageSise.Height);
+                gc.DrawLine(pen, x, y, x, y + imageSise.Height);
             }
 
             // Draw the horizontal lines
@@ -79,20 +81,20 @@ namespace ArudlemEditor
             for (int i = 1; i < verticalCellCount; ++i)
             {
                 y = i * cellHeight;
-                gc.DrawLine(m_MapSpriteLinesPen, x, y, x + imageSise.Width, y);
+                gc.DrawLine(pen, x, y, x + imageSise.Width, y);
             }
         }
 
         private void DrawMapSprite()
         {
             // resize the image to draw the lines
-            this.MapSpritePictureBox.Image = new Bitmap(m_OriginalMapSpriteImage, m_OriginalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, m_OriginalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
+            this.MapSpritePictureBox.Image = new Bitmap(m_MapSpriteImage);
             
             // get the gc of the image
             Graphics gc = Graphics.FromImage(this.MapSpritePictureBox.Image);
             
             // draw the lines
-            DrawMapSpriteLines(gc, this.MapSpritePictureBox.Image.Size, MAP_SPRITE_WIDTH, MAP_SPRITE_HEIGHT);
+            DrawMapSpriteLines(gc, this.MapSpritePictureBox.Image.Size, MAP_SPRITE_WIDTH, MAP_SPRITE_HEIGHT, m_MapSpriteLinesPen);
 
             // and draw the the selected sprite
             Size cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Image.Size);
@@ -107,7 +109,7 @@ namespace ArudlemEditor
             Graphics gc = Graphics.FromImage(this.LevelPictureBox.Image);
 
             // get the sprite cell size and level cell size
-            Size spriteCellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Image.Size);
+            Size spriteCellSize = GetMapSpriteCellSize(m_MapSpriteImage.Size);
             Size levelCellSize = GetLevelCellSize(this.LevelPictureBox.Image.Size);
 
             // iterate through the level data to paint the correct sprite
@@ -119,7 +121,7 @@ namespace ArudlemEditor
                     {
                         int spriteIndex = m_CurrentLevel.GetSprite(i, j);
                         Rectangle spriteRectangle = new Rectangle((spriteIndex % MAP_SPRITE_WIDTH) * spriteCellSize.Width, (spriteIndex / MAP_SPRITE_WIDTH) * spriteCellSize.Height, spriteCellSize.Width, spriteCellSize.Height);
-                        gc.DrawImage(this.MapSpritePictureBox.Image, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
+                        gc.DrawImage(m_MapSpriteImage, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
                     }
                     else
                     {
@@ -128,7 +130,8 @@ namespace ArudlemEditor
                 }
 
             // finally draw the grid on top of it
-            DrawMapSpriteLines(gc, this.LevelPictureBox.Image.Size, Level.LEVEL_WIDTH, Level.LEVEL_HEIGHT);
+            if (this.drawLevelGridToolStripMenuItem.Checked)
+                DrawMapSpriteLines(gc, this.LevelPictureBox.Image.Size, Level.LEVEL_WIDTH, Level.LEVEL_HEIGHT, m_LevelLinesPen);
         }
         #endregion
 
@@ -140,9 +143,23 @@ namespace ArudlemEditor
             DrawLevel();
         }
 
+        private void loadLevelFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool isOk = m_CurrentLevel.LoadFromClipboard();
+            if (isOk)
+                DrawLevel();
+            else
+                MessageBox.Show("Error while parsing the clipboard, please try again to copy.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void drawLevelGridToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawLevel();
         }
         #endregion
 
