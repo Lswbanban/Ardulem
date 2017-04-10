@@ -15,6 +15,10 @@ namespace ArudlemEditor
         // the level data
         private int[,] m_Data = new int[LEVEL_WIDTH, LEVEL_HEIGHT];
 
+        // the variable names for the two arrays of the map
+        public string m_LocaMapName = string.Empty;
+        public string m_MapIdsName = string.Empty;
+
         public Level()
         {
             Clear();
@@ -45,6 +49,13 @@ namespace ArudlemEditor
         public bool IsSpriteSet(int x, int y)
         {
             return m_Data[x, y] != -1;
+        }
+
+        private string parseVariableName(string variableDeclaration, string variableType)
+        {
+            int startIndex = variableDeclaration.IndexOf(variableType) + variableType.Length;
+            int endIndex = variableDeclaration.IndexOf('[');
+            return variableDeclaration.Substring(startIndex, endIndex - startIndex).Trim();
         }
 
         private string[] tokenizeArray(string arrayDefinition, string[] separators)
@@ -98,6 +109,7 @@ namespace ArudlemEditor
             Clear();
 
             // get the loca and the id
+            m_LocaMapName = parseVariableName(mapParts[0], "char");
             string[] loca = tokenizeArray(mapParts[0], new string[]{","});
 
             // then iterate on all the loca id
@@ -122,6 +134,7 @@ namespace ArudlemEditor
             }
 
             // now read the sprite ids
+            m_MapIdsName = parseVariableName(mapParts[1], "int");
             string[] spriteIds = tokenizeArray(mapParts[1], new string[]{"),"});
 
             // reset x and y

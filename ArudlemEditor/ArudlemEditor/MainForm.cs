@@ -146,10 +146,26 @@ namespace ArudlemEditor
         private void loadLevelFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool isOk = m_CurrentLevel.LoadFromClipboard();
-            if (isOk)
-                DrawLevel();
-            else
+            if (!isOk)
+            {
                 MessageBox.Show("Error while parsing the clipboard, please try again to copy.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
+            // redraw the level
+            DrawLevel();
+
+            // set the values in the combo boxes
+            this.LocaMapNameTextBox.Text = m_CurrentLevel.m_LocaMapName;
+            this.MapIdsTextBox.Text = m_CurrentLevel.m_MapIdsName;
+        }
+
+        private void saveLevelToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // set the values from the combo boxes to the current level before calling the save
+            m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
+            m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
+
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
