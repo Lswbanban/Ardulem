@@ -47,6 +47,45 @@ namespace ArudlemEditor
             return m_Data[x, y] != -1;
         }
 
+        private string[] tokenizeArray(string arrayDefinition, string[] separators)
+        {
+            int startIndex = arrayDefinition.IndexOf('{') + 1;
+            int endIndex = arrayDefinition.IndexOf('}');
+            string arrayValues = arrayDefinition.Substring(startIndex, endIndex - startIndex);
+            return arrayValues.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private bool GetNextValidCoordinate(ref int x, ref int y)
+        {
+            // at least move to the next cell
+            int i = x;
+            int j = y + 1;
+            if (j >= LEVEL_HEIGHT)
+            {
+                // if we reach the end of the column, move to the next column
+                j = 0;
+                i = x + 1;
+                // if we reach the last colum, there's no more valide coord
+                if (i >= LEVEL_WIDTH)
+                    return false;
+            }
+
+            // iterate on the data until we found a valid sprite id
+            for (; i < LEVEL_WIDTH; ++i)
+                for (j = j % LEVEL_HEIGHT; j < LEVEL_HEIGHT; ++j)
+                    if (m_Data[i,j] == 1)
+                    {
+                        // if we found a valide coord, set the coordinate and return true
+                        x = i;
+                        y = j;
+                        return true;
+                    }
+
+            // if we reach the end without finding a new valid coordinate return false
+            return false;
+        }
+
+
         public bool LoadFromClipboard()
         {
             string text = Clipboard.GetText();
@@ -59,10 +98,7 @@ namespace ArudlemEditor
             Clear();
 
             // get the loca and the id
-            int startIndex = mapParts[0].IndexOf('{') + 1;
-            int endIndex = mapParts[0].IndexOf('}');
-            string locaString = mapParts[0].Substring(startIndex, endIndex - startIndex);
-            string[] loca = locaString.Split(',');
+            string[] loca = tokenizeArray(mapParts[0], new string[]{","});
 
             // then iterate on all the loca id
             int x = 0;
@@ -74,7 +110,7 @@ namespace ArudlemEditor
                     continue;
 
                 // get the id as int
-                int id = Int32.Parse(trimLocaId.Substring(2), System.Globalization.NumberStyles.HexNumber);
+                int id = int.Parse(trimLocaId.Substring(2), System.Globalization.NumberStyles.HexNumber);
 
                 // fill the data with a 1 for now for every bit set
                 for (int i = 0; i < 8; ++i)
@@ -83,6 +119,23 @@ namespace ArudlemEditor
 
                 // increment the x
                 x++;
+            }
+
+            // now read the sprite ids
+            string[] spriteIds = tokenizeArray(mapParts[1], new string[]{"),"});
+
+            // reset x and y
+            x = 0;
+            int y = -1;
+            foreach (string sprite3Id in spriteIds)
+            {
+                string[] triplet = sprite3Id.Substring(sprite3Id.IndexOf('(') + 1).Split(',');
+                foreach (string spriteId in triplet)
+                {
+                    // get the next valid coordinate and set the sprite id at the correct place in the data
+                    if (GetNextValidCoordinate(ref x, ref y))
+                        m_Data[x, y] = int.Parse(spriteId.Trim());
+                }
             }
 
             return true;
