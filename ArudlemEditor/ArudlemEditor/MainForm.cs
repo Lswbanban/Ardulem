@@ -98,7 +98,7 @@ namespace ArudlemEditor
 
             // and draw the the selected sprite
             SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Image.Size);
-            gc.DrawRectangle(m_MapSpriteSelectionPen, (m_CurrentSpriteIndex % MAP_SPRITE_WIDTH) * cellSize.Width, (m_CurrentSpriteIndex / MAP_SPRITE_WIDTH) * cellSize.Height, cellSize.Width, cellSize.Height);
+            gc.DrawRectangle(m_MapSpriteSelectionPen, (m_CurrentSpriteIndex / MAP_SPRITE_HEIGHT) * cellSize.Width, (m_CurrentSpriteIndex % MAP_SPRITE_HEIGHT) * cellSize.Height, cellSize.Width, cellSize.Height);
         }
 
         private void DrawLevel()
@@ -120,7 +120,7 @@ namespace ArudlemEditor
                     if (m_CurrentLevel.IsSpriteSet(i, j))
                     {
                         int spriteIndex = m_CurrentLevel.GetSprite(i, j);
-                        Rectangle spriteRectangle = new Rectangle((int)((spriteIndex % MAP_SPRITE_WIDTH) * spriteCellSize.Width), (int)((spriteIndex / MAP_SPRITE_WIDTH) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
+                        Rectangle spriteRectangle = new Rectangle((int)((spriteIndex / MAP_SPRITE_HEIGHT) * spriteCellSize.Width), (int)((spriteIndex % MAP_SPRITE_HEIGHT) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
                         gc.DrawImage(m_MapSpriteImage, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
                     }
                     else
@@ -188,7 +188,7 @@ namespace ArudlemEditor
             SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Size);
 
             // update the selected sprite index
-            m_CurrentSpriteIndex = (int)(e.X / cellSize.Width) + ((int)(e.Y / cellSize.Height) * MAP_SPRITE_WIDTH);
+            m_CurrentSpriteIndex = (int)(e.Y / cellSize.Height) + ((int)(e.X / cellSize.Width) * MAP_SPRITE_HEIGHT);
 
             // redraw the map sprite
             DrawMapSprite();
