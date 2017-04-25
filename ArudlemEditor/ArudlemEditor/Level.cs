@@ -33,22 +33,28 @@ namespace ArudlemEditor
 
         public void SetSprite(int x, int y, int spriteId)
         {
-            m_Data[x, y] = spriteId;
+            if ((x >= 0) && (x < LEVEL_WIDTH) && (y >= 0) && (y < LEVEL_HEIGHT))
+                m_Data[x, y] = spriteId;
         }
 
         public int GetSprite(int x, int y)
         {
-            return m_Data[x, y];
+            if ((x >= 0) && (x < LEVEL_WIDTH) && (y >= 0) && (y < LEVEL_HEIGHT))
+                return m_Data[x, y];
+            return -1;
         }
 
         public void ClearSprite(int x, int y)
         {
-            m_Data[x, y] = -1;
+            if ((x >= 0) && (x < LEVEL_WIDTH) && (y >= 0) && (y < LEVEL_HEIGHT))
+                m_Data[x, y] = -1;
         }
 
         public bool IsSpriteSet(int x, int y)
         {
-            return m_Data[x, y] != -1;
+            if ((x >= 0) && (x < LEVEL_WIDTH) && (y >= 0) && (y < LEVEL_HEIGHT))
+                return m_Data[x, y] != -1;
+            return false;
         }
 
         private string parseVariableName(string variableDeclaration, string variableType)
@@ -96,7 +102,6 @@ namespace ArudlemEditor
             return false;
         }
 
-
         public bool LoadFromClipboard()
         {
             string text = Clipboard.GetText();
@@ -142,7 +147,16 @@ namespace ArudlemEditor
             int y = -1;
             foreach (string sprite3Id in spriteIds)
             {
-                string[] triplet = sprite3Id.Substring(sprite3Id.IndexOf('(') + 1).Split(',');
+                // remove the begining
+                string idsOnly = sprite3Id.Substring(sprite3Id.IndexOf('(') + 1);
+
+                // remove eventual trailling bracket
+                int endBracketIndex = idsOnly.IndexOf(')');
+                if (endBracketIndex >= 0)
+                    idsOnly = idsOnly.Remove(endBracketIndex);
+
+                // split the ids
+                string[] triplet = idsOnly.Split(',');
                 foreach (string spriteId in triplet)
                 {
                     // get the next valid coordinate and set the sprite id at the correct place in the data
@@ -152,6 +166,77 @@ namespace ArudlemEditor
             }
 
             return true;
+        }
+
+        public void SaveToClipboard()
+        {
+            // start the string with the declaration of the map
+            string text = "const unsigned char " + m_LocaMapName + "[] PROGMEM = { ";
+
+            // parse the data to compute the bitfield
+            for (int i = 0; i < LEVEL_WIDTH; ++i)
+            {
+                // iterate on the whole column
+                byte columnBitField = 0;
+                for (int j = 0; j < LEVEL_HEIGHT; ++j)
+                    if (m_Data[i, j] >= 0)
+                        columnBitField |= (byte)(1 << j);
+
+                // write the column once we iterated on the whole height
+                text += "0x" + columnBitField.ToString("X") + ", ";
+            }
+
+            // now declare the map id variables
+            text += "};\nconst unsigned int " + m_MapIdsName + "[] PROGMEM = {\n";
+
+            // parse again the data to save the map ids
+            int nbIds = 0;
+            string triplet = "\tID(";
+            for (int i = 0; i < LEVEL_WIDTH; ++i)
+                for (int j = 0; j < LEVEL_HEIGHT; ++j)
+                    if (m_Data[i, j] >= 0)
+                    {
+                        // increase the id count
+                        nbIds++;
+                        // add the id to the triplet
+                        triplet += m_Data[i, j].ToString();
+                        // add the comma or close the bracket
+                        if ((nbIds % 3) != 0)
+                        {
+                            triplet += ",";
+                        }
+                        else
+                        {
+                            // close the bracket when we have 3 ids
+                            triplet += ")";
+                            // add the triplet to the text
+                            text += triplet;
+
+                            // and restart a new triplet (with go to next line every ten triplet)
+                            if ((nbIds % 10) == 0)
+                                triplet = ",\n\tID(";
+                            else
+                                triplet = ", ID(";
+                        }                        
+                    }
+
+            // finish the last triplet if it is not finished
+            if ((nbIds % 1) == 0)
+            {
+                triplet += "0,0)";
+                text += triplet;
+            }
+            else if ((nbIds % 2) == 0)
+            {
+                triplet += "0)";
+                text += triplet;
+            }
+
+            // close the variable definition
+            text += "};\n";
+
+            // and copy the text to the clipboard
+            Clipboard.SetText(text);
         }
     }
 }

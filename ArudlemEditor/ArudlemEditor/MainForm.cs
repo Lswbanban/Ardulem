@@ -50,14 +50,14 @@ namespace ArudlemEditor
         #endregion
 
         #region drawing
-        private Size GetMapSpriteCellSize(Size size)
+        private SizeF GetMapSpriteCellSize(SizeF size)
         {
-            return new Size(size.Width / MAP_SPRITE_WIDTH, size.Height / MAP_SPRITE_HEIGHT);
+            return new SizeF(size.Width / MAP_SPRITE_WIDTH, size.Height / MAP_SPRITE_HEIGHT);
         }
 
-        private Size GetLevelCellSize(Size size)
+        private SizeF GetLevelCellSize(SizeF size)
         {
-            return new Size(size.Width / Level.LEVEL_WIDTH, size.Height / Level.LEVEL_HEIGHT);
+            return new SizeF(size.Width / Level.LEVEL_WIDTH, size.Height / Level.LEVEL_HEIGHT);
         }
 
         private void DrawMapSpriteLines(Graphics gc, Size imageSise, int horizontalCellCount, int verticalCellCount, Pen pen)
@@ -97,7 +97,7 @@ namespace ArudlemEditor
             DrawMapSpriteLines(gc, this.MapSpritePictureBox.Image.Size, MAP_SPRITE_WIDTH, MAP_SPRITE_HEIGHT, m_MapSpriteLinesPen);
 
             // and draw the the selected sprite
-            Size cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Image.Size);
+            SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Image.Size);
             gc.DrawRectangle(m_MapSpriteSelectionPen, (m_CurrentSpriteIndex % MAP_SPRITE_WIDTH) * cellSize.Width, (m_CurrentSpriteIndex / MAP_SPRITE_WIDTH) * cellSize.Height, cellSize.Width, cellSize.Height);
         }
 
@@ -109,18 +109,18 @@ namespace ArudlemEditor
             Graphics gc = Graphics.FromImage(this.LevelPictureBox.Image);
 
             // get the sprite cell size and level cell size
-            Size spriteCellSize = GetMapSpriteCellSize(m_MapSpriteImage.Size);
-            Size levelCellSize = GetLevelCellSize(this.LevelPictureBox.Image.Size);
+            SizeF spriteCellSize = GetMapSpriteCellSize(m_MapSpriteImage.Size);
+            SizeF levelCellSize = GetLevelCellSize(this.LevelPictureBox.Image.Size);
 
             // iterate through the level data to paint the correct sprite
             for (int i = 0; i < Level.LEVEL_WIDTH; ++i)
                 for (int j = 0; j < Level.LEVEL_HEIGHT; ++j)
                 {
-                    Rectangle levelRectangle = new Rectangle(i * levelCellSize.Width, j * levelCellSize.Height, levelCellSize.Width, levelCellSize.Height);
+                    Rectangle levelRectangle = new Rectangle((int)(i * levelCellSize.Width), (int)(j * levelCellSize.Height), (int)levelCellSize.Width, (int)levelCellSize.Height);
                     if (m_CurrentLevel.IsSpriteSet(i, j))
                     {
                         int spriteIndex = m_CurrentLevel.GetSprite(i, j);
-                        Rectangle spriteRectangle = new Rectangle((spriteIndex % MAP_SPRITE_WIDTH) * spriteCellSize.Width, (spriteIndex / MAP_SPRITE_WIDTH) * spriteCellSize.Height, spriteCellSize.Width, spriteCellSize.Height);
+                        Rectangle spriteRectangle = new Rectangle((int)((spriteIndex % MAP_SPRITE_WIDTH) * spriteCellSize.Width), (int)((spriteIndex / MAP_SPRITE_WIDTH) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
                         gc.DrawImage(m_MapSpriteImage, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
                     }
                     else
@@ -166,6 +166,8 @@ namespace ArudlemEditor
             m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
             m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
 
+            // and copy the current level to clipboard
+            m_CurrentLevel.SaveToClipboard();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -183,10 +185,10 @@ namespace ArudlemEditor
 
         private void MapSpritePictureBox_MouseClick(object sender, MouseEventArgs e)
         {
-            Size cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Size);
+            SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Size);
 
             // update the selected sprite index
-            m_CurrentSpriteIndex = (e.X / cellSize.Width) + ((e.Y / cellSize.Height) * MAP_SPRITE_WIDTH);
+            m_CurrentSpriteIndex = (int)(e.X / cellSize.Width) + ((int)(e.Y / cellSize.Height) * MAP_SPRITE_WIDTH);
 
             // redraw the map sprite
             DrawMapSprite();
@@ -194,11 +196,11 @@ namespace ArudlemEditor
 
         private void LevelPictureBox_MouseClick(object sender, MouseEventArgs e)
         {
-            Size cellSize = GetLevelCellSize(this.LevelPictureBox.Size);
+            SizeF cellSize = GetLevelCellSize(this.LevelPictureBox.Size);
 
             // compute the coordinates
-            int x = (e.X / cellSize.Width);
-            int y = (e.Y / cellSize.Height);
+            int x = (int)(e.X / cellSize.Width);
+            int y = (int)(e.Y / cellSize.Height);
 
             // set the current index in the correct column
             if (e.Button == System.Windows.Forms.MouseButtons.Left)

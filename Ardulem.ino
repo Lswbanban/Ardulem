@@ -15,7 +15,6 @@
 #include "Input.h"
 #include "MapManager.h"
 #include "MainMenu.h"
-#include "HelpMenu.h"
 #include "MapData.h"
 
 // instance of the arduboy class
