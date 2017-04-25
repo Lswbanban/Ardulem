@@ -105,11 +105,11 @@ void MainMenu::Draw()
 	arduboy.print(F("Ardulem"));
 	
 	// print the line of sprite to underline the title
-	arduboy.drawBitmap(UNDERLINE_START_X, UNDERLINE_Y, MapData::MapSprite[4], 8, 8, WHITE);
+	arduboy.drawBitmap(UNDERLINE_START_X, UNDERLINE_Y, MapData::MapSprite[24], 8, 8, WHITE);
 	randomSeed((int)MapManager::CurrentMapId + 1);
 	for (int i = UNDERLINE_START_X+8; i < UNDERLINE_END_X; i += 8)
-		arduboy.drawBitmap(i, UNDERLINE_Y, MapData::MapSprite[random(6,8)], 8, 8, WHITE);
-	arduboy.drawBitmap(UNDERLINE_END_X, UNDERLINE_Y, MapData::MapSprite[5], 8, 8, WHITE);
+		arduboy.drawBitmap(i, UNDERLINE_Y, MapData::MapSprite[random(26,27)], 8, 8, WHITE);
+	arduboy.drawBitmap(UNDERLINE_END_X, UNDERLINE_Y, MapData::MapSprite[25], 8, 8, WHITE);
 
 	// reset the font to 1
 	arduboy.setTextSize(1);
