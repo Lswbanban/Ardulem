@@ -95,7 +95,7 @@ public:
 
   /// Draws a bitmap from program memory to a specific X/Y
   void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h, uint8_t color, bool xMirrored = false, uint8_t mask = 0xFF);
-  void drawBitmapFromRAM(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h, uint8_t color);
+  void invertBufferCharWithSpecifiedChar(int16_t x, int16_t yRow, uint8_t inversionChar);
 
   /// Draws an ASCII character at a point.
   void drawChar(int16_t x, int16_t y, unsigned char c, uint8_t color, uint8_t bg, uint8_t size);

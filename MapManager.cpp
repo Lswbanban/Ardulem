@@ -596,9 +596,6 @@ void MapManager::DrawModifications()
 	// iterate on the line
 	for (int lineY = 0; lineY < MODIF_MAP_LINE_COUNT; ++lineY)
 	{
-		// compute the current screen y for the current line
-		int screenY = lineY << Y_COORD_TO_MODIF_MAP_BIT_SHIFT_COUNT;
-		
 		// get the modif index for the first x of the current line
 		int modifIndex = GetModificationIndex(startCol, startBitX, lineY);
 		
@@ -613,10 +610,8 @@ void MapManager::DrawModifications()
 			for (int b = startB; b < NB_BIT_MODIF_MAP_CELL; ++b)
 				if (ModificationMap[GET_MAP_INDEX(colX, lineY)] & (1<<b))
 				{
-					// there's a modification at that place, so get it
-					unsigned char pixels = ModificationList[modifIndex++];
 					// draw the modif on screen
-					arduboy.drawBitmapFromRAM(screenX + b, screenY, &pixels, 1, 8, INVERT);
+					arduboy.invertBufferCharWithSpecifiedChar(screenX + b, lineY, ModificationList[modifIndex++]);
 					// stop drawing if we reach the end of the modification list
 					if (modifIndex >= MODIFICATION_LIST_SIZE)
 						return;
