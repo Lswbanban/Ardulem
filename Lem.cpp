@@ -843,13 +843,7 @@ void Lem::DrawTimerAboveHead(unsigned char timer)
  */
 void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
 {
-	// copy the frame into a temp buffer by removing according to the mask
-	unsigned char maskedAnimFrame[animFrameWidth];
-	for (int i = 0 ; i < animFrameWidth; ++i)
-		maskedAnimFrame[drawMirrored ? animFrameWidth - 1 - i : i] = pgm_read_byte_near(animFrame + i) & 0x7F;
-	
-	// then draw the frame
-	arduboy.drawBitmapFromRAM(x, y, maskedAnimFrame, animFrameWidth, ANIM_LEM_HEIGHT, color);
+	arduboy.drawBitmap(x, y, animFrame, animFrameWidth, ANIM_LEM_HEIGHT, color, drawMirrored, 0x7F);
 }
 
 void Lem::DrawExplosiontFx()

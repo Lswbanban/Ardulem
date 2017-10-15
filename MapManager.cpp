@@ -226,16 +226,11 @@ void MapManager::DrawStartAndHome()
 	int startX = CurrentMapDescription.StartX-8;
 	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
 	{
-		// copy the current frame
-		unsigned char animStartMirrored[sizeof(anim_Start[0])];
-		for (int i = 0; i < sizeof(anim_Start[0]); ++i)
-			animStartMirrored[sizeof(anim_Start[0]) - 1 - i] = pgm_read_byte_near(anim_Start[IntroAnimFrameIndex] + i);
-
 		// draw the start and its mirror
 		int screenX = ConvertToScreenCoord(startX);
 		int screenY = CurrentMapDescription.StartY;
 		arduboy.drawBitmap(screenX, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), 8, WHITE);
-		arduboy.drawBitmapFromRAM(screenX+8, screenY, animStartMirrored, sizeof(anim_Start[0]), 8, WHITE);
+		arduboy.drawBitmap(screenX+8, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), 8, WHITE, true);
 	}
 	
 	// draw home

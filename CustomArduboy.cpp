@@ -362,38 +362,59 @@ void CustomArduboy::fillRoundRect
   fillCircleHelper(x+r, y+r, r, 2, h-2*r-1, color);
 }
 
-void CustomArduboy::drawBitmap
-(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h, 
- uint8_t color)
+void CustomArduboy::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h,  uint8_t color, bool xMirrored, uint8_t mask)
 {
-  // no need to dar at all of we're offscreen
+  // no need to dare at all of we're offscreen
   if (x+w < 0 || x > WIDTH-1 || y+h < 0 || y > HEIGHT-1)
     return;
 
   int yOffset = abs(y) % 8;
   int sRow = y / 8;
-  if (y < 0) {
+  if (y < 0) 
+  {
     sRow--;
     yOffset = 8 - yOffset;
   }
+
   int rows = h/8;
   if (h%8!=0) rows++;
-  for (int a = 0; a < rows; a++) {
+  for (int a = 0; a < rows; a++) 
+  {
     int bRow = sRow + a;
     if (bRow > (HEIGHT/8)-1) break;
-    if (bRow > -2) {
-      for (int iCol = 0; iCol<w; iCol++) {
-        if (iCol + x > (WIDTH-1)) break;
-        if (iCol + x >= 0) {
-          if (bRow >= 0) {
-            if      (color == WHITE) this->sBuffer[ (bRow*WIDTH) + x + iCol ] |= pgm_read_byte(bitmap+(a*w)+iCol) << yOffset;
-            else if (color == BLACK) this->sBuffer[ (bRow*WIDTH) + x + iCol ] &= ~(pgm_read_byte(bitmap+(a*w)+iCol) << yOffset);
-            else                     this->sBuffer[ (bRow*WIDTH) + x + iCol ] ^= pgm_read_byte(bitmap+(a*w)+iCol) << yOffset;
+    if (bRow > -2)
+	{
+	  // inverse the horizontal iteration inside the bitmap if we are mirrored on x
+	  int iCol = 0;
+	  int iColDirection = 1;
+	  if (xMirrored)
+	  {
+		iCol = w-1;
+		iColDirection = -1;
+	  }
+	  // iterate along the width of the bitmap to draw
+      for (int xCol = 0; xCol < w; xCol++, iCol += iColDirection)
+	  {
+		int currentX = x + xCol;
+        if (currentX > (WIDTH-1))
+			break;
+        if (currentX >= 0) 
+		{		  
+          if (bRow >= 0) 
+		  {
+			int bufferPosition = (bRow*WIDTH) + currentX;
+			uint8_t byteToWrite = (pgm_read_byte(bitmap+(a*w)+iCol) & mask) << yOffset;
+			if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
+			else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
+			else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
           }
-          if (yOffset && bRow<(HEIGHT/8)-1 && bRow > -2) {
-            if      (color == WHITE) this->sBuffer[ ((bRow+1)*WIDTH) + x + iCol ] |= pgm_read_byte(bitmap+(a*w)+iCol) >> (8-yOffset);
-            else if (color == BLACK) this->sBuffer[ ((bRow+1)*WIDTH) + x + iCol ] &= ~(pgm_read_byte(bitmap+(a*w)+iCol) >> (8-yOffset));
-            else                     this->sBuffer[ ((bRow+1)*WIDTH) + x + iCol ] ^= pgm_read_byte(bitmap+(a*w)+iCol) >> (8-yOffset);
+          if (yOffset && bRow<(HEIGHT/8)-1 && bRow > -2) 
+		  {
+			int bufferPosition = ((bRow+1)*WIDTH) + currentX;
+			uint8_t byteToWrite = (pgm_read_byte(bitmap+(a*w)+iCol) & mask) >> (8-yOffset);
+            if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
+            else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
+            else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
           }
         }
       }
