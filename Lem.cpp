@@ -307,20 +307,20 @@ void Lem::UpdateDigDiag()
 void Lem::UpdateDigHoriz()
 {
 	// only test ground in specific frame id (when the lem is moving)
-	bool shouldTestGround = false;
-	int x = mIsDirectionMirrored ? mPosX : mPosX+3;
+	bool shouldTestGround = false;	
 	
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
 		case 0:
-		{
-			Dig8Pixels(x, mPosY, 0x003F);
-			break;
-		}
 		case 1:
+		case 2:
 		{
-			Dig8Pixels(x+1, mPosY, 0x003F);
+			int x = mPosX+2;
+			if (mIsDirectionMirrored)
+				Dig8Pixels(x - mCurrentAnimFrame, mPosY, 0x003F);
+			else
+				Dig8Pixels(x + mCurrentAnimFrame, mPosY, 0x003F);
 			break;
 		}
 		case 3:
@@ -342,7 +342,7 @@ void Lem::UpdateDigHoriz()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (shouldTestGround)
 	{
-		if (!IsThereGroundAt(mPosX+1, mPosY+6, true, false))
+		if (!IsThereGroundAt(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, false))
 			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }

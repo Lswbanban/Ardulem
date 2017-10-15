@@ -29,33 +29,33 @@ const unsigned char MapData::MapSprite[][8] PROGMEM = {
 /*
  * The various map localization and id list
  */
-const unsigned char Map01Loca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0x80, 0x80, 0xF0, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x0, 0x40, 0x40, 0x40, 0x0, 0x10, 0x1C, 0x10, 0x40, 0x40, 0x40, 0x40, 0x80, 0x80, 0x80, 0x80, 0xC0, 0xC0, 0xF8, };
+const unsigned char Map01Loca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x80, 0x80, 0x80, 0x0, 0x40, 0x60, 0xE0, 0x60, 0x60, 0x60, 0xE0, 0x60, 0x40, 0x0, 0x0, 0x80, 0x80, 0x80, 0x80, 0xC0, 0xC0, 0xF8, };
 const unsigned int Map01IdList[] PROGMEM = {
-	ID(0,2,31), ID(2,31,31), ID(31,30,30), ID(31,0,1), ID(2,31,0), ID(1,2,31), ID(31,31,0), ID(2,31,31), ID(31,30,31), ID(31,0,2),
-	ID(31,31,31), ID(31,30,31), ID(31,31,31), ID(31,29,31), ID(31,31,0), ID(1,2,31), ID(31,0,0)};
+	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(31,31,1), ID(2,31,31), ID(30,31,28), ID(5,29,4), ID(31,8,1), ID(31,4,31),
+	ID(4,31,4), ID(31,8,1), ID(28,4,6), ID(29,31,31), ID(31,29,31), ID(31,31,0), ID(1,2,31), ID(31,0,0)};
 
 /*
  * The various maps
  */
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL 01 -----------
-		30, //StartX
+		26, //StartX
 		37, //StartY
-		221, //HomeX
-		55, //HomeY
+		147, //HomeX
+		39, //HomeY
 		20, //Time In Multiple Of 10 seconds
 		1, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)
 		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
 		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15) 
-		3, //Nb of available Walker,
-		9, //Nb of available Blocker,
-		9, //Nb of available Bomb,
-		9, //Nb of available Dig diagonal,
-		9, //Nb of available Dig horizontal
-		9, //Nb of available Dig vertical
-		9, //Nb of available Stair
-		9, //Nb of available Climb
-		9, //Nb of available Parachute
+		1, //Nb of available Walker,
+		1, //Nb of available Blocker,
+		0, //Nb of available Bomb,
+		0, //Nb of available Dig diagonal,
+		2, //Nb of available Dig horizontal
+		0, //Nb of available Dig vertical
+		2, //Nb of available Stair
+		1, //Nb of available Climb
+		1, //Nb of available Parachute
 		(const unsigned char *)Map01Loca, //SpriteLocalization
 		sizeof(Map01Loca), // size of the Map in number of sprite columns
 		(const unsigned int *)Map01IdList //SpriteIdList
