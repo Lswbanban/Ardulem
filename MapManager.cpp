@@ -5,6 +5,7 @@
 #include "Input.h"
 #include "SpriteData.h"
 #include "MainMenu.h"
+#include "Music.h"
 
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
@@ -164,6 +165,8 @@ void MapManager::InitMap()
 	
 	// init the HUD with the data of the map
 	HUD::Init(pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s)) * 10);
+
+	arduboy.tunes.playScore(music);
 }
 
 void MapManager::Update()

@@ -71,6 +71,7 @@
     <ClInclude Include="MainMenu.h" />
     <ClInclude Include="MapData.h" />
     <ClInclude Include="MapManager.h" />
+    <ClInclude Include="Music.h" />
     <ClInclude Include="SpriteData.h" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +91,7 @@
     <ClCompile Include="MainMenu.cpp" />
     <ClCompile Include="MapData.cpp" />
     <ClCompile Include="MapManager.cpp" />
+    <ClCompile Include="Music.cpp" />
     <ClCompile Include="SpriteData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
