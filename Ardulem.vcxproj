@@ -60,6 +60,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Arduboy_audio.h" />
+    <ClInclude Include="Arduboy_core.h" />
     <ClInclude Include="Ardulem.h" />
     <ClInclude Include="CustomArduboy.h" />
     <ClInclude Include="HUD.h" />
@@ -76,6 +78,10 @@
     <None Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Arduboy_audio.cpp" />
+    <ClCompile Include="Arduboy_core.cpp" />
+    <ClCompile Include="Arduboy_glcdfont.c" />
+    <ClCompile Include="Arduboy_logo.c" />
     <ClCompile Include="CustomArduboy.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="Input.cpp" />
