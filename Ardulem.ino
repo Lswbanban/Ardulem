@@ -16,6 +16,7 @@
 #include "MapManager.h"
 #include "MainMenu.h"
 #include "MapData.h"
+#include "LEDManager.h"
 
 // instance of the arduboy class
 CustomArduboy arduboy;
@@ -78,7 +79,10 @@ void loop()
 		// finally draw the HUD that will override the map and lem which has been drawn behind
 		HUD::Update();
 	}
-	
+
+	// update also the LED in any case
+	LEDManager::Update();
+
 	// draw the frame buffer
 	arduboy.display();
 }

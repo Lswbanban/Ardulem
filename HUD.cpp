@@ -6,6 +6,7 @@
 #include "MapManager.h"
 #include "LemManager.h"
 #include "MainMenu.h"
+#include "LEDManager.h"
 
 namespace HUD
 {
@@ -159,6 +160,7 @@ void HUD::UpdateInput()
 		{
 			LemManager::KillAllLems();
 			MainMenu::SetCurrentGameState(MainMenu::GameState::PLAYING_ABANDON);
+			LEDManager::StartLEDCommand({1,0,0,10,5,5});
 			mWasArrowButtonUsedInHUD = true;
 		}
 	}
