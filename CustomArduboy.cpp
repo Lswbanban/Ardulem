@@ -450,6 +450,9 @@ void CustomArduboy::drawChar
     return;
   }
 
+  // we removed the 32 first characters from the font table
+  c -= 32;
+
   for (int8_t i=0; i<6; i++ )
   {
     uint8_t line;
