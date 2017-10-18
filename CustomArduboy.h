@@ -37,13 +37,8 @@ class CustomArduboy : public Print, public ArduboyCore
 public:
   CustomArduboy();
 
-  /// Initializes the hardware
-  void begin();
   /// Initializes the hardware (but with no boot logo)
   void beginNoLogo();
-
-  /// Scrolls in the Arduboy logo
-  void bootLogo();
 
   /// Boot utils such as flashlight, etc
   void inline bootUtils() __attribute__((always_inline));
@@ -94,7 +89,7 @@ public:
   void fillRoundRect(int16_t x, int16_t y, uint8_t w, uint8_t h, uint8_t r, uint8_t color);
 
   /// Draws a bitmap from program memory to a specific X/Y
-  void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h, uint8_t color, bool xMirrored = false, uint8_t mask = 0xFF);
+  void drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t color, bool xMirrored = false, uint8_t mask = 0xFF);
   void invertBufferCharWithSpecifiedChar(int16_t x, int16_t yRow, uint8_t inversionChar);
 
   /// Draws an ASCII character at a point.

@@ -232,8 +232,8 @@ void MapManager::DrawStartAndHome()
 		// draw the start and its mirror
 		int screenX = ConvertToScreenCoord(startX);
 		int screenY = CurrentMapDescription.StartY;
-		arduboy.drawBitmap(screenX, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), 8, WHITE);
-		arduboy.drawBitmap(screenX+8, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), 8, WHITE, true);
+		arduboy.drawBitmap(screenX, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), WHITE);
+		arduboy.drawBitmap(screenX+8, screenY, anim_Start[IntroAnimFrameIndex], sizeof(anim_Start[0]), WHITE, true);
 	}
 	
 	// draw home
@@ -242,9 +242,9 @@ void MapManager::DrawStartAndHome()
 	{
 		int screenX = ConvertToScreenCoord(homeX);
 		int screenY = CurrentMapDescription.HomeY - 7;
-		arduboy.drawBitmap(screenX,   screenY,   sprite_HomeBottom, 15, 8, WHITE);
-		arduboy.drawBitmap(screenX+5, screenY-4, sprite_HomeTop, 5, 8, WHITE);
-		arduboy.drawBitmap(screenX+6, screenY-11, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), 8, WHITE);
+		arduboy.drawBitmap(screenX,   screenY,   sprite_HomeBottom, 15, WHITE);
+		arduboy.drawBitmap(screenX+5, screenY-4, sprite_HomeTop, 5, WHITE);
+		arduboy.drawBitmap(screenX+6, screenY-11, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), WHITE);
 	}
 }
 
@@ -297,7 +297,7 @@ void MapManager::DrawMap()
 				int currentSpriteGlobalId = GetSpriteGlobalId(currentSpriteIdIndex, currentSpriteIdSubIndex);
 				
 				// now draw the sprite, at the correct position
-				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, 8, WHITE);
+				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, WHITE);
 				
 				// increase the sprite counter
 				currentSpriteIdSubIndex++;

@@ -411,7 +411,7 @@ void HUD::DrawDropVelocity()
 	
 	// compute the cursor position and draw it
 	int cursorBitmapPosition = LemDropBarCursorInPixel;
-	arduboy.drawBitmap(cursorBitmapPosition, START_Y+4, sprite_HUDVelocityCursor, 3, 2, color);
+	arduboy.drawBitmap(cursorBitmapPosition, START_Y+4, sprite_HUDVelocityCursor, 3, color);
 	
 	// draw the animated cursor
 	int normalizedFrameNumberInsideFrameRate = arduboy.frameCount % GetLemDropFrameRate();
@@ -438,14 +438,14 @@ void HUD::DrawLemCounter()
 	
 	// draw the number out with the icon
 	int x = START_COUNTER_X;
-	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, COUNTER_HEIGHT, WHITE);
+	arduboy.drawBitmap(0, y, sprite_HUDEnter, 6, WHITE);
 	x = PrintNumber(x, y, LemManager::GetSpawnLemPercentage(), 3, false, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
 	// draw the number in with the icon
 	x = START_COUNTER_X;
 	y += COUNTER_HEIGHT;
-	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, COUNTER_HEIGHT, WHITE);
+	arduboy.drawBitmap(0, y, sprite_HUDExit, 6, WHITE);
 	x = PrintNumber(x, y, LemManager::GetInLemPercentage(), 3, false, WHITE);
 	PrintChar(x, y, '%', WHITE);
 	
@@ -455,9 +455,9 @@ void HUD::DrawLemCounter()
 	if (color == BLACK)
 		arduboy.fillRect(0, y, 6, COUNTER_HEIGHT, WHITE);
 	if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
-		arduboy.drawBitmap(0, y, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), COUNTER_HEIGHT, color);
+		arduboy.drawBitmap(0, y, anim_HUDFlag[(arduboy.frameCount >> 2)%ANIM_HUD_FLAG_FRAME_COUNT], sizeof(anim_HUDFlag[0]), color);
 	else
-		arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, COUNTER_HEIGHT, color);
+		arduboy.drawBitmap(0, y, sprite_HUDFlagDown, 6, color);
 	x = PrintNumber(x, y, MapManager::GetRequiredLemPercentage(), 3, false, color);
 	PrintChar(x, y, '%', color);
 }
@@ -528,10 +528,10 @@ void HUD::DrawCursor()
 	if (normalizeFrameNumber >= CURSOR_BLINKING_TIME_OFF)
 	{
 		// draw the square or the cross sprite
-		arduboy.drawBitmap((int)mCursor.X - 3, (int)mCursor.Y - 3, sprite_Cursor[mCursor.IsSquared], 7, 7, INVERT);
+		arduboy.drawBitmap((int)mCursor.X - 3, (int)mCursor.Y - 3, sprite_Cursor[mCursor.IsSquared], 7, INVERT);
 		// if the cursor is squared, draw an arrow above it
 		if (mCursor.IsSquared)
-			arduboy.drawBitmap((int)mCursor.X - 2, (int)mCursor.Y - 8, sprite_CursorArrow[mCursor.Direction], 5, 8, INVERT);
+			arduboy.drawBitmap((int)mCursor.X - 2, (int)mCursor.Y - 8, sprite_CursorArrow[mCursor.Direction], 5, INVERT);
 	}
 }
 
@@ -552,7 +552,7 @@ int HUD::PrintTinyDigit(int x, int y, int digit, char color, int charWidth, int 
 	char bgColor = (color == WHITE) ? BLACK : WHITE;
 	arduboy.fillRect(x, y, charWidth, charHeight, bgColor);
 	if (digit >= 0)
-		arduboy.drawBitmap(x, y, sprite_TinyNumbers[digit], charWidth, charHeight, color);
+		arduboy.drawBitmap(x, y, sprite_TinyNumbers[digit], charWidth, color);
 	return x + charWidth;
 }
 

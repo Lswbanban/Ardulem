@@ -19,19 +19,6 @@ CustomArduboy::CustomArduboy()
   textsize = 1;
 }
 
-void CustomArduboy::begin()
-{
-  boot(); // required
-  bootUtils();
-
-  bootLogo();
-
-  // Audio
-  tunes.initChannel(PIN_SPEAKER_1);
-  tunes.initChannel(PIN_SPEAKER_2);
-  audio.begin();
-}
-
 // this is pusposely duplicated (without logo) so that
 // whichever is actually used is linked and the one
 // that is not is gone without wasting any space in flash
@@ -56,27 +43,6 @@ void CustomArduboy::bootUtils()
     setRGBled(255,255,255);
     while(true) {}
   }
-}
-
-void CustomArduboy::bootLogo()
-{
-  // setRGBled(10,0,0);
-  for(int8_t y = -18; y<=24; y++) {
-    setRGBled(24-y, 0, 0);
-
-    clear();
-    drawBitmap(20,y, arduboy_logo, 88, 16, WHITE);
-    display();
-    delay(27);
-    // longer delay post boot, we put it inside the loop to
-    // save the flash calling clear/delay again outside the loop
-    if (y==-16) {
-      delay(250);
-    }
-  }
-
-  delay(750);
-  setRGBled(0,0,0);
 }
 
 /* Frame management */
@@ -362,64 +328,66 @@ void CustomArduboy::fillRoundRect
   fillCircleHelper(x+r, y+r, r, 2, h-2*r-1, color);
 }
 
-void CustomArduboy::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t h,  uint8_t color, bool xMirrored, uint8_t mask)
+void CustomArduboy::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint8_t w, uint8_t color, bool xMirrored, uint8_t mask)
 {
-  // no need to dare at all of we're offscreen
-  if (x+w < 0 || x > WIDTH-1 || y+h < 0 || y > HEIGHT-1)
-    return;
+	// no need to dare at all of we're offscreen
+	if (x+w < 0 || x > WIDTH-1 || y+8 < 0 || y > HEIGHT-1)
+	return;
 
-  int yOffset = abs(y) % 8;
-  int sRow = y / 8;
-  if (y < 0) 
-  {
-    sRow--;
-    yOffset = 8 - yOffset;
-  }
-
-  int rows = h/8;
-  if (h%8!=0) rows++;
-  for (int a = 0; a < rows; a++) 
-  {
-    int bRow = sRow + a;
-    if (bRow > (HEIGHT/8)-1) break;
-    if (bRow > -2)
+	int yOffset = abs(y) % 8;
+	int sRow = y / 8;
+	if (y < 0) 
 	{
-	  // inverse the horizontal iteration inside the bitmap if we are mirrored on x
-	  int iCol = 0;
-	  int iColDirection = 1;
-	  if (xMirrored)
-	  {
-		iCol = w-1;
-		iColDirection = -1;
-	  }
-	  // iterate along the width of the bitmap to draw
-      for (int xCol = 0; xCol < w; xCol++, iCol += iColDirection)
-	  {
-		int currentX = x + xCol;
-        if (currentX > (WIDTH-1))
-			break;
-        if (currentX >= 0) 
-		{		  
-          if (bRow >= 0) 
-		  {
-			int bufferPosition = (bRow*WIDTH) + currentX;
-			uint8_t byteToWrite = (pgm_read_byte(bitmap+(a*w)+iCol) & mask) << yOffset;
-			if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
-			else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
-			else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
-          }
-          if (yOffset && bRow<(HEIGHT/8)-1 && bRow > -2) 
-		  {
-			int bufferPosition = ((bRow+1)*WIDTH) + currentX;
-			uint8_t byteToWrite = (pgm_read_byte(bitmap+(a*w)+iCol) & mask) >> (8-yOffset);
-            if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
-            else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
-            else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
-          }
-        }
-      }
+		sRow--;
+		yOffset = 8 - yOffset;
+	}
+	int yOffsetComplement = 8-yOffset;
+	int bufferRowShift = sRow*WIDTH;
+	int nextBufferRowShift = (sRow+1)*WIDTH;
+
+    if ((sRow > -2) && (sRow < (HEIGHT/8)))
+	{
+		// compute the start and end X (clamp if outside the screen)
+		int startX = (x<0) ? -x : 0;
+		int endX = (x+w > (WIDTH-1)) ? WIDTH-x : w;
+
+		// inverse the horizontal iteration inside the bitmap if we are mirrored on x
+		int iCol = startX;
+		int iColDirection = 1;
+		if (xMirrored)
+		{
+			iCol = endX-1;
+			iColDirection = -1;
+		}
+
+		// iterate along the width of the bitmap to draw
+		for (int xCol = startX; xCol < endX; xCol++, iCol += iColDirection)
+		{
+			// compute the current x
+			int currentX = x + xCol;
+
+			// get the byte to write from the progmem
+			uint8_t unshiftedByteToWrite = pgm_read_byte(bitmap+iCol) & mask;
+			// write the top part of the byte on the screen row
+			if (sRow >= 0) 
+			{
+				int bufferPosition = bufferRowShift + currentX;
+				uint8_t byteToWrite = unshiftedByteToWrite << yOffset;
+				if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
+				else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
+				else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
+			}
+			// write the bottom part of the byte on the next screen row
+			if (yOffset && sRow<(HEIGHT/8)-1) 
+			{
+				int bufferPosition = nextBufferRowShift + currentX;
+				uint8_t byteToWrite = unshiftedByteToWrite >> yOffsetComplement;
+				if      (color == WHITE) this->sBuffer[ bufferPosition ] |= byteToWrite;
+				else if (color == BLACK) this->sBuffer[ bufferPosition ] &= ~byteToWrite;
+				else                     this->sBuffer[ bufferPosition ] ^= byteToWrite;
+			}
+		}
     }
-  }
 }
 
 /*

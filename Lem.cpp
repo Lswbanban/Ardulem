@@ -835,7 +835,7 @@ void Lem::Draw()
 void Lem::DrawTimerAboveHead(unsigned char timer)
 {
 	if (MapManager::IsOnScreen(mPosX) || MapManager::IsOnScreen(mPosX+5))
-		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mCurrentState == StateId::WALK ? mPosX : mPosX+1), mPosY-5, sprite_TinyNumbers[timer], 3, 8, WHITE);
+		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mCurrentState == StateId::WALK ? mPosX : mPosX+1), mPosY-5, sprite_TinyNumbers[timer], 3, WHITE);
 }
 
 /*
@@ -843,7 +843,7 @@ void Lem::DrawTimerAboveHead(unsigned char timer)
  */
 void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
 {
-	arduboy.drawBitmap(x, y, animFrame, animFrameWidth, ANIM_LEM_HEIGHT, color, drawMirrored, 0x7F);
+	arduboy.drawBitmap(x, y, animFrame, animFrameWidth, color, drawMirrored, 0x7F);
 }
 
 void Lem::DrawExplosiontFx()
