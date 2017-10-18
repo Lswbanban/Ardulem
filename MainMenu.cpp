@@ -12,7 +12,8 @@ namespace MainMenu
 	GameState	CurrentGameState = GameState::MENU_PLAY;
 	GameState	GetCurrentGameState() 					{ return CurrentGameState; }
 	void 		SetCurrentGameState(GameState state)	{ CurrentGameState = state; }
-	
+	bool		IsCurrentGameStatePlaying()				{ return (CurrentGameState == MainMenu::GameState::PLAYING) || (CurrentGameState == MainMenu::GameState::PLAYING_ABANDON); }
+
 	// private functions
 	void UpdateInput();
 	void Draw();

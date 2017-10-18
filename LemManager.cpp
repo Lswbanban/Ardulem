@@ -90,7 +90,7 @@ void LemManager::Update()
 	// Search the lem under the cursor
 	UpdateLemUnderCursor();
 	
-	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING)
+	if (MainMenu::IsCurrentGameStatePlaying())
 	{
 		// check if it is time to spawn a new lem (and if there're still to spawn)
 		if (SpawnLemCount < MapManager::GetAvailableLemCount())

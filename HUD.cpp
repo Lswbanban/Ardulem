@@ -133,6 +133,10 @@ void HUD::UpdateInput()
 	const int INPUT_FRAME_COUNT_FIRST_MODULO_FOR_DROP_SPEED = 8;
 	const int INPUT_FRAME_COUNT_SECOND_MODULO_FOR_DROP_SPEED = 2;
 
+	// do not accept any more HUD navigation if the player has abandonned
+	if (MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING_ABANDON)
+		return;
+
 	// declare an action variable to combine various way of moving
 	InputAction action = InputAction::NONE;
 	int inputFrameCountFirstModulo = INPUT_FRAME_COUNT_FIRST_MODULO;
@@ -154,7 +158,8 @@ void HUD::UpdateInput()
 		if (MainMenu::GetCurrentGameState() == MainMenu::GameState::QUIT_WARNING)
 		{
 			LemManager::KillAllLems();
-			MainMenu::SetCurrentGameState(MainMenu::GameState::PLAYING);
+			MainMenu::SetCurrentGameState(MainMenu::GameState::PLAYING_ABANDON);
+			mWasArrowButtonUsedInHUD = true;
 		}
 	}
 	
@@ -532,7 +537,7 @@ void HUD::DrawCursor()
 
 char HUD::GetButtonColor(Button button)
 {
-	return (SelectedButton == button) ? BLACK : WHITE;
+	return ((SelectedButton == button) && (MainMenu::GetCurrentGameState() != MainMenu::GameState::PLAYING_ABANDON)) ? BLACK : WHITE;
 }
 
 int HUD::PrintChar(int x, int y, unsigned char c, char color)

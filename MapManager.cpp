@@ -222,7 +222,7 @@ void MapManager::UpdateInput()
 void MapManager::DrawStartAndHome()
 {
 	// compute the current frame index
-	if ((MainMenu::GetCurrentGameState() == MainMenu::GameState::PLAYING) && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
+	if (MainMenu::IsCurrentGameStatePlaying() && (IntroAnimFrameIndex < ANIM_START_FRAME_COUNT-1) && arduboy.everyXFrames(5))
 		IntroAnimFrameIndex++;
 
 	// draw start

@@ -16,6 +16,7 @@ namespace MainMenu
 		MENU_RESET_SAVE,
 		RESULT_PAGE,
 		PLAYING,
+		PLAYING_ABANDON,  // the lem are playing normally, but the player has abandon, and all lem will explode
 		PAUSED,
 		QUIT_WARNING,
 	};
@@ -23,6 +24,7 @@ namespace MainMenu
 	// get the current game state
 	extern GameState	GetCurrentGameState();
 	extern void 		SetCurrentGameState(GameState state);
+	extern bool			IsCurrentGameStatePlaying();
 	extern void 		ResetSavedProgression();
 	
 	extern void Update();
