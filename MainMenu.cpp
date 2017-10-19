@@ -6,6 +6,7 @@
 #include "MapManager.h"
 #include "LemManager.h"
 #include "Music.h"
+#include "LEDManager.h"
 
 namespace MainMenu
 {
@@ -24,13 +25,21 @@ void MainMenu::SetCurrentGameState(GameState state)
 {
 	CurrentGameState = state;
 
-	// check if we need to launch or stop the music if it is on
-	if (Music::IsMusicEnabled())
+	// check if we need to launch or stop stuff like music or LED at the begining or end
+	bool isMusicOn = Music::IsMusicEnabled();
+	if (state == GameState::PLAYING)
 	{
-		if (state == GameState::PLAYING)
+		// start the music
+		if (isMusicOn)
 			arduboy.tunes.playScore(Music::score);
-		else if (state == GameState::RESULT_PAGE)
+	}
+	else if (state == GameState::RESULT_PAGE)
+	{
+		// stop the music
+		if (isMusicOn)
 			arduboy.tunes.stopScore();
+		// reset the led and set a new led command depending on victory condition
+		LEDManager::ClearLEDCommand(LEDManager::BUFFER_COUNT);
 	}
 }
 

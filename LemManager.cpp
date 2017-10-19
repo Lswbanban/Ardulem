@@ -5,6 +5,7 @@
 #include "MapManager.h"
 #include "Input.h"
 #include "MainMenu.h"
+#include "LEDManager.h"
 
 namespace LemManager
 {
@@ -134,35 +135,36 @@ void LemManager::UpdateInput()
 		// no order can be given to a crashing lem or a lem saying bye bye to explose
 		if (lemState > Lem::StateId::BYE_BYE_BOOM)
 		{
+			bool hasChangeHappened = false;
 			switch (HUD::GetSelectedButton())
 			{
 				case HUD::Button::LEM_WALK:
-					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::WALK))
+					if (hasChangeHappened = ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::WALK))
 						MapManager::DecreaseWalkerCount();
 					break;
 					
 				case HUD::Button::LEM_BLOCKER:
-					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::BLOCKER))
+					if (hasChangeHappened = ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::BLOCKER))
 						MapManager::DecreaseBlockerCount();
 					break;
 					
 				case HUD::Button::LEM_BOMB:
-					if (AddTimerToLem(CurrentLemIndexUnderCursor, true))
+					if (hasChangeHappened = AddTimerToLem(CurrentLemIndexUnderCursor, true))
 						MapManager::DecreaseBomberCount();
 					break;
 					
 				case HUD::Button::LEM_DIG_DIAG:
-					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_DIAG))
+					if (hasChangeHappened = ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_DIAG))
 						MapManager::DecreaseDiggerDiagonalCount();
 					break;
 					
 				case HUD::Button::LEM_DIG_HORIZ:
-					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_HORIZ))
+					if (hasChangeHappened = ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_HORIZ))
 						MapManager::DecreaseDiggerHorizontalCount();
 					break;
 					
 				case HUD::Button::LEM_DIG_VERT:
-					if (ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_VERT))
+					if (hasChangeHappened = ChangeLemStateIfPossible(CurrentLemIndexUnderCursor, Lem::StateId::DIG_VERT))
 						MapManager::DecreaseDiggerVerticalCount();
 					break;
 					
@@ -172,13 +174,13 @@ void LemManager::UpdateInput()
 						// check if it is already a stairer that should be extended, or if we get a new one
 						if (lemState == Lem::StateId::STAIR)
 						{
-							if (ExtendStairTimerOfLem(CurrentLemIndexUnderCursor))
+							if (hasChangeHappened = ExtendStairTimerOfLem(CurrentLemIndexUnderCursor))
 								MapManager::DecreaseStairerCount();
 						}
 						else
 						{
 							LemArray[CurrentLemIndexUnderCursor].SetCurrentState(Lem::StateId::STAIR);
-							if (AddTimerToLem(CurrentLemIndexUnderCursor, false))
+							if (hasChangeHappened = AddTimerToLem(CurrentLemIndexUnderCursor, false))
 								MapManager::DecreaseStairerCount();
 						}
 					}
@@ -186,16 +188,20 @@ void LemManager::UpdateInput()
 					
 				case HUD::Button::LEM_CLIMB:
 					// promote the lem as climber, and decrease the count only he was not already a climber
-					if (LemArray[CurrentLemIndexUnderCursor].PromoteClimber())
+					if (hasChangeHappened = LemArray[CurrentLemIndexUnderCursor].PromoteClimber())
 						MapManager::DecreaseClimberCount();
 					break;
 					
 				case HUD::Button::LEM_PARACHUTE:
 					// promote the lem as parachuter, and decrease the count only he was not already a parachuter
-					if (LemArray[CurrentLemIndexUnderCursor].PromoteParachuter())
+					if (hasChangeHappened = LemArray[CurrentLemIndexUnderCursor].PromoteParachuter())
 						MapManager::DecreaseParachuterCount();
 					break;
 			}
+
+			// give visual feedback if we actually gave an order
+			if (hasChangeHappened)
+				LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,1,5,0,1,60,0});
 		}
 	}
 }

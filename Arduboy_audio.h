@@ -54,7 +54,6 @@ public:
   void static step();
   void static soundOutput();
 
-private:
   void static playNote (byte chan, byte note);
   void static stopNote (byte chan);
 };

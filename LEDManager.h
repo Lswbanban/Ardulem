@@ -7,7 +7,7 @@
 
 namespace LEDManager
 {
-	struct CommandBuffer
+	struct LEDCommand
 	{
 		int Red			:1;
 		int Green		:1;
@@ -15,10 +15,24 @@ namespace LEDManager
 		int OnDuration	:5;
 		int OffDuration	:5;
 		int RepeatTime	:3;
+		char BaseNote;
+		char NoteIncrement;
 	};
 
-	extern void StartLEDCommand(CommandBuffer command);
-	extern void ClearLEDCommand();
+	enum BufferId
+	{
+		GAME = 0,
+		LEM,
+		BUFFER_COUNT,
+	};
+
+	// set the LED command in the specified buffer
+	extern void StartLEDCommand(BufferId id, LEDCommand command);
+
+	// clear the specified buffer and stop the LED. If id equals BUFFER_COUNT, this will clear all the buffers.
+	extern void ClearLEDCommand(BufferId id);
+
+	// update that should be called every frame
 	extern void Update();
 }
 

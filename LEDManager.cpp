@@ -3,53 +3,85 @@
 
 namespace LEDManager
 {
-	struct Status
+	struct LEDStatus
 	{
 		char IsOn		: 1;
 		char FrameCount : 7;
 	};
 
-	Status			CurrentStatus = {0,0};
-	CommandBuffer	CurrentCommand = {0,0,0,0,0,0};
+	struct LEDBuffer
+	{
+		LEDStatus	Status = {0,0};
+		LEDCommand	Command = {0,0,0,0,0,0};
+	};
+
+	LEDBuffer LEDBuffers[BUFFER_COUNT];
+	BufferId  CurrentBufferLightUp = GAME;
 }
 
-void LEDManager::StartLEDCommand(CommandBuffer command)
+void LEDManager::StartLEDCommand(BufferId id, LEDCommand command)
 {
-	CurrentStatus = {0,0};
-	CurrentCommand = command;
+	LEDBuffers[id].Status = {0,0};
+	LEDBuffers[id].Command = command;
 }
 
-void LEDManager::ClearLEDCommand()
+void LEDManager::ClearLEDCommand(BufferId id)
 {
-	CurrentCommand = {0,0,0,0,0,0};
-	arduboy.setRGBled(0, 0, 0);
+	if (id == BUFFER_COUNT)
+	{
+		LEDBuffers[GAME].Command = {0,0,0,0,0,0};
+		LEDBuffers[LEM].Command = {0,0,0,0,0,0};
+		arduboy.setRGBled(0, 0, 0);
+	}
+	else
+	{
+		LEDBuffers[id].Command = {0,0,0,0,0,0};
+		if (CurrentBufferLightUp == id)
+			arduboy.setRGBled(0, 0, 0);
+	}	
 }
 
 void LEDManager::Update()
 {
-	if (CurrentCommand.RepeatTime != 0)
+	for (int i = 0; i < BUFFER_COUNT; ++i)
 	{
-		if (CurrentStatus.IsOn)
-		{
-			if ((CurrentStatus.FrameCount % CurrentCommand.OnDuration) == 0)
-			{
-				CurrentStatus.IsOn = 0;
-				CurrentStatus.FrameCount = 0;
-				CurrentCommand.RepeatTime--;
-				arduboy.setRGBled(0, 0, 0);
-			}		
-		}
-		else
-		{
-			if ((CurrentStatus.FrameCount % CurrentCommand.OffDuration) == 0)
-			{
-				CurrentStatus.IsOn = 1;
-				CurrentStatus.FrameCount = 0;
-				arduboy.setRGBled(CurrentCommand.Red * 255, CurrentCommand.Green * 255, CurrentCommand.Blue * 255);
-			}
-		}
+		LEDStatus&	Status = LEDBuffers[i].Status;
+		LEDCommand&	Command = LEDBuffers[i].Command;
 
-		// increase the frame counter
-		CurrentStatus.FrameCount++;
+		if (Command.RepeatTime != 0)
+		{
+			if (Status.IsOn)
+			{
+				if ((Status.FrameCount % Command.OnDuration) == 0)
+				{
+					Status.IsOn = 0;
+					Status.FrameCount = 0;
+					Command.RepeatTime--;
+					if (CurrentBufferLightUp == i)
+					{
+						arduboy.setRGBled(0, 0, 0);
+						// stop also the associated note
+						arduboy.tunes.stopNote(1);
+					}
+				}		
+			}
+			else
+			{
+				if ((Status.FrameCount % Command.OffDuration) == 0)
+				{
+					Status.IsOn = 1;
+					Status.FrameCount = 0;
+					arduboy.setRGBled(Command.Red * 255, Command.Green * 255, Command.Blue * 255);
+					 // play also the associated note, and increment it for the next time
+					arduboy.tunes.playNote(1, Command.BaseNote);
+					Command.BaseNote += Command.NoteIncrement;
+					// memorize which buffer took the led
+					CurrentBufferLightUp = (BufferId)i;
+				}
+			}
+
+			// increase the frame counter
+			Status.FrameCount++;
+		}
 	}
 }

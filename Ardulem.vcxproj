@@ -66,6 +66,7 @@
     <ClInclude Include="CustomArduboy.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="LEDManager.h" />
     <ClInclude Include="Lem.h" />
     <ClInclude Include="LemManager.h" />
     <ClInclude Include="MainMenu.h" />
@@ -82,10 +83,10 @@
     <ClCompile Include="Arduboy_audio.cpp" />
     <ClCompile Include="Arduboy_core.cpp" />
     <ClCompile Include="Arduboy_glcdfont.c" />
-    <ClCompile Include="Arduboy_logo.c" />
     <ClCompile Include="CustomArduboy.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="LEDManager.cpp" />
     <ClCompile Include="Lem.cpp" />
     <ClCompile Include="LemManager.cpp" />
     <ClCompile Include="MainMenu.cpp" />

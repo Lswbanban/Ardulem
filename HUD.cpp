@@ -160,7 +160,7 @@ void HUD::UpdateInput()
 		{
 			LemManager::KillAllLems();
 			MainMenu::SetCurrentGameState(MainMenu::GameState::PLAYING_ABANDON);
-			LEDManager::StartLEDCommand({1,0,0,10,5,5});
+			LEDManager::StartLEDCommand(LEDManager::GAME, {1,0,0,10,5,5,60,-2});
 			mWasArrowButtonUsedInHUD = true;
 		}
 	}
