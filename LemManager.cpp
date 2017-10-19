@@ -201,7 +201,7 @@ void LemManager::UpdateInput()
 
 			// give visual feedback if we actually gave an order
 			if (hasChangeHappened)
-				LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,1,5,0,1,60,0});
+				LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,1,5,0,60,0,1});
 		}
 	}
 }
@@ -498,6 +498,7 @@ bool LemManager::ExtendStairTimerOfLem(unsigned char lemId)
 		if ((LemTimerList[i].LemId == lemId) && !LemTimerList[i].IsBombTimer && (LemTimerList[i].RemainingTick < 4))
 		{
 			LemTimerList[i].RemainingTick += 10;
+			LEDManager::ClearLEDCommand(LEDManager::LEM);
 			return true;
 		}
 	return false;
@@ -521,7 +522,7 @@ void LemManager::RemoveTimerOfLem(unsigned char lemId, bool removeAllTimer)
  */
 void LemManager::CheckLemTimers()
 {
-	// check the stair timer
+	// check the lem timer
 	for (int i = 0; i < LemTimerCount; ++i)
 	{
 		// get the lemId
@@ -532,7 +533,7 @@ void LemManager::CheckLemTimers()
 		if (remainingTicks < 4)
 			LemArray[lemId].DrawTimerAboveHead(remainingTicks);
 
-		// check if it's time to tick the stair
+		// check if it's time to tick the timer
 		if ((arduboy.frameCount % TIMER_DURATION) == LemTimerList[i].TimeModulo)
 		{
 			// decrease the tick and check if it reaches zero
@@ -549,6 +550,11 @@ void LemManager::CheckLemTimers()
 				RemoveTimer(i);
 				// and decrease also i to check again the new guys that took his place
 				i--;
+			}
+			else if ((LemTimerList[i].RemainingTick == 3) && !LemTimerList[i].IsBombTimer)
+			{
+				// start a stair led count down
+				LEDManager::StartLEDCommand(LEDManager::LEM, {0,1,0,5,TIMER_DURATION-5,65,1,3});
 			}
 		}
 	}
