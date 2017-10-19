@@ -585,6 +585,10 @@ void LemManager::KillAllLems()
 	// and set all lem in BYE_BYE_BOOM state
 	for (int i = 0; i < OutLemCount; ++i)
 		LemArray[i].SetCurrentState(Lem::StateId::BYE_BYE_BOOM);
+
+	// launch the count down led if we actually killed any lem
+	if (OutLemCount > 0)
+		LEDManager::StartLEDCommand(LEDManager::GAME, {1,0,0,10,5,60,-2,5});
 }
 
 void LemManager::NotifyInHomeLem()
