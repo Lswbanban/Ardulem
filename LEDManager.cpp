@@ -61,7 +61,8 @@ void LEDManager::Update()
 					{
 						arduboy.setRGBled(0, 0, 0);
 						// stop also the associated note
-						arduboy.tunes.stopNote(1);
+						if (Command.BaseNote != 0)
+							arduboy.tunes.stopNote(1);
 					}
 				}		
 			}
@@ -71,10 +72,13 @@ void LEDManager::Update()
 				{
 					Status.IsOn = 1;
 					Status.FrameCount = 0;
-					arduboy.setRGBled(Command.Red * 255, Command.Green * 255, Command.Blue * 255);
+					arduboy.setRGBled(Command.Red * MAX_LED_BRIGHTNESS, Command.Green * MAX_LED_BRIGHTNESS, Command.Blue * MAX_LED_BRIGHTNESS);
 					 // play also the associated note, and increment it for the next time
-					arduboy.tunes.playNote(1, Command.BaseNote);
-					Command.BaseNote += Command.NoteIncrement;
+					if (Command.BaseNote != 0)
+					{
+						arduboy.tunes.playNote(1, Command.BaseNote);
+						Command.BaseNote += Command.NoteIncrement;
+					}
 					// memorize which buffer took the led
 					CurrentBufferLightUp = (BufferId)i;
 				}

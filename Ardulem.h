@@ -6,6 +6,9 @@
 
 #include "CustomArduboy.h"
 
+// Value should be between 0 and 255
+#define MAX_LED_BRIGHTNESS 50
+
 // forward declaration of the arduboy instance
 extern class CustomArduboy arduboy;
 

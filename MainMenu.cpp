@@ -38,7 +38,7 @@ void MainMenu::SetCurrentGameState(GameState state)
 		// stop the music
 		if (isMusicOn)
 			arduboy.tunes.stopScore();
-		// reset the led and set a new led command depending on victory condition
+		// reset the led
 		LEDManager::ClearLEDCommand(LEDManager::BUFFER_COUNT);
 	}
 }
@@ -99,6 +99,7 @@ void MainMenu::UpdateInput()
 				}
 				// change state to go back to menu
 				CurrentGameState = GameState::MENU_PLAY;
+				arduboy.setRGBled(0, 0, 0);
 			}
 			break;
 	}
@@ -146,9 +147,15 @@ void MainMenu::Draw()
 	if (CurrentGameState == GameState::RESULT_PAGE)
 	{
 		if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
+		{
 			HUD::DrawBlinkingText(40, RESULT_TITLE_Y, F("Victory!"), true);
+			arduboy.setRGBled(0, arduboy.frameCount % MAX_LED_BRIGHTNESS, 0);
+		}
 		else
+		{
 			HUD::DrawBlinkingText(34, RESULT_TITLE_Y, F("Too bad..."), false);
+			arduboy.setRGBled(arduboy.frameCount % MAX_LED_BRIGHTNESS, 0, 0);
+		}
 		
 		// draw the level number
 		HUD::DrawBlinkingText(RESULT_TABLE_X+18, RESULT_TABLE_Y, F("Level:"), false);
