@@ -154,10 +154,10 @@ int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
  * Tell if it is the last frame of the last anim frame for the current anim 
  *(i.e. next loop, the anim will return to the first frame)
  */
-bool Lem::IsLastFrame(int frameRateShifter)
+bool Lem::IsLastFrame()
 {
 	return (mCurrentAnimFrame == GetFrameCountForCurrentAnim()-1) &&
-			!((arduboy.frameCount+1) % (GetFrameRateForCurrentAnim() << frameRateShifter));
+			!((arduboy.frameCount+1) % GetFrameRateForCurrentAnim(true));
 }
 
 void Lem::UpdateByeByeBoom()
@@ -532,7 +532,7 @@ void Lem::UpdateParachute()
 /*
  * Get the frame rate for the current anim id
  */
-unsigned int Lem::GetFrameRateForCurrentAnim()
+unsigned int Lem::GetFrameRateForCurrentAnim(bool useSlowAnimation)
 {
 	if (HUD::IsGameSpeedUp())
 		return 1;
@@ -542,6 +542,7 @@ unsigned int Lem::GetFrameRateForCurrentAnim()
 		case StateId::EXPLOSION_FX:
 			return 1;
 		case StateId::FALL:
+			return useSlowAnimation ? 4 : 2;
 		case StateId::FALL_TO_DEATH:
 			return 2;
 		case StateId::START_FALL:
@@ -611,7 +612,7 @@ bool Lem::UpdateCurrentAnim()
 {
 	// declare the return value
 	bool doesNeedUpdate = false;
-	int frameRateForCurrentAnim = GetFrameRateForCurrentAnim();
+	int frameRateForCurrentAnim = GetFrameRateForCurrentAnim(false);
 	bool checkLastFrame = (frameRateForCurrentAnim == 1); // if we change anim frame every game frame, we need to check the last frame
 
 	// check if we need to change the animation frame
@@ -686,7 +687,7 @@ bool Lem::UpdateCurrentAnim()
 				break;
 			case StateId::FALL:
 				// special case for the fall we want to change the frame less often than we can the update one frame to move
-				if (!arduboy.everyXFrames(frameRateForCurrentAnim << 1))
+				if (!arduboy.everyXFrames(GetFrameRateForCurrentAnim(true)))
 				{
 					// so cancel the increase of the current frame in that case
 					currentFrame--;
@@ -714,7 +715,7 @@ bool Lem::UpdateCurrentAnim()
 		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
 						(mCurrentState == StateId::DIG_HORIZ) || (mCurrentState == StateId::CRASH) || 
 						(mCurrentState == StateId::BYE_BYE_BOOM) || (mCurrentState == StateId::EXPLOSION_FX) ||
-						((mCurrentState == StateId::FALL) && IsLastFrame(1));
+						(mCurrentState == StateId::FALL);
 	}
 	
 	// return the flag
