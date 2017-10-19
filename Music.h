@@ -1,6 +1,12 @@
 #ifndef MUSIC_H
 #define MUSIC_H
 
-extern const unsigned char music[];
+namespace Music
+{
+	extern const unsigned char score[];
+
+	extern void SwitchMusicStatus();
+	extern bool IsMusicEnabled();
+}
 
 #endif

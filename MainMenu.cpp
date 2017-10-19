@@ -5,19 +5,33 @@
 #include "Input.h"
 #include "MapManager.h"
 #include "LemManager.h"
+#include "Music.h"
 
 namespace MainMenu
 {
 	// the current game state of the game
 	GameState	CurrentGameState = GameState::MENU_PLAY;
 	GameState	GetCurrentGameState() 					{ return CurrentGameState; }
-	void 		SetCurrentGameState(GameState state)	{ CurrentGameState = state; }
 	bool		IsCurrentGameStatePlaying()				{ return (CurrentGameState == MainMenu::GameState::PLAYING) || (CurrentGameState == MainMenu::GameState::PLAYING_ABANDON); }
 
 	// private functions
 	void UpdateInput();
 	void Draw();
 	void PrintNumber(int x, int y, int number);
+}
+
+void MainMenu::SetCurrentGameState(GameState state)
+{
+	CurrentGameState = state;
+
+	// check if we need to launch or stop the music if it is on
+	if (Music::IsMusicEnabled())
+	{
+		if (state == GameState::PLAYING)
+			arduboy.tunes.playScore(Music::score);
+		else if (state == GameState::RESULT_PAGE)
+			arduboy.tunes.stopScore();
+	}
 }
 
 void MainMenu::Update()
@@ -46,7 +60,7 @@ void MainMenu::UpdateInput()
 				// init the lems, the map and change the state (note that the init of the HUD is called by the MapManager)
 				LemManager::Init();
 				MapManager::InitMap();
-				CurrentGameState = GameState::PLAYING;
+				SetCurrentGameState(GameState::PLAYING); // call the function to launch the music
 			}
 			break;
 		case GameState::MENU_LEVEL:
@@ -54,6 +68,10 @@ void MainMenu::UpdateInput()
 				MapManager::CurrentMapId--;
 			if (Input::IsJustPressed(RIGHT_BUTTON) && (MapManager::CurrentMapId < MapData::GetMapCount()-1))
 				MapManager::CurrentMapId++;
+			break;
+		case GameState::MENU_MUSIC:
+			if (Input::IsJustPressed(B_BUTTON))
+				Music::SwitchMusicStatus();
 			break;
 		case GameState::MENU_RESET_SAVE:
 			// if player press the button while on the reset, just save the progression to 0
@@ -95,7 +113,7 @@ void MainMenu::Draw()
 	const int UNDERLINE_START_X = 8;
 	const int UNDERLINE_END_X = 112;
 	const int MENU_X = 32;
-	const int MENU_Y = 32;
+	const int MENU_Y = 30;
 	const int RESULT_TITLE_Y = 26;
 	const int RESULT_TABLE_X = 16;
 	const int RESULT_TABLE_Y = 40;
@@ -144,6 +162,8 @@ void MainMenu::Draw()
 		HUD::DrawBlinkingText(MENU_X, MENU_Y, F("Play"), CurrentGameState == GameState::MENU_PLAY);
 		if (HUD::DrawBlinkingText(MENU_X, MENU_Y+8, F("Level:"), CurrentGameState == GameState::MENU_LEVEL))
 			PrintNumber(MENU_X+40, MENU_Y+8, MapManager::CurrentMapId); // draw the current level index
-		HUD::DrawBlinkingText(MENU_X, MENU_Y+16, F("Reset Save"), CurrentGameState == GameState::MENU_RESET_SAVE);
+		if (HUD::DrawBlinkingText(MENU_X, MENU_Y+16, F("Music:"), CurrentGameState == GameState::MENU_MUSIC))
+			HUD::DrawBlinkingText(MENU_X+40, MENU_Y+16, Music::IsMusicEnabled() ? F("On") : F("Off"), false);
+		HUD::DrawBlinkingText(MENU_X, MENU_Y+24, F("Reset Save"), CurrentGameState == GameState::MENU_RESET_SAVE);
 	}
 }

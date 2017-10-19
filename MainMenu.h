@@ -6,6 +6,9 @@
 
 namespace MainMenu
 {
+	// an address in the EEPROM to save the status of the music
+	const int MUSIC_ON_OFF_SAVE_ADDRESS = 9;
+
 	// an address in the EEPROM to save the progression (the last level played and successful)
 	const int PROGRESSION_SAVE_ADDRESS = 10;
 	
@@ -13,6 +16,7 @@ namespace MainMenu
 	{
 		MENU_PLAY = 0,
 		MENU_LEVEL,
+		MENU_MUSIC,
 		MENU_RESET_SAVE,
 		RESULT_PAGE,
 		PLAYING,

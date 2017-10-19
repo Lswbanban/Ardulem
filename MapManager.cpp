@@ -165,8 +165,6 @@ void MapManager::InitMap()
 	
 	// init the HUD with the data of the map
 	HUD::Init(pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].TimeInMultipleOf10s)) * 10);
-
-	arduboy.tunes.playScore(music);
 }
 
 void MapManager::Update()
