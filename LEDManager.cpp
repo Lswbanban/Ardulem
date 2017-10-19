@@ -3,6 +3,8 @@
 
 namespace LEDManager
 {
+	const int SOUND_CHANNEL = 1;
+
 	struct LEDStatus
 	{
 		char IsOn		: 1;
@@ -27,18 +29,24 @@ void LEDManager::StartLEDCommand(BufferId id, LEDCommand command)
 
 void LEDManager::ClearLEDCommand(BufferId id)
 {
+	bool needToTurnOffLedAndNote = true;
+
 	if (id == BUFFER_COUNT)
 	{
 		LEDBuffers[GAME].Command = {0,0,0,0,0,0};
 		LEDBuffers[LEM].Command = {0,0,0,0,0,0};
-		arduboy.setRGBled(0, 0, 0);
 	}
 	else
 	{
 		LEDBuffers[id].Command = {0,0,0,0,0,0};
-		if (CurrentBufferLightUp == id)
-			arduboy.setRGBled(0, 0, 0);
-	}	
+		needToTurnOffLedAndNote = (CurrentBufferLightUp == id);
+	}
+
+	if (needToTurnOffLedAndNote)
+	{
+		arduboy.setRGBled(0, 0, 0);
+		arduboy.tunes.stopNote(SOUND_CHANNEL);
+	}
 }
 
 void LEDManager::Update()
@@ -62,7 +70,7 @@ void LEDManager::Update()
 						arduboy.setRGBled(0, 0, 0);
 						// stop also the associated note
 						if (Command.BaseNote != 0)
-							arduboy.tunes.stopNote(1);
+							arduboy.tunes.stopNote(SOUND_CHANNEL);
 					}
 				}		
 			}
@@ -76,7 +84,7 @@ void LEDManager::Update()
 					 // play also the associated note, and increment it for the next time
 					if (Command.BaseNote != 0)
 					{
-						arduboy.tunes.playNote(1, Command.BaseNote);
+						arduboy.tunes.playNote(SOUND_CHANNEL, Command.BaseNote);
 						Command.BaseNote += Command.NoteIncrement;
 					}
 					// memorize which buffer took the led

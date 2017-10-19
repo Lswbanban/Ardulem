@@ -32,7 +32,11 @@ namespace LemManager
 	unsigned char SpawnLemCount = 0; // the total number of lem that was spawned since the beginning of the game
 	unsigned char InLemCount = 0; // this one is used to compute the score, but the end of the list is not sorted
 	unsigned char GetInLemCount() { return InLemCount; }
-	
+
+	// after the last lem inside, we wait a little before going to the result page, for the sound to play
+	const int WAIT_TIME_AFTER_LAST_LEM_IN = 10;
+	char TimeToGoToResultPage = -1;
+
 	// for the lem that need to be stopped to do something (like the stairer that build a stair only for x turns, 
 	// or the bomber that start their bye bye anim, after x seconds) we use another limited array to store their
 	// remaining time. It's an array of bitfield, the bitfield contains a normalized frame count (generally inside a seconde)
@@ -80,6 +84,7 @@ void LemManager::Init()
 	SpawnLemCount = 0;
 	InLemCount = 0;
 	LemTimerCount = 0;
+	TimeToGoToResultPage = -1;
 }
 
 void LemManager::Update()
@@ -106,7 +111,13 @@ void LemManager::Update()
 		{
 			// check if all spawned and all dead
 			if (OutLemCount == 0)
-				MainMenu::SetCurrentGameState(MainMenu::GameState::RESULT_PAGE);
+			{
+				// check if we already set the end game time or check if we need to exit
+				if (TimeToGoToResultPage == -1)
+					TimeToGoToResultPage = arduboy.frameCount % WAIT_TIME_AFTER_LAST_LEM_IN;
+				else if ((arduboy.frameCount % WAIT_TIME_AFTER_LAST_LEM_IN) == TimeToGoToResultPage)
+					MainMenu::SetCurrentGameState(MainMenu::GameState::RESULT_PAGE);
+			}
 		}
 		
 		// then update each Lem
@@ -594,6 +605,7 @@ void LemManager::KillAllLems()
 void LemManager::NotifyInHomeLem()
 {
 	InLemCount++;
+	LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,0,2,1,80,1,3});
 }
 
 void LemManager::Draw()

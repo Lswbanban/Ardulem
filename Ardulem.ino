@@ -8,8 +8,11 @@
  * If you want to report bugs or feature request, please do it through the bitbucket project page were
  * this code is hosted. However, there's no guaranty that I will fix them.
  *
- * TO CASUAL MODDER: If you're looking to some constant that you can tune, 
- * please open the "Ardulem.h" file, this is were I put them
+ * NOTE TO CASUAL MODDER:
+ *    - If you're looking to some constant that you can tune, 
+ *      please open the "Ardulem.h" file, this is were I put them.
+ *    - If you want to create your own levels, please read the README file
+ *      where I explain how to use the level editor.
  */
 
 #include "Ardulem.h"
