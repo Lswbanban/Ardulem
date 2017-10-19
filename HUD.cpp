@@ -33,6 +33,10 @@ namespace HUD
 	// a bool to check if the arrow was used in previous frames
 	bool mWasArrowButtonUsedInHUD = false;
 
+	// a variable to accelerate the time, if the player has completed his level
+	char CurrentFPS = NORMAL_SPEED_FPS; // by default use the FPS
+	bool IsGameSpeedUp() { return (CurrentFPS == FAST_SPEED_FPS); }
+
 	// The frame number (time) when the game will end.
 	int FrameNumberOfTheGameEnd = 0;
 	void Init(int timeInSecond);
@@ -50,7 +54,6 @@ namespace HUD
 	// the position of the cursor of the drop velocity bar, and a multiplier to get the frame rate drop velocity
 	const int VELOCITY_BAR_WIDTH = HUD_WIDTH - 3;
 	int LemDropBarCursorInPixel = 15; 
-	int GetLemDropFrameRate() { return (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * MapManager::GetMinDropSpeed(); }
 	
 	//------------- private part -------------------------------
 	enum InputAction
@@ -84,7 +87,8 @@ namespace HUD
  */
 void HUD::Init(int timeInSecond)
 {
-	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * 60); // multiply by the FPS
+	CurrentFPS = NORMAL_SPEED_FPS;
+	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * NORMAL_SPEED_FPS); // multiply by the FPS
 	LemDropBarCursorInPixel = 15;
 	SelectedButton = Button::TIMER;
 	mCursor.X = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
@@ -207,6 +211,11 @@ void HUD::UpdateInput()
 				SelectedButton = (Button)(SelectedButton - 1);
 			else if ((SelectedButton == Button::DROP_SPEED) && LemDropBarCursorInPixel > 1)
 				LemDropBarCursorInPixel--;
+			else if ((SelectedButton == Button::TIMER) && (CurrentFPS == FAST_SPEED_FPS))
+			{
+				CurrentFPS = NORMAL_SPEED_FPS;
+				FrameNumberOfTheGameEnd = arduboy.frameCount + ((FrameNumberOfTheGameEnd - arduboy.frameCount) * RATIO_BETWEEN_FAST_AND_NORMAL_FPS);
+			}
 			break;
 			
 		case InputAction::RIGHT:
@@ -217,6 +226,11 @@ void HUD::UpdateInput()
 				SelectedButton = (Button)(SelectedButton + 1);
 			else if ((SelectedButton == Button::DROP_SPEED) && LemDropBarCursorInPixel < VELOCITY_BAR_WIDTH-2)
 				LemDropBarCursorInPixel++;
+			else if ((SelectedButton == Button::TIMER) && (CurrentFPS == NORMAL_SPEED_FPS))
+			{
+				CurrentFPS = FAST_SPEED_FPS;
+				FrameNumberOfTheGameEnd = arduboy.frameCount + ((FrameNumberOfTheGameEnd - arduboy.frameCount) / RATIO_BETWEEN_FAST_AND_NORMAL_FPS);
+			}
 			break;
 
 		case InputAction::UP:
@@ -275,7 +289,7 @@ void HUD::DrawTimer()
 	// get the number of frame the game will continue to play
 	int remainingTimeInSecond = 0;
 	if (arduboy.frameCount <= FrameNumberOfTheGameEnd)
-		remainingTimeInSecond = (FrameNumberOfTheGameEnd - arduboy.frameCount) / 60; //divide by the FPS
+		remainingTimeInSecond = (FrameNumberOfTheGameEnd - arduboy.frameCount) / CurrentFPS; //divide by the FPS
 	else
 		MainMenu::SetCurrentGameState(MainMenu::GameState::RESULT_PAGE); // if it's times up, go to result page
 
@@ -586,4 +600,12 @@ int HUD::PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZero
 	
 	// return the new cursor position
 	return x + (numDigits * charWidth);
+}
+
+int HUD::GetLemDropFrameRate()
+{
+	int dropFrameRate = (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * MapManager::GetMinDropSpeed(); 
+	if (CurrentFPS == FAST_SPEED_FPS)
+		dropFrameRate /= RATIO_BETWEEN_FAST_AND_NORMAL_FPS;
+	return dropFrameRate;
 }

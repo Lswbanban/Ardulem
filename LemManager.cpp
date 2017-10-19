@@ -48,7 +48,6 @@ namespace LemManager
 		unsigned int	RemainingTick	: 4; // (0-15) the number of remaining tick for Bomb and stair
 		unsigned int	TimeModulo		: 6; // (0-63) the value that should be tested when doing the modulo on the current frame counter
 	};
-	const int TIMER_DURATION = 60;
 	const int MAX_LEM_TIMER_COUNT = 16; // if 8 stair + 8 bomb, then total can be 16.
 	LemTimer LemTimerList[MAX_LEM_TIMER_COUNT];
 	unsigned char LemTimerCount = 0; // the number of timer currently reccorded in the LemTimerList
@@ -495,7 +494,7 @@ bool LemManager::AddTimerToLem(unsigned char lemId, bool isBombTimer)
 	LemTimerList[LemTimerCount].IsBombTimer = isBombTimer;
 	LemTimerList[LemTimerCount].LemId = lemId;
 	LemTimerList[LemTimerCount].RemainingTick = isBombTimer ? 4 : 10;
-	LemTimerList[LemTimerCount].TimeModulo = arduboy.frameCount % TIMER_DURATION;
+	LemTimerList[LemTimerCount].TimeModulo = arduboy.frameCount % HUD::NORMAL_SPEED_FPS;
 	LemTimerCount++;
 	
 	// return true because the timer has been added.
@@ -544,8 +543,16 @@ void LemManager::CheckLemTimers()
 		if (remainingTicks < 4)
 			LemArray[lemId].DrawTimerAboveHead(remainingTicks);
 
+		int currentFPS = HUD::NORMAL_SPEED_FPS;
+		int currentTimeModulo = LemTimerList[i].TimeModulo;
+		if (HUD::IsGameSpeedUp())
+		{
+			currentFPS = HUD::FAST_SPEED_FPS;
+			currentTimeModulo /= HUD::RATIO_BETWEEN_FAST_AND_NORMAL_FPS;
+		}
+
 		// check if it's time to tick the timer
-		if ((arduboy.frameCount % TIMER_DURATION) == LemTimerList[i].TimeModulo)
+		if ((arduboy.frameCount % currentFPS) == currentTimeModulo)
 		{
 			// decrease the tick and check if it reaches zero
 			LemTimerList[i].RemainingTick--;
@@ -565,7 +572,7 @@ void LemManager::CheckLemTimers()
 			else if ((LemTimerList[i].RemainingTick == 3) && !LemTimerList[i].IsBombTimer)
 			{
 				// start a stair led count down
-				LEDManager::StartLEDCommand(LEDManager::LEM, {0,1,0,5,TIMER_DURATION-5,65,1,3});
+				LEDManager::StartLEDCommand(LEDManager::LEM, {0,1,0,4,currentFPS-4,65,1,3});
 			}
 		}
 	}
@@ -599,13 +606,18 @@ void LemManager::KillAllLems()
 
 	// launch the count down led if we actually killed any lem
 	if (OutLemCount > 0)
-		LEDManager::StartLEDCommand(LEDManager::GAME, {1,0,0,10,5,60,-2,5});
+	{
+		if (HUD::IsGameSpeedUp())
+			LEDManager::StartLEDCommand(LEDManager::GAME, {1,0,0,2,1,60,-2,5});
+		else
+			LEDManager::StartLEDCommand(LEDManager::GAME, {1,0,0,10,5,60,-2,5});
+	}
 }
 
 void LemManager::NotifyInHomeLem()
 {
 	InLemCount++;
-	LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,0,2,1,80,1,3});
+	LEDManager::StartLEDCommand(LEDManager::GAME, {0,0,0,1,2,80,1,3});
 }
 
 void LemManager::Draw()

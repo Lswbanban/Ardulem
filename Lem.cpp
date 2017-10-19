@@ -157,7 +157,7 @@ int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckGround)
 bool Lem::IsLastFrame(int frameRateShifter)
 {
 	return (mCurrentAnimFrame == GetFrameCountForCurrentAnim()-1) &&
-			!((arduboy.frameCount+1) % GetFrameRateForCurrentAnim() << frameRateShifter);
+			!((arduboy.frameCount+1) % (GetFrameRateForCurrentAnim() << frameRateShifter));
 }
 
 void Lem::UpdateByeByeBoom()
@@ -534,6 +534,9 @@ void Lem::UpdateParachute()
  */
 unsigned int Lem::GetFrameRateForCurrentAnim()
 {
+	if (HUD::IsGameSpeedUp())
+		return 1;
+
 	switch (GetCurrentState())
 	{
 		case StateId::EXPLOSION_FX:
@@ -608,9 +611,11 @@ bool Lem::UpdateCurrentAnim()
 {
 	// declare the return value
 	bool doesNeedUpdate = false;
+	int frameRateForCurrentAnim = GetFrameRateForCurrentAnim();
+	bool checkLastFrame = (frameRateForCurrentAnim == 1); // if we change anim frame every game frame, we need to check the last frame
 
 	// check if we need to change the animation frame
-	if (arduboy.everyXFrames(GetFrameRateForCurrentAnim()))
+	if (arduboy.everyXFrames(frameRateForCurrentAnim))
 	{
 		// get the current frame counter and increase it
 		unsigned char currentFrame = (mCurrentAnimFrame + 1) % GetFrameCountForCurrentAnim();
@@ -681,7 +686,7 @@ bool Lem::UpdateCurrentAnim()
 				break;
 			case StateId::FALL:
 				// special case for the fall we want to change the frame less often than we can the update one frame to move
-				if (!arduboy.everyXFrames(GetFrameRateForCurrentAnim() << 1))
+				if (!arduboy.everyXFrames(frameRateForCurrentAnim << 1))
 				{
 					// so cancel the increase of the current frame in that case
 					currentFrame--;
@@ -697,8 +702,14 @@ bool Lem::UpdateCurrentAnim()
 				break;
 		}
 	}
+	else
+	{
+		// if we didn't just switch to the last frame, so we can check it
+		checkLastFrame = true;
+	}
+
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
-	else if (IsLastFrame())
+	if (checkLastFrame && IsLastFrame())
 	{
 		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
 						(mCurrentState == StateId::DIG_HORIZ) || (mCurrentState == StateId::CRASH) || 

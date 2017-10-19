@@ -8,7 +8,13 @@ namespace HUD
 {
 	// constants
 	const unsigned int HUD_WIDTH = 30;
-	
+
+	// WARNING: Do not tune those values, because it won't work with the way the Lem are updated,
+	// because the LEM are updated every 10 frame for the normal walk
+	const int NORMAL_SPEED_FPS = 60;
+	const int FAST_SPEED_FPS = 6;
+	const int RATIO_BETWEEN_FAST_AND_NORMAL_FPS = 10;
+
 	enum Button
 	{
 		TIMER = 0,
@@ -31,7 +37,10 @@ namespace HUD
 	
 	// the lem drop framerate currently set in HUD
 	extern int GetLemDropFrameRate();
-	
+
+	// tell if the player has accelerate the time of the game
+	extern bool IsGameSpeedUp();
+
 	// set the cursor position
 	extern unsigned char GetCursorX();
 	extern void SetCursorX(unsigned char x);
