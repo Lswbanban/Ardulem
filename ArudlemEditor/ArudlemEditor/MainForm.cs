@@ -165,6 +165,7 @@ namespace ArudlemEditor
             // set the values from the combo boxes to the current level before calling the save
             m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
             m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
+            m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
 
             // and copy the current level to clipboard
             m_CurrentLevel.SaveToClipboard();
@@ -210,6 +211,13 @@ namespace ArudlemEditor
 
             // redraw the map sprite
             DrawLevel();
+        }
+        #endregion
+
+        #region event for parameter changes
+        private void TrimLevelCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
         }
         #endregion
     }

@@ -18,6 +18,7 @@ namespace ArudlemEditor
         // the variable names for the two arrays of the map
         public string m_LocaMapName = string.Empty;
         public string m_MapIdsName = string.Empty;
+        public bool m_ShouldTrimLevelAtExport = true;
 
         public Level()
         {
@@ -173,8 +174,32 @@ namespace ArudlemEditor
             // start the string with the declaration of the map
             string text = "const unsigned char " + m_LocaMapName + "[] PROGMEM = { ";
 
-            // parse the data to compute the bitfield
-            for (int i = 0; i < LEVEL_WIDTH; ++i)
+            // determines the start and end column depending if we need to trim the border
+            int startI = 0;
+            int endI = LEVEL_WIDTH-1;
+
+            // modify the start and end if we need to trim the level
+            if (m_ShouldTrimLevelAtExport)
+            {
+                bool wasStartIFound = false;
+                // do a first blanck iteration to find start and end column of the level
+                for (int i = 0; i < LEVEL_WIDTH; ++i)
+                    for (int j = 0; j < LEVEL_HEIGHT; ++j)
+                        if (m_Data[i, j] >= 0)
+                        {
+                            // set the start i if it was never set yet
+                            if (!wasStartIFound)
+                            {
+                                wasStartIFound = true;
+                                startI = i;
+                            }
+                            // always set the end i, as we want the most one on the right
+                            endI = i;
+                        }
+            }
+
+            // parse the data to compute the bitfield, from start to end found column
+            for (int i = startI; i <= endI; ++i)
             {
                 // iterate on the whole column
                 byte columnBitField = 0;
@@ -221,12 +246,13 @@ namespace ArudlemEditor
                     }
 
             // finish the last triplet if it is not finished
-            if ((nbIds % 1) == 0)
+            int orpheanIdsCount = (nbIds % 3);
+            if (orpheanIdsCount == 1)
             {
                 triplet += "0,0)";
                 text += triplet;
             }
-            else if ((nbIds % 2) == 0)
+            else if (orpheanIdsCount == 2)
             {
                 triplet += "0)";
                 text += triplet;
