@@ -14,6 +14,7 @@ namespace ArudlemEditor
 
         // the level data
         private int[,] m_Data = new int[LEVEL_WIDTH, LEVEL_HEIGHT];
+        private bool[,] m_Mirror = new bool[LEVEL_WIDTH, LEVEL_HEIGHT];
 
         // the variable names for the two arrays of the map
         public string m_LocaMapName = string.Empty;
@@ -57,6 +58,11 @@ namespace ArudlemEditor
                 return m_Data[x, y] != -1;
             return false;
         }
+
+		public void InverseMirrorStatus(int x, int y)
+		{
+			m_Mirror[x, y] = !m_Mirror[x, y];
+		}
 
         private string parseVariableName(string variableDeclaration, string variableType)
         {
@@ -211,13 +217,16 @@ namespace ArudlemEditor
                 text += "0x" + columnBitField.ToString("X") + ", ";
             }
 
+            // we will use a list of bool, to store each mirror status, in the right order
+            List<bool> mirrorList = new List<bool>();
+
             // now declare the map id variables
             text += "};\nconst unsigned int " + m_MapIdsName + "[] PROGMEM = {\n";
 
             // parse again the data to save the map ids
             int nbIds = 0;
             string triplet = "\tID(";
-            for (int i = 0; i < LEVEL_WIDTH; ++i)
+            for (int i = startI; i <= endI; ++i)
                 for (int j = 0; j < LEVEL_HEIGHT; ++j)
                     if (m_Data[i, j] >= 0)
                     {
@@ -242,7 +251,10 @@ namespace ArudlemEditor
                                 triplet = ",\n\tID(";
                             else
                                 triplet = ", ID(";
-                        }                        
+                        }
+
+                        // also memorise the mirror status in the flat list
+                        mirrorList.Add(m_Mirror[i, j]);
                     }
 
             // finish the last triplet if it is not finished
@@ -257,6 +269,32 @@ namespace ArudlemEditor
                 triplet += "0)";
                 text += triplet;
             }
+
+            // Now save the Mirror values in a series of bitfield of 16 bits
+            int currentSpriteId = 0;
+            int bitfield = 0;
+			foreach (bool isMirrored in mirrorList)
+			{
+				// set the bit in the bitfielf is this sprite is mirrored
+				if (isMirrored)
+					bitfield |= (1 << currentSpriteId);
+
+				// increment the current sprite id
+				currentSpriteId++;
+
+				// check if the bitfield is full
+				if (currentSpriteId == 16)
+				{
+					// write the bitfield
+					text += ", " + bitfield.ToString();
+					// reset the bitfield and the currentSprite id
+					bitfield = 0;
+					currentSpriteId = 0;
+				}
+			}
+			// write the last bitfield if any remaining
+			if ((mirrorList.Count % 16) != 0)
+				text += ", " + bitfield.ToString();
 
             // close the variable definition
             text += "};\n";

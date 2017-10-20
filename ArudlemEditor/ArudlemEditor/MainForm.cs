@@ -204,10 +204,12 @@ namespace ArudlemEditor
             int y = (int)(e.Y / cellSize.Height);
 
             // set the current index in the correct column
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-                m_CurrentLevel.SetSprite(x, y, m_CurrentSpriteIndex);
-            else if (e.Button == System.Windows.Forms.MouseButtons.Right)
-                m_CurrentLevel.ClearSprite(x, y);
+			if (e.Button == System.Windows.Forms.MouseButtons.Left)
+				m_CurrentLevel.SetSprite(x, y, m_CurrentSpriteIndex);
+			else if (e.Button == System.Windows.Forms.MouseButtons.Right)
+				m_CurrentLevel.ClearSprite(x, y);
+			else if (e.Button == System.Windows.Forms.MouseButtons.Middle)
+				m_CurrentLevel.InverseMirrorStatus(x, y);
 
             // redraw the map sprite
             DrawLevel();
