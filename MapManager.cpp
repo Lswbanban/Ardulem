@@ -155,7 +155,10 @@ void MapManager::InitMap()
 	// count how many sprites in the level to find where is the beginning of the mirror list
 	// for that we ask the total number of sprite (all the sprite after the last column)
 	// then divided by 3, because each int in the SpriteIdList store 3 sprites
-	int spritesCount = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, CurrentMapDescription.SpriteColumnCount) / 3;
+	int packedSpritesCount = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, CurrentMapDescription.SpriteColumnCount);
+	int spritesCount = packedSpritesCount / 3;
+	if ((packedSpritesCount % 3) != 0)
+		spritesCount++;
 	CurrentMapMirroredSprites = (const unsigned int *)((const unsigned int *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteIdList)) + spritesCount);
 
 	// compute the required lem percentage

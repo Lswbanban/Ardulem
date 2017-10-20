@@ -9,10 +9,6 @@ namespace MapData
 	// the map sprites are 8x8 pixels
 	extern const unsigned char MapSprite[][8];
 
-	// remaping id table
-	const unsigned int REMAP_TABLE_SIZE = 16;
-	extern const unsigned char PillarWorldRemapTable[];
-
 	struct MapDescription
 	{
 		// the start position where the lems will be spawned
