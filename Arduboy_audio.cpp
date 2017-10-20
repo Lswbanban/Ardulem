@@ -4,15 +4,12 @@
 const byte PROGMEM tune_pin_to_timer_PGM[] = { 3, 1 };
 volatile byte *_tunes_timer1_pin_port;
 volatile byte _tunes_timer1_pin_mask;
-volatile int32_t timer1_toggle_count;
 volatile byte *_tunes_timer3_pin_port;
 volatile byte _tunes_timer3_pin_mask;
 byte _tune_pins[AVAILABLE_TIMERS];
-byte _tune_num_chans = 0;
 volatile boolean tune_playing; // is the score still playing?
 volatile unsigned wait_timer_frequency2;       /* its current frequency */
 volatile boolean wait_timer_playing = false;   /* is it currently playing a note? */
-volatile boolean tonePlaying = false;
 volatile unsigned long wait_toggle_count;      /* countdown score waits */
 
 // pointers to your musical score and your position in said score
@@ -49,52 +46,36 @@ const unsigned int PROGMEM _midi_word_note_frequencies[] = {
 
 /* AUDIO */
 
-bool ArduboyAudio::audio_enabled = false;
-
 void ArduboyAudio::on()
 {
   power_timer1_enable();
   power_timer3_enable();
-  audio_enabled = true;
-}
-
-bool ArduboyAudio::enabled()
-{
-  return audio_enabled;
 }
 
 void ArduboyAudio::off()
 {
-  audio_enabled = false;
   power_timer1_disable();
   power_timer3_disable();
-}
-
-void ArduboyAudio::saveOnOff()
-{
-  EEPROM.write(EEPROM_AUDIO_ON_OFF, audio_enabled);
 }
 
 void ArduboyAudio::begin()
 {
   tune_playing = false;
-  if (EEPROM.read(EEPROM_AUDIO_ON_OFF))
-    on();
+  on();
 }
 
 /* TUNES */
 
-void ArduboyTunes::initChannel(byte pin)
+void ArduboyTunes::initChannel(byte pin, byte chan)
 {
   byte timer_num;
 
   // we are all out of timers
-  if (_tune_num_chans == AVAILABLE_TIMERS)
+  if (chan >= AVAILABLE_TIMERS)
     return;
 
-  timer_num = pgm_read_byte(tune_pin_to_timer_PGM + _tune_num_chans);
-  _tune_pins[_tune_num_chans] = pin;
-  _tune_num_chans++;
+  timer_num = pgm_read_byte(tune_pin_to_timer_PGM + chan);
+  _tune_pins[chan] = pin;
   pinMode(pin, OUTPUT);
   switch (timer_num) {
     case 1: // 16 bit timer
@@ -126,7 +107,7 @@ void ArduboyTunes::playNote(byte chan, byte note)
   unsigned long ocr;
 
   // we can't plan on a channel that does not exist
-  if (chan >= _tune_num_chans)
+  if (chan >= AVAILABLE_TIMERS)
     return;
 
   // we only have frequencies for a certain range of notes
@@ -190,7 +171,7 @@ void ArduboyTunes::playScore(const byte *score)
 
 void ArduboyTunes::stopScore (void)
 {
-  for (uint8_t i = 0; i < _tune_num_chans; i++)
+  for (uint8_t i = 0; i < AVAILABLE_TIMERS; i++)
     stopNote(i);
   tune_playing = false;
 }
@@ -239,7 +220,7 @@ void ArduboyTunes::step()
 void ArduboyTunes::closeChannels(void)
 {
   byte timer_num;
-  for (uint8_t chan=0; chan < _tune_num_chans; chan++) {
+  for (uint8_t chan=0; chan < AVAILABLE_TIMERS; chan++) {
     timer_num = pgm_read_byte(tune_pin_to_timer_PGM + chan);
     switch (timer_num) {
       case 1:
@@ -251,7 +232,6 @@ void ArduboyTunes::closeChannels(void)
     }
     digitalWrite(_tune_pins[chan], 0);
   }
-  _tune_num_chans = 0;
   tune_playing = false;
 }
 
@@ -266,55 +246,10 @@ void ArduboyTunes::soundOutput()
   }
 }
 
-void ArduboyTunes::tone(unsigned int frequency, unsigned long duration)
-{
-  tonePlaying = true;
-  uint8_t prescalarbits = 0b001;
-  int32_t toggle_count = 0;
-  uint32_t ocr = 0;
-
-  // two choices for the 16 bit timers: ck/1 or ck/64
-  ocr = F_CPU / frequency / 2 - 1;
-  prescalarbits = 0b001;
-  if (ocr > 0xffff) {
-    ocr = F_CPU / frequency / 2 / 64 - 1;
-    prescalarbits = 0b011;
-  }
-  TCCR1B = (TCCR1B & 0b11111000) | prescalarbits;
-
-  // Calculate the toggle count
-  if (duration > 0) {
-    toggle_count = 2 * frequency * duration / 1000;
-  }
-  else {
-    toggle_count = -1;
-  }
-  // Set the OCR for the given timer,
-  // set the toggle count,
-  // then turn on the interrupts
-  OCR1A = ocr;
-  timer1_toggle_count = toggle_count;
-  bitWrite(TIMSK1, OCIE1A, 1);
-}
-
 // TIMER 1
 ISR(TIMER1_COMPA_vect)
 {
-  if (tonePlaying) {
-    if (timer1_toggle_count != 0) {
-      // toggle the pin
-      *_tunes_timer1_pin_port ^= _tunes_timer1_pin_mask;
-      if (timer1_toggle_count > 0) timer1_toggle_count--;
-    }
-    else {
-      tonePlaying = false;
-      TIMSK1 &= ~(1 << OCIE1A);                 // disable the interrupt
-      *_tunes_timer1_pin_port &= ~(_tunes_timer1_pin_mask);   // keep pin low after stop
-    }
-  }
-  else {
-    *_tunes_timer1_pin_port ^= _tunes_timer1_pin_mask;  // toggle the pin
-  }
+  *_tunes_timer1_pin_port ^= _tunes_timer1_pin_mask;  // toggle the pin
 }
 
 // TIMER 3

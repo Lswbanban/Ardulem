@@ -28,8 +28,8 @@ void CustomArduboy::beginNoLogo()
   bootUtils();
 
   // Audio
-  tunes.initChannel(PIN_SPEAKER_1);
-  tunes.initChannel(PIN_SPEAKER_2);
+  tunes.initChannel(PIN_SPEAKER_1, 0);
+  tunes.initChannel(PIN_SPEAKER_2, 1);
   audio.begin();
 }
 

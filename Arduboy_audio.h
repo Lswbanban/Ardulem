@@ -19,11 +19,6 @@ public:
   void static begin();
   void static on();
   void static off();
-  void static saveOnOff();
-  bool static enabled();
-
-protected:
-  bool static audio_enabled;
 };
 
 
@@ -33,7 +28,7 @@ public:
   // Playtune Functions
 
   /// Assign a timer to an output pin.
-  void initChannel(byte pin);
+  void initChannel(byte pin, byte chan);
 
   /// Start playing a polyphonic score.
   void playScore(const byte *score);
