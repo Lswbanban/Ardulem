@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -138,7 +138,8 @@
 			this.drawLevelGridToolStripMenuItem.CheckOnClick = true;
 			this.drawLevelGridToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.drawLevelGridToolStripMenuItem.Name = "drawLevelGridToolStripMenuItem";
-			this.drawLevelGridToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+			this.drawLevelGridToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
+			this.drawLevelGridToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
 			this.drawLevelGridToolStripMenuItem.Text = "Draw Level Grid";
 			this.drawLevelGridToolStripMenuItem.Click += new System.EventHandler(this.drawLevelGridToolStripMenuItem_Click);
 			// 
@@ -282,7 +283,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem2});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
