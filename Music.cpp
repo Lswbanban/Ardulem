@@ -1,7 +1,5 @@
-#include <avr/pgmspace.h>
-#include <EEPROM.h>
+#include "Ardulem.h"
 #include "Music.h"
-#include "MainMenu.h"
 
 namespace Music
 {
@@ -25,11 +23,11 @@ const unsigned char PROGMEM score [] = {
 
 void Music::SwitchMusicStatus()
 {
-	unsigned char currentValue = EEPROM.read(MainMenu::MUSIC_ON_OFF_SAVE_ADDRESS);
-	EEPROM.write(MainMenu::MUSIC_ON_OFF_SAVE_ADDRESS, !currentValue);
+	unsigned char currentValue = EEPROM.read(EEPROM_AUDIO_ON_OFF);
+	EEPROM.write(EEPROM_AUDIO_ON_OFF, !currentValue);
 }
 
 bool Music::IsMusicEnabled()
 {
-	return EEPROM.read(MainMenu::MUSIC_ON_OFF_SAVE_ADDRESS);
+	return EEPROM.read(EEPROM_AUDIO_ON_OFF);
 }
