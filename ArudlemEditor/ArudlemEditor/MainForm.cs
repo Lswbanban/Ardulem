@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -21,7 +22,8 @@ namespace ArudlemEditor
 
         #region variables
         private Bitmap m_MapSpriteImage = null;
-        private Pen m_MapSpriteLinesPen = new Pen(Color.Yellow, 4f);
+		private Bitmap m_MapSpriteImageMirrored = null;
+		private Pen m_MapSpriteLinesPen = new Pen(Color.Yellow, 4f);
         private Pen m_MapSpriteSelectionPen = new Pen(Color.Red, 4f);
         private Pen m_LevelLinesPen = new Pen(Color.Yellow, 1f);
 
@@ -44,9 +46,41 @@ namespace ArudlemEditor
             string mapSpritePath = Application.StartupPath + @"/../../../../Assets/Maps/MapSprite.png";
             Bitmap originalMapSpriteImage = new Bitmap(mapSpritePath);
             m_MapSpriteImage = new Bitmap(originalMapSpriteImage, originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
+			// create the mirrored image from the loaded one
+			CreateMirroredImage(m_MapSpriteImage);
             // and init the image
             DrawMapSprite();
         }
+
+		private void CreateMirroredImage(Bitmap image)
+		{
+			// copy the image in the mirrored image
+			m_MapSpriteImageMirrored = new Bitmap(image);
+
+			// Create some image attribut to change the color of the mirrored image
+			ImageAttributes imageAttributes = new ImageAttributes();
+			float[][] colorMatrixElements = { 
+			   new float[] {.5f,  0,  0,  0, 0},     // red scaling factor of 0
+			   new float[] {0,  .7f,  0,  0, 0},     // green scaling factor of 0
+			   new float[] {0,  0,  1,  0, 0},     // blue scaling factor of 1
+			   new float[] {0,  0,  0,  1, 0},     // alpha scaling factor of 1
+			   new float[] {0,  0,  0,  0, 1}};    // translations
+			ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+			imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+			// paint the image in the mirrored one with the image attribute
+			Graphics gc = Graphics.FromImage(m_MapSpriteImageMirrored);
+			gc.DrawImage(image,		// source image
+				new Rectangle(0, 0, image.Width, image.Height),  // destination rectangle 
+				0, 0,				// upper-left corner of source rectangle 
+				image.Width,		// width of source rectangle
+				image.Height,		// height of source rectangle
+				GraphicsUnit.Pixel,
+				imageAttributes);
+
+			// and mirror it
+			m_MapSpriteImageMirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
+		}
         #endregion
 
         #region drawing
@@ -120,8 +154,16 @@ namespace ArudlemEditor
                     if (m_CurrentLevel.IsSpriteSet(i, j))
                     {
                         int spriteIndex = m_CurrentLevel.GetSprite(i, j);
-                        Rectangle spriteRectangle = new Rectangle((int)((spriteIndex / MAP_SPRITE_HEIGHT) * spriteCellSize.Width), (int)((spriteIndex % MAP_SPRITE_HEIGHT) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
-                        gc.DrawImage(m_MapSpriteImage, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
+						if (m_CurrentLevel.IsSpriteMirrored(i, j))
+						{
+							Rectangle spriteRectangle = new Rectangle((int)((MAP_SPRITE_WIDTH-1 - (spriteIndex / MAP_SPRITE_HEIGHT)) * spriteCellSize.Width), (int)((spriteIndex % MAP_SPRITE_HEIGHT) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
+							gc.DrawImage(m_MapSpriteImageMirrored, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
+						}
+						else
+						{
+							Rectangle spriteRectangle = new Rectangle((int)((spriteIndex / MAP_SPRITE_HEIGHT) * spriteCellSize.Width), (int)((spriteIndex % MAP_SPRITE_HEIGHT) * spriteCellSize.Height), (int)spriteCellSize.Width, (int)spriteCellSize.Height);
+							gc.DrawImage(m_MapSpriteImage, levelRectangle, spriteRectangle, GraphicsUnit.Pixel);
+						}
                     }
                     else
                     {

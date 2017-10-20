@@ -64,6 +64,11 @@ namespace ArudlemEditor
 			m_Mirror[x, y] = !m_Mirror[x, y];
 		}
 
+		public bool IsSpriteMirrored(int x, int y)
+		{
+			return m_Mirror[x,y];
+		}
+
         private string parseVariableName(string variableDeclaration, string variableType)
         {
             int startIndex = variableDeclaration.IndexOf(variableType) + variableType.Length;
