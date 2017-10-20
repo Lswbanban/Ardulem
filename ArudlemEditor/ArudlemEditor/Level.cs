@@ -97,7 +97,7 @@ namespace ArudlemEditor
             // iterate on the data until we found a valid sprite id
             for (; i < LEVEL_WIDTH; ++i)
                 for (j = j % LEVEL_HEIGHT; j < LEVEL_HEIGHT; ++j)
-                    if (m_Data[i,j] == 1)
+                    if (m_Data[i,j] >= 0)
                     {
                         // if we found a valide coord, set the coordinate and return true
                         x = i;
@@ -152,6 +152,7 @@ namespace ArudlemEditor
             // reset x and y
             x = 0;
             int y = -1;
+			bool isReadingMirrorData = false;
             foreach (string sprite3Id in spriteIds)
             {
                 // remove the begining
@@ -162,14 +163,33 @@ namespace ArudlemEditor
                 if (endBracketIndex >= 0)
                     idsOnly = idsOnly.Remove(endBracketIndex);
 
-                // split the ids
-                string[] triplet = idsOnly.Split(',');
-                foreach (string spriteId in triplet)
-                {
-                    // get the next valid coordinate and set the sprite id at the correct place in the data
-                    if (GetNextValidCoordinate(ref x, ref y))
-                        m_Data[x, y] = int.Parse(spriteId.Trim());
-                }
+				if (sprite3Id.TrimStart().StartsWith("ID"))
+				{
+					// split the ids
+					string[] triplet = idsOnly.Split(',');
+					foreach (string spriteId in triplet)
+					{
+						// get the next valid coordinate and set the sprite id at the correct place in the data
+						if (GetNextValidCoordinate(ref x, ref y))
+							m_Data[x, y] = int.Parse(spriteId.Trim());
+					}
+				}
+				else
+				{
+					// if we enter for the first time in the mirror list, set the flag and reset x and y
+					if (!isReadingMirrorData)
+					{
+						x = 0;
+						y = -1;
+						isReadingMirrorData = true;
+					}
+
+					// this is the mirror data, set the mirror status for the first 16 bits
+					int mirrorValue = int.Parse(idsOnly.Trim());
+					for (int i = 0; i < 16; i++)						
+						if (GetNextValidCoordinate(ref x, ref y))
+							m_Mirror[x, y] = (mirrorValue & (1 << i)) != 0;
+				}
             }
 
             return true;
@@ -286,15 +306,15 @@ namespace ArudlemEditor
 				if (currentSpriteId == 16)
 				{
 					// write the bitfield
-					text += ", " + bitfield.ToString();
+					text += ", MIRROR(" + bitfield.ToString() + ")";
 					// reset the bitfield and the currentSprite id
 					bitfield = 0;
 					currentSpriteId = 0;
 				}
 			}
 			// write the last bitfield if any remaining
-			if ((mirrorList.Count % 16) != 0)
-				text += ", " + bitfield.ToString();
+			if ((mirrorList.Count > 0) && ((mirrorList.Count % 16) != 0))
+				text += ", MIRROR(" + bitfield.ToString() + ")";
 
             // close the variable definition
             text += "};\n";

@@ -3,6 +3,9 @@
 
 // The ID macro is used to pack two local id of the SpriteIdList
 #define ID(id1, id2, id3) (id1 | (id2<<5) | (id3<<10))
+// The MIRROR macro is uselse in the game code, but is here to help the Editor to parse the data.
+// Use it if you plan to use the Editor.
+#define MIRROR(bitfield) (bitfield)
 
 /*
  * All the sprite that can be used to create the maps (up to 32, because the sprite ids are stored on 5 bits)
@@ -32,7 +35,7 @@ const unsigned char MapData::MapSprite[][8] PROGMEM = {
 const unsigned char Map01Loca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x80, 0x80, 0x80, 0x0, 0x40, 0x60, 0xE0, 0x60, 0x60, 0x60, 0xE0, 0x60, 0x40 };
 const unsigned int Map01IdList[] PROGMEM = {
 	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(31,31,1), ID(2,31,31), ID(30,31,28), ID(5,29,4), ID(31,8,1), ID(31,4,31),
-	ID(4,31,4), ID(31,8,1), ID(28,4,6), 7, 0, 0 };
+	ID(4,31,4), ID(31,8,1), ID(28,4,6), MIRROR(7), MIRROR(0), MIRROR(0) };
 
 /*
  * The various maps
