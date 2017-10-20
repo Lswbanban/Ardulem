@@ -55,12 +55,15 @@ void MainMenu::UpdateInput()
 		else if (Input::IsJustPressed(DOWN_BUTTON))
 			CurrentGameState = (GameState)((CurrentGameState + 1) % GameState::RESULT_PAGE);
 	}
-	
+
+	// for the menu pages, you can press A or B, no matter
+	bool isButtonAorBJustPressed = Input::IsJustPressed(A_BUTTON) || Input::IsJustPressed(B_BUTTON);
+
 	// check the change of level
 	switch (CurrentGameState)
 	{
 		case GameState::MENU_PLAY:
-			if (Input::IsJustPressed(B_BUTTON))
+			if (isButtonAorBJustPressed)
 			{
 				// init the lems, the map and change the state (note that the init of the HUD is called by the MapManager)
 				LemManager::Init();
@@ -75,17 +78,17 @@ void MainMenu::UpdateInput()
 				MapManager::CurrentMapId++;
 			break;
 		case GameState::MENU_MUSIC:
-			if (Input::IsJustPressed(B_BUTTON))
+			if (isButtonAorBJustPressed || Input::IsJustPressed(LEFT_BUTTON) || Input::IsJustPressed(RIGHT_BUTTON))
 				Music::SwitchMusicStatus();
 			break;
 		case GameState::MENU_RESET_SAVE:
 			// if player press the button while on the reset, just save the progression to 0
-			if (Input::IsJustPressed(B_BUTTON))
+			if (isButtonAorBJustPressed)
 				ResetSavedProgression();
 			break;
 		case  GameState::RESULT_PAGE:
 			// save progression if needed and go back to menu when the player press a button
-			if (Input::IsJustPressed(B_BUTTON))
+			if (isButtonAorBJustPressed)
 			{
 				// increase the current level index and save the current progression in EEPROM, if we succeeded
 				if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
