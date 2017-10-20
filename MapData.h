@@ -54,6 +54,12 @@ namespace MapData
 		
 		// the list of all the id (from 0 to 31) of sprite as the set bit appear in the SpriteLocalization
 		// list. Three ids are stored in each int. You can use the Macro ID() to pack the three ids
+		// ---
+		// Then after that list (but still in the same array), you should add a list of int representing 
+		// A large bitfield (spread over several ints in that int array) telling for each sprite in the SpriteIdList
+		// if the sprite should be drawn mirrored or not. Each bit correspond to each sprite. If the bit is set,
+		// then the sprite is mirrored, if not set, the sprite should be drawn normally.
+		// The ints are ordered like in the sprites order, but then inside a int, the bits are ordered from low to high
 		const unsigned int * SpriteIdList;
 	};
 	

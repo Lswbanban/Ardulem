@@ -5,7 +5,7 @@
 #define ID(id1, id2, id3) (id1 | (id2<<5) | (id3<<10))
 
 /*
- * All the sprite that can be used to create the maps (up to 256, because after that the remaping table cannot handle it)
+ * All the sprite that can be used to create the maps (up to 32, because the sprite ids are stored on 5 bits)
  */
 const unsigned char MapData::MapSprite[][8] PROGMEM = {
 	{0x3, 0x7, 0xfd, 0xaf, 0x57, 0xfd, 0x7, 0x3, }, {0x00, 0x00, 0xff, 0xaa, 0x55, 0xff, 0x00, 0x00, }, 
@@ -32,7 +32,7 @@ const unsigned char MapData::MapSprite[][8] PROGMEM = {
 const unsigned char Map01Loca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x80, 0x80, 0x80, 0x0, 0x40, 0x60, 0xE0, 0x60, 0x60, 0x60, 0xE0, 0x60, 0x40 };
 const unsigned int Map01IdList[] PROGMEM = {
 	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(31,31,1), ID(2,31,31), ID(30,31,28), ID(5,29,4), ID(31,8,1), ID(31,4,31),
-	ID(4,31,4), ID(31,8,1), ID(28,4,6) };
+	ID(4,31,4), ID(31,8,1), ID(28,4,6), 7, 0, 0 };
 
 /*
  * The various maps

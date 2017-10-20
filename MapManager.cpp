@@ -46,6 +46,7 @@ namespace MapManager
 	// the current map Description we are playing
 	unsigned char CurrentMapId = 0;
 	MapData::MapDescription CurrentMapDescription;
+	const unsigned int * CurrentMapMirroredSprites = 0;
 	
 	unsigned char RequiredLemPercentage = 0; // computed in the init function from the ratio required lem count by available lem count
 	unsigned char IntroAnimFrameIndex = 0;
@@ -90,6 +91,7 @@ namespace MapManager
 	// internal functions
 	int GetSpriteCountBeforeColumn(const unsigned char * mapLocalization, int col);
 	int GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubIndex);
+	bool IsSpriteMirrored(int spriteIndex);
 	unsigned char Get8PixelsOutsideScreen(int worldX, int lineY, bool considerAddedPixels);
 	char GetPixelOutsideScreen(int worldX, int worldY, bool considerAddedPixels);
 	unsigned char GetPixelsColumnAligned(int worldX, int lineY, bool considerAddedPixels);
@@ -150,7 +152,12 @@ void MapManager::InitMap()
 	CurrentMapDescription.SpriteLocalization = (const unsigned char *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteLocalization));
 	CurrentMapDescription.SpriteColumnCount = pgm_read_byte_near(&(MapData::AllMaps[CurrentMapId].SpriteColumnCount));
 	CurrentMapDescription.SpriteIdList = (const unsigned int *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteIdList));
-	
+	// count how many sprites in the level to find where is the beginning of the mirror list
+	// for that we ask the total number of sprite (all the sprite after the last column)
+	// then divided by 3, because each int in the SpriteIdList store 3 sprites
+	int spritesCount = GetSpriteCountBeforeColumn(CurrentMapDescription.SpriteLocalization, CurrentMapDescription.SpriteColumnCount) / 3;
+	CurrentMapMirroredSprites = (const unsigned int *)((const unsigned int *)pgm_read_word_near(&(MapData::AllMaps[CurrentMapId].SpriteIdList)) + spritesCount);
+
 	// compute the required lem percentage
 	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
 
@@ -262,6 +269,17 @@ inline int MapManager::GetSpriteGlobalId(int spriteIdIndex, char spriteIdSubInde
 	return (ThreePackedLocIds >> (5*spriteIdSubIndex)) & 0x001F;
 }
 
+/*
+ * Tell if the sprite specified with it's global index (i.e. not its index in the array of sprite)
+ * is mirrored according to the map data.
+ */
+bool MapManager::IsSpriteMirrored(int spriteIndex)
+{
+	int mirrorIntIndex = spriteIndex >> 4; // divide by 16 the id to get the int index
+	int mirrorBitIndex = spriteIndex % 16; // get the rest to get the bit
+	return pgm_read_word_near(CurrentMapMirroredSprites + mirrorIntIndex) & (1<<mirrorBitIndex);
+}
+
 void MapManager::DrawMap()
 {
 	// get the various pointer on the current map data
@@ -294,10 +312,14 @@ void MapManager::DrawMap()
 				// we found a bit set, there's a sprite to draw, get it's global id
 				int currentSpriteGlobalId = GetSpriteGlobalId(currentSpriteIdIndex, currentSpriteIdSubIndex);
 				
+				// now check it's mirrored status (compute which char in the array, then which bit that char)
+				bool isMirrored = IsSpriteMirrored(currentSpriteDrawn);
+
 				// now draw the sprite, at the correct position
-				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, WHITE);
+				arduboy.drawBitmap(spriteColX, i<<3, MapData::MapSprite[currentSpriteGlobalId], 8, WHITE, isMirrored);
 				
 				// increase the sprite counter
+				currentSpriteDrawn++;
 				currentSpriteIdSubIndex++;
 				if (currentSpriteIdSubIndex == 3)
 				{
@@ -339,7 +361,7 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool co
 	unsigned char col = worldX >> 3;
 	
 	// start with a default black pixel
-	unsigned char heightPixelsColumn = 0;
+	unsigned char eightPixelsColumn = 0;
 	
 	// now find the pixel inside the const map data
 	unsigned char currentSpriteColumnLocalization = pgm_read_byte_near(CurrentMapDescription.SpriteLocalization + col);
@@ -355,8 +377,13 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool co
 		// get the global id of the sprite we need
 		int currentSpriteGlobalId = GetSpriteGlobalId(spriteIndex/3, spriteIndex%3);
 
+		// we have to choose the right column of the sprite depending if the sprite is mirrored or not
+		int spriteColumnIndex = (worldX % 8);
+		if (IsSpriteMirrored(spriteIndex))
+			spriteColumnIndex = 7-spriteColumnIndex;
+
 		// now get the correct column of the sprite
-		heightPixelsColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + (worldX % 8));
+		eightPixelsColumn = pgm_read_byte_near(MapData::MapSprite[currentSpriteGlobalId] + spriteColumnIndex);
 	}
 	
 	// now apply the modification of that column of 8 pixels if needed
@@ -387,14 +414,14 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool co
 			// |        1       |   1   |    0   |      0   (this was a deleted pixel -> take the modif)
 			// |        1       |   0   |    1   |      1   (pixel not modified)
 			if (considerAddedPixels)
-				heightPixelsColumn ^= ModificationList[modifIndex];
+				eightPixelsColumn ^= ModificationList[modifIndex];
 			else
-				heightPixelsColumn &= ~ModificationList[modifIndex];
+				eightPixelsColumn &= ~ModificationList[modifIndex];
 		}
 	}
 
 	// and return the final 8 pixels column
-	return heightPixelsColumn;
+	return eightPixelsColumn;
 }
 
 /*
