@@ -25,22 +25,18 @@ void MainMenu::SetCurrentGameState(GameState state)
 {
 	CurrentGameState = state;
 
-	// check if we need to launch or stop stuff like music or LED at the begining or end
-	bool isMusicOn = Music::IsMusicEnabled();
-	if (state == GameState::PLAYING)
+	// check if we need to start or stop the music
+	if (Music::IsMusicEnabled())
 	{
-		// start the music
-		if (isMusicOn)
+		if (state == GameState::PLAYING)
 			arduboy.tunes.playScore(Music::score);
-	}
-	else if (state == GameState::RESULT_PAGE)
-	{
-		// stop the music
-		if (isMusicOn)
+		else
 			arduboy.tunes.stopScore();
-		// reset the led
-		LEDManager::ClearLEDCommand(LEDManager::BUFFER_COUNT);
 	}
+
+	// reset the LED if we arrive on RESULT page
+	if (state == GameState::RESULT_PAGE)
+		LEDManager::ClearLEDCommand(LEDManager::BUFFER_COUNT);
 }
 
 void MainMenu::Update()
