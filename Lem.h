@@ -81,9 +81,9 @@ private:
 	// helper functions for update
 	bool	IsXInsideWorld(int x);
 	bool	IsYInsideWorld(int y);
-	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
 	int		GetWallHeight(int x, int y, int height, bool shouldCheckAddedStairs);
+	int 	GetGroundDepth(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsLastFrame();
 	void 	Dig8Pixels(int x, int y, unsigned int pixels);
 

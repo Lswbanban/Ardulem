@@ -130,13 +130,6 @@ void CustomArduboy::drawPixel(int x, int y, uint8_t color)
   }
 }
 
-uint8_t CustomArduboy::getPixel(uint8_t x, uint8_t y)
-{
-  uint8_t row = y / 8;
-  uint8_t bit_position = y % 8;
-  return (sBuffer[(row*WIDTH) + x] & _BV(bit_position)) >> bit_position;
-}
-
 uint8_t CustomArduboy::get8PixelsColumn(uint8_t x, uint8_t row)
 {
   return sBuffer[(row*WIDTH) + x];

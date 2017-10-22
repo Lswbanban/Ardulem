@@ -58,7 +58,6 @@ public:
   /// Sets a single pixel on the screen buffer to white or black.
   void drawPixel(int x, int y, uint8_t color);
 
-  uint8_t getPixel(uint8_t x, uint8_t y);
   uint8_t get8PixelsColumn(uint8_t x, uint8_t row);
 
   /// Draws one or more "corners" of a circle.

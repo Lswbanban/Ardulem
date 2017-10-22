@@ -74,41 +74,50 @@ bool Lem::IsYInsideWorld(int y)
 	return (y >=0) && (y <= 63);
 }
 
-bool Lem::IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind)
+/*
+ * Compute how far is the ground from the specified coordinates. Return 0 if there's ground
+ * at the specified coordinate, and a big number if the ground is farer than 8 pixels away.
+ */
+int Lem::GetGroundDepth(int x, int y, bool checkInFront, bool checkBehind)
 {
-	// if y is outside the map, it's just a no!
+	const int CHECK_DEPTH = 3;
+	const int INFINITE_DEPTH = 255;
+
+	// if y is outside the map, that means there's no ground
 	if (!IsXInsideWorld(x) || !IsYInsideWorld(y))
-		return false;
+		return INFINITE_DEPTH;
 	
 	// pixel under
-	if (MapManager::GetPixel(x, y, true) == WHITE)
-		return true;
-	
-	// pixel in front
-	if (checkInFront)
+	unsigned char pixelsUnder = MapManager::GetPixelsColumn(x, y, CHECK_DEPTH, true);
+	if (pixelsUnder != 0)
 	{
-		int newX = mIsDirectionMirrored ? x-1 : x+1;
-		if (!IsXInsideWorld(newX))
-			return false;
-		if (MapManager::GetPixel(newX, y, true) == WHITE)
-			return true;
+		// search the first set pixel
+		for (int i = 0; i < CHECK_DEPTH; i++)
+			if (pixelsUnder & (1<<i))
+				return i;
+	}
+
+	// get the mirror flag
+	bool isMirrored = mIsDirectionMirrored;
+
+	// pixel in front
+	if (checkInFront)		
+	{
+		int depth = GetGroundDepth(isMirrored ? x-1 : x+1, y, false, false);
+		if (depth != INFINITE_DEPTH)
+			return depth;
 	}
 	
 	// pixel behind
 	if (checkBehind)
-	{
-		int newX = mIsDirectionMirrored ? x+1 : x-1;
-		if (!IsXInsideWorld(newX))
-			return false;
-		if (MapManager::GetPixel(newX, y, true) == WHITE)
-			return true;
-	}
-	return false;
+		return GetGroundDepth(isMirrored ? x+1 : x-1, y, false, false);
+
+	return INFINITE_DEPTH;
 }
 
 bool Lem::IsThereRoofAt(int x, int y)
 {
-	return IsXInsideWorld(x) && IsYInsideWorld(y) && (MapManager::GetPixel(x, y, false) == WHITE);
+	return IsXInsideWorld(x) && IsYInsideWorld(y) && (MapManager::GetPixelsColumn(x, y, 1, false) != 0);
 }
 
 /*
@@ -231,11 +240,21 @@ void Lem::UpdateWalk()
 		// step on the stair
 		mPosY -= (wallHeight-1);
 	}
-	else if (!IsThereGroundAt(mPosX+1, posY+6, false, false)) // check the pixel just under
+	else
 	{
-		// no pixel in front of me (inside), and no pixel just under, so fall
-		SetCurrentState(StateId::START_FALL, isMirrored ? -1 : 0, 1);
-		return;
+		// check the pixel just under
+		int groundDepth = GetGroundDepth(mPosX+1, posY+6, false, false);
+		if (groundDepth > 2)
+		{
+			// no pixel in front of me (inside), and no pixel just under, so fall
+			SetCurrentState(StateId::START_FALL, isMirrored ? -1 : 0, 1);
+			return;
+		}
+		else
+		{
+			// there's a ground a bit under (like a step down) so adjust the y
+			mPosY += groundDepth;
+		}
 	}
 
 	// get the x pixel in front of me
@@ -276,10 +295,10 @@ bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool is
 void Lem::UpdateBlocker()
 {
 	// get the pixel under my feet, if no ground, I start to fall
-	if (!IsThereGroundAt(mPosX+2, mPosY+6, false, false))
+	if (GetGroundDepth(mPosX+2, mPosY+6, false, false) > 0)
 	{
 		// check if I need to fall toward left or right (if no ground on my left, set mirror to true)
-		mIsDirectionMirrored = !IsThereGroundAt(mPosX+1, mPosY+6, false, false) ? 1 : 0;
+		mIsDirectionMirrored = (GetGroundDepth(mPosX+1, mPosY+6, false, false) > 0) ? 1 : 0;
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
@@ -326,7 +345,7 @@ void Lem::UpdateDigDiag()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (shouldTestGround)
 	{
-		if (!IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+		if (GetGroundDepth(mPosX+2, mPosY+6, true, true) > 0)
 			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
@@ -369,7 +388,7 @@ void Lem::UpdateDigHoriz()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (shouldTestGround)
 	{
-		if (!IsThereGroundAt(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, false))
+		if (GetGroundDepth(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, false) > 0)
 			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
@@ -408,7 +427,7 @@ void Lem::UpdateDigVert()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (shouldTestGround)
 	{
-		if (!IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+		if (GetGroundDepth(mPosX+2, mPosY+6, true, true) > 0)
 			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
@@ -458,7 +477,7 @@ bool Lem::UpdateStair()
 	}
 	
 	// get the pixel under my feet, if no ground, I start to fall
-	if (!IsThereGroundAt(mPosX+1, mPosY+6, true, true))
+	if (GetGroundDepth(mPosX+1, mPosY+6, true, true) > 0)
 	{
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 		return true;
@@ -502,7 +521,7 @@ void Lem::UpdateClimbTop()
 void Lem::UpdateStartFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (GetGroundDepth(mPosX+2, mPosY+6, true, true) == 0)
 	{
 		SetCurrentState(StateId::WALK, 1, 0);
 		return;
@@ -516,7 +535,7 @@ void Lem::UpdateStartFall()
 void Lem::UpdateFall()
 {
 	// get the pixel under my feet, if I touch ground, go back to walk
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (GetGroundDepth(mPosX+2, mPosY+6, true, true) == 0)
 		SetCurrentState(StateId::WALK, 1, 0);
 	
 	// if there's no ground and it is the last frame, we move to the fall to death anim
@@ -540,7 +559,7 @@ void Lem::UpdateFallToDeath()
 	}
 
 	// get the pixel under my feet, if I touch ground, I just crash
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (GetGroundDepth(mPosX+2, mPosY+6, true, true) == 0)
 		SetCurrentState(StateId::CRASH, 0, -1);
 }
 
@@ -554,7 +573,7 @@ void Lem::UpdateCrash()
 void Lem::UpdateParachute()
 {
 	// get the pixel under my feet, if I touch ground, I go back to walk
-	if (IsThereGroundAt(mPosX+2, mPosY+6, true, true))
+	if (GetGroundDepth(mPosX+2, mPosY+6, true, true) == 0)
 		SetCurrentState(StateId::WALK, 0, -1);
 }
 
