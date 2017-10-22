@@ -5,6 +5,9 @@
 #include "LemManager.h"
 #include "HUD.h"
 
+// static functions
+unsigned char Lem::sRecursiveUpdateStateCount = 0;
+
 void Lem::Spawn(unsigned char x, unsigned char y)
 {
 	// set the position
@@ -22,6 +25,9 @@ bool Lem::Update()
 	// do nothing if the Lem is not alive
 	if (GetCurrentState() > StateId::DEAD)
 	{
+		// reinit the recursive update count for the current lem
+		sRecursiveUpdateStateCount = 0;
+
 		// update the current animation (which will make the lem position move)
 		bool doesNeedUpdate = UpdateCurrentAnim();
 		
@@ -34,6 +40,11 @@ bool Lem::Update()
 
 bool Lem::UpdateState()
 {
+	// increase the update count, and early exit if there's too many changes
+	sRecursiveUpdateStateCount++;
+	if (sRecursiveUpdateStateCount > 3)
+		return false;
+
 	// check if the lem arrived in home
 	if ((mPosX+3 >= MapManager::GetHomeX()) && (mPosX <= MapManager::GetHomeX()) && (mPosY+5 >= MapManager::GetHomeY()) && (mPosY <= MapManager::GetHomeY()))
 	{
@@ -900,6 +911,8 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
 	mPosY += shiftY;
+	// call update state again because we may need to change again
+	UpdateState();
 }
 
 bool Lem::InUnderCursorPosition()

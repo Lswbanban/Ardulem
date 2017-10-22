@@ -55,6 +55,10 @@ private:
 	unsigned char	mCurrentAnimFrame		: 3;
 	unsigned char	mCurrentState			: 4;
 	
+	// a static flag to avoid infinite recursive call to update function,
+	// because we want to call update in the SetState function, and usually the update function call the SetState
+	static unsigned char sRecursiveUpdateStateCount;
+
 	// state data manipulation
 	void			ReverseMirroredDirection()	{ mIsDirectionMirrored = !mIsDirectionMirrored; }
 	
