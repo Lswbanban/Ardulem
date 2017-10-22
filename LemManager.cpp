@@ -64,7 +64,7 @@ namespace LemManager
 	void CheckLemTimers();
 	void MoveDeadLemToDeadPool();
 	bool ChangeLemStateIfPossible(int lemId, Lem::StateId newState);
-	void ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference);
+	void ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference, bool preferWalkerWithWallInFront);
 
 	// lem array manipulation and sorting
 	void SwapTwoTimers(unsigned char lemId1, unsigned char lemId2);
@@ -233,16 +233,18 @@ bool LemManager::ChangeLemStateIfPossible(int lemId, Lem::StateId newState)
 	return false;
 }
 
-void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference)
+void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, bool dontPickFallers, bool dontPickBlocker, Lem::StateId preferedRole, bool preferDiggers, WalkerChoicePreference walkerChoicePreference, bool preferWalkerWithWallInFront)
 {
 	unsigned char challengerLemState = LemArray[challengerLemId].GetCurrentState();
 	
 	// in any case, we don't choose a bomber (a bomber can never change role)
 	// and if we should also ignore the lem falling, don't choose the challenger if he is falling
 	// and similarly, ignore blockers if we need to
+	// also we should not take a digger of the exact same type (because digger never stop so it's useless to give them the same order)
 	if ((challengerLemState <= Lem::StateId::BYE_BYE_BOOM) ||
 		(dontPickFallers && (challengerLemState >= Lem::StateId::START_FALL)) ||
-		(dontPickBlocker && (challengerLemState == Lem::StateId::BLOCKER)) )
+		(dontPickBlocker && (challengerLemState == Lem::StateId::BLOCKER)) ||
+		(preferDiggers && (challengerLemState == preferedRole)) )
 		return;
 	
 	// check if the challenger has any role
@@ -264,6 +266,8 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 		return;
 
 	// now check if we need to select in priority the diggers
+	// (we have already eraly exit if the challenger is the same type of digger than the prefered role, 
+	// so we are sure to not pick the same role)
 	if (preferDiggers && (challengerLemState >= Lem::StateId::DIG_DIAG) && (challengerLemState <= Lem::StateId::DIG_VERT))
 		currentLem = {challengerLemId, 1};
 
@@ -276,7 +280,13 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 	
 	// now check if we need to choose walker before the other roles
 	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_BEFORE_OTHER) && !hasChallengerARole)
-		currentLem = {challengerLemId, 2};
+	{
+		// only climber check to request wall with a walker choice before, and for climber, we don't want to check stairs)
+		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(false))
+			currentLem = {challengerLemId, 2};
+		else
+			currentLem = {challengerLemId, 5};
+	}
 
 	// if the score is too good, no need for doing further check
 	if (currentLem.Score <= 3)
@@ -290,9 +300,15 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 	if (currentLem.Score <= 4)
 		return;
 	
-	// finally check check again the walker if we need to choose walker after the other roles
+	// finally check again the walker if we need to choose walker after the other roles
 	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_AFTER_OTHER) && !hasChallengerARole)
-		currentLem = {challengerLemId, 4};
+	{
+		// only horizontal diggers check to request wall with a walker choice after, and for horizontal digger, we want to check stairs to dig through)
+		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(true))
+			currentLem = {challengerLemId, 4};
+		else
+			currentLem = {challengerLemId, 5};
+	}
 }
 
 /*
@@ -301,7 +317,7 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
  * - If the walker is selected: it will choose a blocker first, then any lem with a function, (not a bomber/walker)
  * - If the blocker is selected: it will choose any lem with a function (not a blocker/bomber), then a walker
  * - If the bomb action is selected, it will choose a Blocker in priority, then any lem with a function (not a bomber), then a walker
- * - If a digger is selected, if will choose the same type of digger in priority, then any digger, then any function (not a bomber), then a walker
+ * - If a digger is selected, if will choose a digger in priority (of different type), then any function (not a bomber/digger of same type), then a walker
  * - if a stair is selected, it will choose a stairer first, then any function (not a bomber), then a walker
  * - If the climber is selected, it will choose a parachuter first, then a walker, then any function (not a bomber)
  * - If the parachute is selected, it will choose a Climber first, then a walker, then any function (not a bomber)
@@ -327,39 +343,39 @@ void LemManager::UpdateLemUnderCursor()
 			{
 				case HUD::Button::LEM_WALK:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::DONT_CHOOSE);
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::DONT_CHOOSE, false);
 					break;
 				case HUD::Button::LEM_BLOCKER:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, true, Lem::StateId::DEAD, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					ChooseBestLem(currentLemChoice, i, true, true, Lem::StateId::DEAD, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER, false);
 					break;
 				case HUD::Button::LEM_BOMB:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::BLOCKER, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER, false);
 					break;
 				case HUD::Button::LEM_DIG_DIAG:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_DIAG, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_DIAG, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER, false);
 					break;
 				case HUD::Button::LEM_DIG_HORIZ:
-					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_HORIZ, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last, better to have a wall in front
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_HORIZ, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER, true);
 					break;
 				case HUD::Button::LEM_DIG_VERT:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_VERT, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::DIG_VERT, true, WalkerChoicePreference::CHOOSE_AFTER_OTHER, false);
 					break;
 				case HUD::Button::LEM_STAIR:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::STAIR, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER);
+					ChooseBestLem(currentLemChoice, i, true, false, Lem::StateId::STAIR, false, WalkerChoicePreference::CHOOSE_AFTER_OTHER, false);
 					break;
 				case HUD::Button::LEM_CLIMB:
-					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::PARACHUTE, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER);
+					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last, better to have a wall in front
+					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::PARACHUTE, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER, true);
 					break;
 				case HUD::Button::LEM_PARACHUTE:
 					// current, challenger, don't pick faller, don't pick blocker, prefered state, prefer diggers first, choose walker at last
-					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::CLIMB, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER);
+					ChooseBestLem(currentLemChoice, i, false, false, Lem::StateId::CLIMB, false, WalkerChoicePreference::CHOOSE_BEFORE_OTHER, false);
 					break;
 			}
 			

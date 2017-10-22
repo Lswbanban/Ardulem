@@ -41,7 +41,7 @@ public:
 	bool			PromoteParachuter()		{ bool wasPromoted = (mIsAParachuter == 0); mIsAParachuter = 1; return wasPromoted; }
 	bool			IsAParachuter()			{ return mIsAParachuter; }
 	bool			IsDirectionMirrored()	{ return mIsDirectionMirrored; }
-
+	bool			IsThereAWallInFrontOfYou(bool shouldCheckAddedStairs);
 	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
@@ -83,7 +83,7 @@ private:
 	bool	IsYInsideWorld(int y);
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
-	int		IsThereAWall(int x, int y, int height, bool shouldCheckGround = false);
+	int		IsThereAWall(int x, int y, int height, bool shouldCheckAddedStairs);
 	bool	IsLastFrame();
 	void 	Dig8Pixels(int x, int y, unsigned int pixels);
 

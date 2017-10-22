@@ -406,19 +406,19 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool co
 		if (modifIndex < MODIFICATION_LIST_SIZE)
 		{
 			// if there's a modif, apply it to the original map data depending if we need the added pixels
-			// If we want the added pixels, we can use a XOR
+			// If we want the added pixels (wich means we also want the deletd ones), we can use a XOR
 			// | original pixel | modif | result pixel
-			// |        0       |   1   |   1
-			// |        0       |   0   |   0
-			// |        1       |   1   |   0
-			// |        1       |   0   |   1
+			// |        0       |   1   |   1   (this was an added pixel -> take the modif, now it is set)
+			// |        0       |   0   |   0   (pixel not modified -> it stays empty)
+			// |        1       |   1   |   0   (this was a deleted pixel -> take the modif, now it is empty)
+			// |        1       |   0   |   1   (pixel not modified -> it stays set)
 			//
 			// but if we only want the deleted pixels, we can use an AND + NOT modif:
 			// | original pixel | modif | ~modif | result pixel
-			// |        0       |   1   |    0   |      0   (this was an added pixel -> ignore it)
-			// |        0       |   0   |    1   |      0   (pixel not modified)
-			// |        1       |   1   |    0   |      0   (this was a deleted pixel -> take the modif)
-			// |        1       |   0   |    1   |      1   (pixel not modified)
+			// |        0       |   1   |    0   |      0   (this was an added pixel -> ignore the modif, leave it empty)
+			// |        0       |   0   |    1   |      0   (pixel not modified -> it stays empty)
+			// |        1       |   1   |    0   |      0   (this was a deleted pixel -> take the modif, now it's empty)
+			// |        1       |   0   |    1   |      1   (pixel not modified -> it stays set)
 			if (considerAddedPixels)
 				eightPixelsColumn ^= ModificationList[modifIndex];
 			else
