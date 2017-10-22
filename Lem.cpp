@@ -610,25 +610,7 @@ unsigned int Lem::GetFrameRateForCurrentAnim(bool useSlowAnimation)
  */
 unsigned int Lem::GetFrameCountForCurrentAnim()
 {
-	switch (GetCurrentState())
-	{
-		case StateId::EXPLOSION_FX: return 8; // use all available frame count
-		case StateId::CRASH: return ANIM_LEM_CRASH_FRAME_COUNT;
-		case StateId::BYE_BYE_BOOM: return ANIM_LEM_BOMB_FRAME_COUNT;
-		case StateId::WALK: return ANIM_LEM_WALK_FRAME_COUNT;
-		case StateId::BLOCKER: return ANIM_LEM_BLOCKER_FRAME_COUNT;
-		case StateId::DIG_DIAG: return ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT;
-		case StateId::DIG_HORIZ: return ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT;
-		case StateId::DIG_VERT: return ANIM_LEM_DIG_VERTICAL_FRAME_COUNT;
-		case StateId::STAIR: return ANIM_LEM_STAIR_FRAME_COUNT;
-		case StateId::CLIMB: return ANIM_LEM_CLIMB_FRAME_COUNT;
-		case StateId::CLIMB_TOP: return ANIM_LEM_CLIMB_TOP_FRAME_COUNT;
-		case StateId::START_FALL: return ANIM_LEM_START_FALL_FRAME_COUNT;
-		case StateId::FALL: return 8; // special case for fall, we use the full frame count maximum value to reccord the altitude
-		case StateId::FALL_TO_DEATH: return ANIM_LEM_FALL_TO_DEATH_FRAME_COUNT;
-		case StateId::PARACHUTE: return ANIM_LEM_PARA_FRAME_COUNT;
-	}
-	return 1;
+	return pgm_read_byte_near(LemAnimFrameCountPerLemState + mCurrentState);
 }
 
 /*
@@ -636,24 +618,7 @@ unsigned int Lem::GetFrameCountForCurrentAnim()
  */
 unsigned int Lem::GetFrameWidthForCurrentAnim()
 {
-	switch (mCurrentState)
-	{
-		case StateId::CRASH: return sizeof(anim_LemCrash[0]);
-		case StateId::BYE_BYE_BOOM: return sizeof(anim_LemBomb[0]);
-		case StateId::WALK: return sizeof(anim_LemWalk[0]);
-		case StateId::BLOCKER: return sizeof(anim_LemBlocker[0]);
-		case StateId::DIG_DIAG: return sizeof(anim_LemDigDiagonal[0]);
-		case StateId::DIG_HORIZ: return sizeof(anim_LemDigHorizontal[0]);
-		case StateId::DIG_VERT: return sizeof(anim_LemDigVertical[0]);
-		case StateId::STAIR: return sizeof(anim_LemStair[0]);
-		case StateId::CLIMB: return sizeof(anim_LemClimb[0]);
-		case StateId::CLIMB_TOP: return sizeof(anim_LemClimbTop[0]);
-		case StateId::START_FALL: return sizeof(anim_LemStartFall[0]);
-		case StateId::FALL: return sizeof(anim_LemFall[0]);
-		case StateId::FALL_TO_DEATH: return sizeof(anim_LemFallToDeath[0]);
-		case StateId::PARACHUTE: return sizeof(anim_LemPara[0]);
-	}
-	return 0;
+	return pgm_read_byte_near(LemAnimWidthPerLemState + mCurrentState);
 }
 
 bool Lem::UpdateCurrentAnim()

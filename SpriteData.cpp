@@ -69,6 +69,41 @@ const unsigned char anim_LemPara[][3] PROGMEM =
 const unsigned char anim_Parachute[][7] PROGMEM =
 	{ {0x6, 0xf, 0x13, 0x3, 0x13, 0xf, 0x6, }, {0xe, 0x13, 0x3, 0x3, 0x17, 0x1e, 0xc, }, {0x6, 0xf, 0x13, 0x3, 0x13, 0xf, 0x6, }, {0xc, 0x1e, 0x17, 0x3, 0x3, 0x13, 0xe, } };
 
+const unsigned char LemAnimWidthPerLemState[] PROGMEM = { 0, 0,
+	sizeof(anim_LemCrash[0]),
+	sizeof(anim_LemBomb[0]),
+	sizeof(anim_LemWalk[0]),
+	sizeof(anim_LemBlocker[0]),
+	sizeof(anim_LemDigDiagonal[0]),
+	sizeof(anim_LemDigHorizontal[0]),
+	sizeof(anim_LemDigVertical[0]),
+	sizeof(anim_LemStair[0]),
+	sizeof(anim_LemClimb[0]),
+	sizeof(anim_LemClimbTop[0]),
+	sizeof(anim_LemStartFall[0]),
+	sizeof(anim_LemFall[0]),
+	sizeof(anim_LemFallToDeath[0]),
+	sizeof(anim_LemPara[0])
+};
+
+const unsigned char LemAnimFrameCountPerLemState[] PROGMEM = {
+	1, 8, // use all available frame count for explosion
+	ANIM_LEM_CRASH_FRAME_COUNT,
+	ANIM_LEM_BOMB_FRAME_COUNT,
+	ANIM_LEM_WALK_FRAME_COUNT,
+	ANIM_LEM_BLOCKER_FRAME_COUNT,
+	ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT,
+	ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT,
+	ANIM_LEM_DIG_VERTICAL_FRAME_COUNT,
+	ANIM_LEM_STAIR_FRAME_COUNT,
+	ANIM_LEM_CLIMB_FRAME_COUNT,
+	ANIM_LEM_CLIMB_TOP_FRAME_COUNT,
+	ANIM_LEM_START_FALL_FRAME_COUNT,
+	8, // special case for fall, we use the full frame count maximum value to reccord the altitude
+	ANIM_LEM_FALL_TO_DEATH_FRAME_COUNT,
+	ANIM_LEM_PARA_FRAME_COUNT
+};
+
 // Start and Home
 const unsigned char anim_Start[][8] PROGMEM =
 	{ {0x00, 0x1, 0x3, 0x7, 0x7, 0x7, 0x7, 0x7, }, {0x00, 0x1, 0x3, 0x7, 0xf, 0xf, 0xd, 0x7, }, {0x00, 0x3, 0x7, 0x1f, 0x3f, 0x1d, 0x5, 0x5, }, {0xf8, 0x7f, 0x1d, 0x5, 0x5, 0x5, 0x5, 0x5, }, {0x00, 0x1f, 0xfd, 0x3d, 0x5, 0x5, 0x5, 0x5, }, {0x00, 0xff, 0x7f, 0x3d, 0x5, 0x5, 0x5, 0x5, } };
