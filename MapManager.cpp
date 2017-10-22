@@ -164,8 +164,11 @@ void MapManager::InitMap()
 	// compute the required lem percentage
 	RequiredLemPercentage = (unsigned char)(((int)CurrentMapDescription.RequiredLemCount * 100) / CurrentMapDescription.AvailableLemCount);
 
-	// init other variables
+	// init the map scroll view so that the player can see the start in the middle of the screen
 	ScrollValue = 0;
+	ScrollView(CurrentMapDescription.StartX - (MAP_SCREEN_WIDTH/2));
+
+	// init the start intro frame
 	IntroAnimFrameIndex = 0;
 	
 	// clear the modification list
