@@ -83,7 +83,7 @@ private:
 	bool	IsYInsideWorld(int y);
 	bool 	IsThereGroundAt(int x, int y, bool checkInFront, bool checkBehind);
 	bool	IsThereRoofAt(int x, int y);
-	int		IsThereAWall(int x, int y, int height, bool shouldCheckAddedStairs);
+	int		GetWallHeight(int x, int y, int height, bool shouldCheckAddedStairs);
 	bool	IsLastFrame();
 	void 	Dig8Pixels(int x, int y, unsigned int pixels);
 

@@ -116,7 +116,7 @@ bool Lem::IsThereRoofAt(int x, int y)
  * y: y world pos of the top of the wall.
  * height: the height of the wall (downward from y) that you want to test
  */
-int Lem::IsThereAWall(int x, int y, int height, bool shouldCheckAddedStairs)
+int Lem::GetWallHeight(int x, int y, int height, bool shouldCheckAddedStairs)
 {
 	// if the x is outside the world, there's no wall
 	if (!IsXInsideWorld(x))
@@ -167,7 +167,7 @@ bool Lem::IsThereAWallInFrontOfYou(bool shouldCheckAddedStairs)
 	for (int i = 0; i < 3; ++i)
 	{
 		// check if the wall is taller than a step
-		int wallHeight = IsThereAWall(x, y, 5, shouldCheckAddedStairs);
+		int wallHeight = GetWallHeight(x, y, 5, shouldCheckAddedStairs);
 		if (wallHeight > 2)
 			return true;
 
@@ -225,7 +225,7 @@ void Lem::UpdateWalk()
 
 	// check if there's a stair in front of me, or a ground under my feet, if no ground, I start to fall
 	int inFrontXInside = isMirrored ? mPosX : mPosX+2;
-	int wallHeight = IsThereAWall(inFrontXInside, posY+4, 3, true);
+	int wallHeight = GetWallHeight(inFrontXInside, posY+4, 3, true);
 	if (wallHeight > 0)
 	{
 		// step on the stair
@@ -249,7 +249,7 @@ void Lem::UpdateWalk()
 	}
 	
 	// now check if there's a wall in front (don't check the added stairs to go through)
-	wallHeight = IsThereAWall(inFrontXOutside, mPosY+1, 5, false);
+	wallHeight = GetWallHeight(inFrontXOutside, mPosY+1, 5, false);
 	if (wallHeight > 2)
 	{
 		// but if the wall is taller, either we climb or we need to reverse direction
@@ -359,8 +359,8 @@ void Lem::UpdateDigHoriz()
 		{
 			shouldTestGround = true;
 			// in last frame check if there's some pixel in front to continue to dig
-			if ((IsThereAWall(mIsDirectionMirrored ? mPosX+1 : mPosX+3, mPosY+1, 5, true) == 0) &&
-				(IsThereAWall(mIsDirectionMirrored ? mPosX : mPosX+4, mPosY+1, 5, true) == 0))
+			if ((GetWallHeight(mIsDirectionMirrored ? mPosX+1 : mPosX+3, mPosY+1, 5, true) == 0) &&
+				(GetWallHeight(mIsDirectionMirrored ? mPosX : mPosX+4, mPosY+1, 5, true) == 0))
 				SetCurrentState(StateId::WALK, mIsDirectionMirrored ? -2 : 0, 0);
 			break;
 		}
@@ -425,7 +425,7 @@ bool Lem::UpdateStair()
 			// (do not consider the stairs added by me or another stairer)
 			if (LemManager::IsThereABlockerAt(inFrontX, mPosY+1, mIsDirectionMirrored) || 
 				LemManager::IsThereABlockerAt(inFrontX-1, mPosY+1, mIsDirectionMirrored) || 
-				(IsThereAWall(inFrontX, mPosY+1, 5, false) > 2) || (IsThereAWall(inFrontX-1, mPosY+1, 5, false) > 2))
+				(GetWallHeight(inFrontX, mPosY+1, 5, false) > 2) || (GetWallHeight(inFrontX-1, mPosY+1, 5, false) > 2))
 			{
 				ReverseMirroredDirection();
 				if (mIsDirectionMirrored)
@@ -483,7 +483,7 @@ void Lem::UpdateClimb()
 	
 	// then check if we reach the top of the climb
 	// (we can consider the stairs for climber to climb above the stairs, or not to stop through the stairs)
-	int wallHeight = IsThereAWall(isMirrored ? mPosX-1 : mPosX+2, posY+1, 5, true);
+	int wallHeight = GetWallHeight(isMirrored ? mPosX-1 : mPosX+2, posY+1, 5, true);
 	if (wallHeight <= 3)
 	{
 		SetCurrentState(StateId::CLIMB_TOP, isMirrored ? -2 : 0, 0);
