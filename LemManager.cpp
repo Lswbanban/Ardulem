@@ -306,8 +306,6 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 		// only horizontal diggers check to request wall with a walker choice after, and for horizontal digger, we want to check stairs to dig through)
 		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(true))
 			currentLem = {challengerLemId, 4};
-		else
-			currentLem = {challengerLemId, 5};
 	}
 }
 
@@ -331,13 +329,6 @@ void LemManager::UpdateLemUnderCursor()
 	for (char i = 0; i < OutLemCount; ++i)
 		if (LemArray[i].InUnderCursorPosition())
 		{
-			// we found a potential candidate, if it is the first one, take it
-			if (currentLemChoice.LemId == -1)
-			{
-				currentLemChoice = {i, 10};
-				continue;
-			}
-			
 			// otherwise check if it is better one
 			switch (HUD::GetSelectedButton())
 			{
