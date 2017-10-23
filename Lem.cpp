@@ -257,12 +257,13 @@ void Lem::UpdateWalk()
 	}
 	else
 	{
-		// check the pixel just under
-		int groundDepth = GetGroundDepth(mPosX+1, posY+6, false, false);
+		// check the pixel under and the pixel behind
+		// (no need to check in front because it was already done in the GetWallHeight)
+		int groundDepth = GetGroundDepth(mPosX+1, posY+6, false, true);
 		if (groundDepth > 2)
 		{
 			// no pixel in front of me (inside), and no pixel just under, so fall
-			SetCurrentState(StateId::START_FALL, isMirrored ? -1 : 0, 1);
+			SetCurrentState(StateId::START_FALL, -1, 1);
 			return;
 		}
 		else
