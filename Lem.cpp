@@ -176,7 +176,7 @@ int Lem::GetWallHeight(int x, int y, int height, bool shouldCheckAddedStairs)
 
 // check 3 column in front of the lem (depending of its walking direction) if there's a wall
 // taller than a step.
-bool Lem::IsThereAWallInFrontOfYou(bool shouldCheckAddedStairs)
+bool Lem::IsThereAWallInFrontOfYou(int minHeight, bool shouldCheckAddedStairs)
 {
 	int y = mPosY+1;
 	int x = mPosX+3;
@@ -192,7 +192,7 @@ bool Lem::IsThereAWallInFrontOfYou(bool shouldCheckAddedStairs)
 	{
 		// check if the wall is taller than a step
 		int wallHeight = GetWallHeight(x, y, 5, shouldCheckAddedStairs);
-		if (wallHeight > 2)
+		if (wallHeight > minHeight)
 			return true;
 
 		// increment x for the test of next column

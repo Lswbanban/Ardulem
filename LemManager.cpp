@@ -282,7 +282,7 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_BEFORE_OTHER) && !hasChallengerARole)
 	{
 		// only climber check to request wall with a walker choice before, and for climber, we don't want to check stairs)
-		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(false))
+		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(2, false))
 			currentLem = {challengerLemId, 2};
 		else
 			currentLem = {challengerLemId, 5};
@@ -304,7 +304,7 @@ void LemManager::ChooseBestLem(LemChoice & currentLem, char challengerLemId, boo
 	if ((walkerChoicePreference == WalkerChoicePreference::CHOOSE_AFTER_OTHER) && !hasChallengerARole)
 	{
 		// only horizontal diggers check to request wall with a walker choice after, and for horizontal digger, we want to check stairs to dig through)
-		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(true))
+		if (!preferWalkerWithWallInFront || LemArray[challengerLemId].IsThereAWallInFrontOfYou(0, true))
 			currentLem = {challengerLemId, 4};
 	}
 }
@@ -579,7 +579,7 @@ void LemManager::CheckLemTimers()
 			else if ((LemTimerList[i].RemainingTick == 3) && !LemTimerList[i].IsBombTimer)
 			{
 				// start a stair led count down
-				LEDManager::StartLEDCommand(LEDManager::LEM, {0,1,0,4,currentFPS-4,65,1,3});
+				LEDManager::StartLEDCommand(LEDManager::LEM, {0,1,0,4,(unsigned int)(currentFPS-4),65,1,3});
 			}
 		}
 	}

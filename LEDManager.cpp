@@ -7,8 +7,8 @@ namespace LEDManager
 
 	struct LEDStatus
 	{
-		char IsOn		: 1;
-		char FrameCount : 7;
+		unsigned char IsOn		: 1;
+		unsigned char FrameCount : 7;
 	};
 
 	struct LEDBuffer

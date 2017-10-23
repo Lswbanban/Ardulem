@@ -9,14 +9,14 @@ namespace LEDManager
 {
 	struct LEDCommand
 	{
-		int Red				:1;
-		int Green			:1;
-		int Blue			:1;
-		int OnDuration		:6;
-		int OffDuration		:7;
-		char BaseNote;
-		char NoteIncrement	:4;
-		char RepeatTime		:4;
+		unsigned int Red			:1;
+		unsigned int Green			:1;
+		unsigned int Blue			:1;
+		unsigned int OnDuration		:6;
+		unsigned int OffDuration	:7;
+		unsigned char BaseNote;		
+		char NoteIncrement			:4; // increment can be negative
+		unsigned char RepeatTime	:4;
 	};
 
 	enum BufferId

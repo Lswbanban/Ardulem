@@ -41,7 +41,7 @@ public:
 	bool			PromoteParachuter()		{ bool wasPromoted = (mIsAParachuter == 0); mIsAParachuter = 1; return wasPromoted; }
 	bool			IsAParachuter()			{ return mIsAParachuter; }
 	bool			IsDirectionMirrored()	{ return mIsDirectionMirrored; }
-	bool			IsThereAWallInFrontOfYou(bool shouldCheckAddedStairs);
+	bool			IsThereAWallInFrontOfYou(int minHeight, bool shouldCheckAddedStairs);
 	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
