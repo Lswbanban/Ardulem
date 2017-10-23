@@ -46,7 +46,7 @@ bool Lem::UpdateState()
 		return false;
 
 	// check if the lem arrived in home
-	if ((mPosX+3 >= MapManager::GetHomeX()) && (mPosX <= MapManager::GetHomeX()) && (mPosY+5 >= MapManager::GetHomeY()) && (mPosY <= MapManager::GetHomeY()))
+	if ((mCurrentState != StateId::DEAD) && (mPosX+3 >= MapManager::GetHomeX()) && (mPosX <= MapManager::GetHomeX()) && (mPosY+5 >= MapManager::GetHomeY()) && (mPosY <= MapManager::GetHomeY()))
 	{
 		LemManager::NotifyInHomeLem();
 		SetCurrentState(StateId::DEAD, 0, 0);
