@@ -49,7 +49,7 @@ bool Lem::UpdateState()
 	if ((mPosX+3 >= MapManager::GetHomeX()) && (mPosX <= MapManager::GetHomeX()) && (mPosY+5 >= MapManager::GetHomeY()) && (mPosY <= MapManager::GetHomeY()))
 	{
 		LemManager::NotifyInHomeLem();
-		SetCurrentState(StateId::DEAD);
+		SetCurrentState(StateId::DEAD, 0, 0);
 		return true;
 	}
 
@@ -237,7 +237,7 @@ void Lem::UpdateByeByeBoom()
 		mIsAClimber = 0;
 		mIsAParachuter = 0;
 		mIsDirectionMirrored = 0;
-		SetCurrentState(StateId::EXPLOSION_FX);
+		SetCurrentState(StateId::EXPLOSION_FX, 0, 0);
 	}
 }
 
@@ -322,7 +322,7 @@ void Lem::UpdateExplosion()
 {
 	// check if it is a climber because we use the 3 flags to extends the frame count of the explosion
 	if (mIsAClimber && IsLastFrame())
-		SetCurrentState(StateId::DEAD);
+		SetCurrentState(StateId::DEAD, 0, 0);
 }
 
 void Lem::Dig8Pixels(int x, int y, unsigned int pixels)
@@ -530,7 +530,7 @@ void Lem::UpdateClimbTop()
 	// no need to check the ground during that anim, because the whole anim is played on the wall edge
 	// and when I have finished the climb top anim, I go to Walk
 	if (IsLastFrame())
-		SetCurrentState(StateId::WALK);
+		SetCurrentState(StateId::WALK, 0, 0);
 }
 
 void Lem::UpdateStartFall()
@@ -544,7 +544,7 @@ void Lem::UpdateStartFall()
 	
 	// and when I have finished the start to Fall anim, I go to Fall
 	if (IsLastFrame())
-		SetCurrentState(StateId::FALL);
+		SetCurrentState(StateId::FALL, 0, 0);
 }
 
 void Lem::UpdateFall()
@@ -560,7 +560,7 @@ void Lem::UpdateFall()
 		if (mIsAParachuter)
 			SetCurrentState(StateId::PARACHUTE, 1, 0);
 		else
-			SetCurrentState(StateId::FALL_TO_DEATH);
+			SetCurrentState(StateId::FALL_TO_DEATH, 0, 0);
 	}
 }
 
@@ -582,7 +582,7 @@ void Lem::UpdateCrash()
 {
 	// if it's the last frame, we are dead
 	if (IsLastFrame())
-		SetCurrentState(StateId::DEAD);
+		SetCurrentState(StateId::DEAD, 0, 0);
 }
 
 void Lem::UpdateParachute()
@@ -800,7 +800,7 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 	// if the position are outside the boundary of the Map, the lem is dead
 	if (!isInsideMap)
 	{
-		SetCurrentState(StateId::DEAD);
+		SetCurrentState(StateId::DEAD, 0, 0);
 		return false;
 	}
 	
@@ -907,8 +907,20 @@ void Lem::DrawExplosiontFx()
 	}
 }
 
+int Lem::GetRootPosition(StateId stateId)
+{
+	int normalRoot = (pgm_read_byte_near(LemAnimRootPosition + (stateId >> 2)) >> ((stateId % 4) << 1)) & 0x0003;
+	if (mIsDirectionMirrored)
+		return pgm_read_byte_near(LemAnimWidthPerLemState + stateId) - 1 - normalRoot;
+	return normalRoot;
+}
+
 void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 {
+	// if the shiftX == 255, that means we need to compute the shift X 
+	// by placing the root of the new anim at the place of the root of the old anim
+	if (shiftX == 255)
+		shiftX = GetRootPosition((StateId)mCurrentState) - GetRootPosition(stateId);
 	// set the state id and reset the current frame
 	mCurrentState = stateId;
 	mCurrentAnimFrame = 0;

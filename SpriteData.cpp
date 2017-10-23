@@ -104,6 +104,30 @@ const unsigned char LemAnimFrameCountPerLemState[] PROGMEM = {
 	ANIM_LEM_PARA_FRAME_COUNT
 };
 
+// The X,Y coord of the lems on screen is the top left corner of the sprite.
+// When we switch anim, we need to keep the lem at the same place, but some animation
+// is 3 pixels wide and some 5 pixels wide. This can shift the lem if we draw the 2 anim at
+// the same position. The following LemAnimRootPosition array, store for each anim where is
+// the root position (in X) of the lem, i.e. the position of his body (in pixel) inside the sprite.
+const unsigned char LemAnimRootPosition[] PROGMEM = {
+	0		 |	//DEAD
+	0		 |	//EXPLOSION_FX,
+	(2 << 4) |	//CRASH,
+	(2 << 6),	//BYE_BYE_BOOM,
+	(1 << 0) |	//WALK,
+	(2 << 2) |	//BLOCKER,
+	(2 << 4) |	//DIG_DIAG,
+	(1 << 6),	//DIG_HORIZ,
+	(2 << 0) |	//DIG_VERT,
+	(1 << 2) |	//STAIR,
+	(0 << 4) |	//CLIMB,
+	(1 << 6),	//CLIMB_TOP,
+	(1 << 0) |	//START_FALL,
+	(2 << 2) |	//FALL,
+	(2 << 4) |	//FALL_TO_DEATH,
+	(1 << 6)	//PARACHUTE
+};
+
 // Start and Home
 const unsigned char anim_Start[][8] PROGMEM =
 	{ {0x00, 0x1, 0x3, 0x7, 0x7, 0x7, 0x7, 0x7, }, {0x00, 0x1, 0x3, 0x7, 0xf, 0xf, 0xd, 0x7, }, {0x00, 0x3, 0x7, 0x1f, 0x3f, 0x1d, 0x5, 0x5, }, {0xf8, 0x7f, 0x1d, 0x5, 0x5, 0x5, 0x5, 0x5, }, {0x00, 0x1f, 0xfd, 0x3d, 0x5, 0x5, 0x5, 0x5, }, {0x00, 0xff, 0x7f, 0x3d, 0x5, 0x5, 0x5, 0x5, } };

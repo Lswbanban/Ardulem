@@ -89,6 +89,7 @@ extern const unsigned char anim_Parachute[][7];
 // all the anim width and frame count ordered by state
 extern const unsigned char LemAnimWidthPerLemState[];
 extern const unsigned char LemAnimFrameCountPerLemState[];
+extern const unsigned char LemAnimRootPosition[];
 
 /*
  * Start and Home

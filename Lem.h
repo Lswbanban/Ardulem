@@ -35,7 +35,7 @@ public:
 	bool			InUnderCursorPosition();
 	bool			IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror);
 	unsigned char	GetCurrentState()		{ return mCurrentState;}
-	void			SetCurrentState(StateId stateId, int shiftX = 0, int shiftY = 0);
+	void			SetCurrentState(StateId stateId, int shiftX = 255, int shiftY = 0);
 	bool			PromoteClimber()		{ bool wasPromoted = (mIsAClimber == 0); mIsAClimber = 1; return wasPromoted; }
 	bool			IsAClimber()			{ return mIsAClimber; }
 	bool			PromoteParachuter()		{ bool wasPromoted = (mIsAParachuter == 0); mIsAParachuter = 1; return wasPromoted; }
@@ -96,6 +96,7 @@ private:
 	unsigned int	GetFrameRateForCurrentAnim(bool useSlowAnimation);
 	unsigned int	GetFrameCountForCurrentAnim();
 	unsigned int 	GetFrameWidthForCurrentAnim();
+	int				GetRootPosition(StateId stateId);
 };
 
 #endif
