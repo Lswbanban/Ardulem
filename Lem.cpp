@@ -97,7 +97,10 @@ int Lem::GetGroundDepth(int x, int y, bool checkInFront, bool checkBehind)
 	// if y is outside the map, that means there's no ground
 	if (!IsXInsideWorld(x) || !IsYInsideWorld(y))
 		return INFINITE_DEPTH;
-	
+
+	// the return value (we will take the min value)
+	int depth = INFINITE_DEPTH;
+
 	// pixel under
 	unsigned char pixelsUnder = MapManager::GetPixelsColumn(x, y, CHECK_DEPTH, true);
 	if (pixelsUnder != 0)
@@ -105,25 +108,29 @@ int Lem::GetGroundDepth(int x, int y, bool checkInFront, bool checkBehind)
 		// search the first set pixel
 		for (int i = 0; i < CHECK_DEPTH; i++)
 			if (pixelsUnder & (1<<i))
-				return i;
+			{
+				depth = i;
+				break;
+			}
 	}
-
-	// get the mirror flag
-	bool isMirrored = mIsDirectionMirrored;
 
 	// pixel in front
 	if (checkInFront)		
 	{
-		int depth = GetGroundDepth(isMirrored ? x-1 : x+1, y, false, false);
-		if (depth != INFINITE_DEPTH)
-			return depth;
+		int frontDepth = GetGroundDepth(mIsDirectionMirrored ? x-1 : x+1, y, false, false);
+		if (frontDepth < depth)
+			depth = frontDepth;
 	}
 	
 	// pixel behind
 	if (checkBehind)
-		return GetGroundDepth(isMirrored ? x+1 : x-1, y, false, false);
+	{
+		int behindDepth = GetGroundDepth(mIsDirectionMirrored ? x+1 : x-1, y, false, false);
+		if (behindDepth < depth)
+			depth = behindDepth;
+	}
 
-	return INFINITE_DEPTH;
+	return depth;
 }
 
 bool Lem::IsThereRoofAt(int x, int y)
