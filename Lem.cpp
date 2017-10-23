@@ -166,15 +166,12 @@ int Lem::GetWallHeight(int x, int y, int height, bool shouldCheckAddedStairs)
 	// get the column of pixels
 	unsigned char pixelColumn = MapManager::GetPixelsColumn(x, y, height, shouldCheckAddedStairs);
 	// and try to find the highest pixel to determines the height of the wall
-	int wallHeight = 0;
 	for (int i = 0; i < height; ++i)
 		if ((pixelColumn >> i) & 0x01)
-		{
-			wallHeight = height-i;
-			break;
-		}
-	// return the height
-	return wallHeight;
+			return height-i;
+
+	// no wall at all was found
+	return 0;
 }
 
 // check 3 column in front of the lem (depending of its walking direction) if there's a wall

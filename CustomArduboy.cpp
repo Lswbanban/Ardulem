@@ -1,6 +1,5 @@
 #include "CustomArduboy.h"
 #include "Arduboy_glcdfont.c"
-#include "Arduboy_logo.c"
 
 CustomArduboy::CustomArduboy()
 {
