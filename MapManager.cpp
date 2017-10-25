@@ -236,7 +236,7 @@ void MapManager::DrawStartAndHome()
 		IntroAnimFrameIndex++;
 
 	// draw start
-	int startX = CurrentMapDescription.StartX-8;
+	int startX = CurrentMapDescription.StartX;
 	if (IsOnScreen(startX) || IsOnScreen(startX + 16))
 	{
 		// draw the start and its mirror

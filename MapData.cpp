@@ -49,7 +49,7 @@ const unsigned int Map02IdList[] PROGMEM = {
  */
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 	{ // -------- LEVEL -----------
-		26, //StartX
+		18, //StartX
 		37, //StartY
 		147, //HomeX
 		39, //HomeY
@@ -71,7 +71,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		(const unsigned int *)Map01IdList //SpriteIdList
 	},
 	{ // -------- LEVEL 02 -----------
-		230, //StartX
+		222, //StartX
 		10, //StartY
 		20, //HomeX
 		61, //HomeY

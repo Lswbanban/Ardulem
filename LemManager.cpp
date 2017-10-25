@@ -102,7 +102,7 @@ void LemManager::Update()
 		{
 			if (arduboy.everyXFrames(HUD::GetLemDropFrameRate()))
 			{
-				LemArray[OutLemCount++].Spawn(MapManager::GetStartX(), MapManager::GetStartY());
+				LemArray[OutLemCount++].Spawn();
 				SpawnLemCount++;
 			}
 		}

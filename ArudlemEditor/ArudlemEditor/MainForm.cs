@@ -246,7 +246,7 @@ namespace ArudlemEditor
 			{
 				gc.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
 				DrawStartAndHome(gc, m_CurrentLevelData.StartX, m_CurrentLevelData.StartY, this.m_StartImage);
-				DrawStartAndHome(gc, m_CurrentLevelData.HomeX, m_CurrentLevelData.HomeY, this.m_HomeImage);
+				DrawStartAndHome(gc, m_CurrentLevelData.HomeX-7, m_CurrentLevelData.HomeY-11, this.m_HomeImage);
 			}
 
             // finally draw the grid on top of it

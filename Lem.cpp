@@ -8,11 +8,11 @@
 // static functions
 unsigned char Lem::sRecursiveUpdateStateCount = 0;
 
-void Lem::Spawn(unsigned char x, unsigned char y)
+void Lem::Spawn()
 {
 	// set the position
-	mPosX = x;
-	mPosY = y;
+	mPosX = MapManager::GetStartX() + 6;
+	mPosY = MapManager::GetStartY();
 	mIsAClimber = 0;
 	mIsAParachuter = 0;
 	mIsDirectionMirrored = 0;

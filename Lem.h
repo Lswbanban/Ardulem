@@ -28,7 +28,7 @@ public:
 		PARACHUTE
 	};
 	
-	void			Spawn(unsigned char x, unsigned char y);
+	void			Spawn();
 	bool			Update();
 	void			Draw();
 	void			DrawTimerAboveHead(unsigned char timer);
