@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -37,9 +37,11 @@
 			this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.loadLevelFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveLevelToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.saveLevelDataToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawLevelGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.drawStartAndHomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.MapSpritePictureBox = new System.Windows.Forms.PictureBox();
@@ -95,7 +97,6 @@
 			this.MapIdsTextBox = new System.Windows.Forms.TextBox();
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.saveLevelDataToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -158,7 +159,7 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
 			this.newToolStripMenuItem.Text = "New Level";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
@@ -174,21 +175,31 @@
 			// 
 			this.saveLevelToClipboardToolStripMenuItem.Name = "saveLevelToClipboardToolStripMenuItem";
 			this.saveLevelToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.saveLevelToClipboardToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
+			this.saveLevelToClipboardToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
 			this.saveLevelToClipboardToolStripMenuItem.Text = "Save Level to Clipboard";
 			this.saveLevelToClipboardToolStripMenuItem.Click += new System.EventHandler(this.saveLevelToClipboardToolStripMenuItem_Click);
+			// 
+			// saveLevelDataToClipboardToolStripMenuItem
+			// 
+			this.saveLevelDataToClipboardToolStripMenuItem.Name = "saveLevelDataToClipboardToolStripMenuItem";
+			this.saveLevelDataToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
+						| System.Windows.Forms.Keys.C)));
+			this.saveLevelDataToClipboardToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
+			this.saveLevelDataToClipboardToolStripMenuItem.Text = "Save Level Data to Clipboard";
+			this.saveLevelDataToClipboardToolStripMenuItem.Click += new System.EventHandler(this.saveLevelDataToClipboardToolStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.drawLevelGridToolStripMenuItem});
+            this.drawLevelGridToolStripMenuItem,
+            this.drawStartAndHomeToolStripMenuItem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.editToolStripMenuItem.Text = "Edit";
@@ -200,9 +211,18 @@
 			this.drawLevelGridToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.drawLevelGridToolStripMenuItem.Name = "drawLevelGridToolStripMenuItem";
 			this.drawLevelGridToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F5;
-			this.drawLevelGridToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+			this.drawLevelGridToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
 			this.drawLevelGridToolStripMenuItem.Text = "Draw Level Grid";
 			this.drawLevelGridToolStripMenuItem.Click += new System.EventHandler(this.drawLevelGridToolStripMenuItem_Click);
+			// 
+			// drawStartAndHomeToolStripMenuItem
+			// 
+			this.drawStartAndHomeToolStripMenuItem.Checked = true;
+			this.drawStartAndHomeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.drawStartAndHomeToolStripMenuItem.Name = "drawStartAndHomeToolStripMenuItem";
+			this.drawStartAndHomeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
+			this.drawStartAndHomeToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+			this.drawStartAndHomeToolStripMenuItem.Text = "Draw Start and Home";
 			// 
 			// splitContainer1
 			// 
@@ -680,6 +700,7 @@
 			this.HomeYNumeric.Name = "HomeYNumeric";
 			this.HomeYNumeric.Size = new System.Drawing.Size(48, 20);
 			this.HomeYNumeric.TabIndex = 5;
+			this.HomeYNumeric.ValueChanged += new System.EventHandler(this.HomeYNumeric_ValueChanged);
 			// 
 			// HomeXNumeric
 			// 
@@ -692,6 +713,7 @@
 			this.HomeXNumeric.Name = "HomeXNumeric";
 			this.HomeXNumeric.Size = new System.Drawing.Size(48, 20);
 			this.HomeXNumeric.TabIndex = 4;
+			this.HomeXNumeric.ValueChanged += new System.EventHandler(this.HomeXNumeric_ValueChanged);
 			// 
 			// StartYNumeric
 			// 
@@ -704,6 +726,7 @@
 			this.StartYNumeric.Name = "StartYNumeric";
 			this.StartYNumeric.Size = new System.Drawing.Size(48, 20);
 			this.StartYNumeric.TabIndex = 3;
+			this.StartYNumeric.ValueChanged += new System.EventHandler(this.StartYNumeric_ValueChanged);
 			// 
 			// StartXNumeric
 			// 
@@ -716,6 +739,7 @@
 			this.StartXNumeric.Name = "StartXNumeric";
 			this.StartXNumeric.Size = new System.Drawing.Size(48, 20);
 			this.StartXNumeric.TabIndex = 2;
+			this.StartXNumeric.ValueChanged += new System.EventHandler(this.StartXNumeric_ValueChanged);
 			// 
 			// label4
 			// 
@@ -793,7 +817,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem3});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -864,15 +888,6 @@
 			this.label1.Size = new System.Drawing.Size(55, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Loca Map";
-			// 
-			// saveLevelDataToClipboardToolStripMenuItem
-			// 
-			this.saveLevelDataToClipboardToolStripMenuItem.Name = "saveLevelDataToClipboardToolStripMenuItem";
-			this.saveLevelDataToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-						| System.Windows.Forms.Keys.C)));
-			this.saveLevelDataToClipboardToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
-			this.saveLevelDataToClipboardToolStripMenuItem.Text = "Save Level Data to Clipboard";
-			this.saveLevelDataToClipboardToolStripMenuItem.Click += new System.EventHandler(this.saveLevelDataToClipboardToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -994,6 +1009,7 @@
 		private System.Windows.Forms.Label label20;
 		private System.Windows.Forms.CheckBox ExportWithWinEOLCheckBox;
 		private System.Windows.Forms.ToolStripMenuItem saveLevelDataToClipboardToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem drawStartAndHomeToolStripMenuItem;
     }
 }
 

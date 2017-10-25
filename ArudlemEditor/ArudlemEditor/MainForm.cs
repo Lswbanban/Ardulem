@@ -23,6 +23,8 @@ namespace ArudlemEditor
         #region variables
         private Bitmap m_MapSpriteImage = null;
 		private Bitmap m_MapSpriteImageMirrored = null;
+		private Bitmap m_StartImage = null;
+		private Bitmap m_HomeImage = null;
 		private Pen m_MapSpriteLinesPen = new Pen(Color.Yellow, 4f);
         private Pen m_MapSpriteSelectionPen = new Pen(Color.Red, 4f);
         private Pen m_LevelLinesPen = new Pen(Color.Yellow, 1f);
@@ -48,39 +50,97 @@ namespace ArudlemEditor
             Bitmap originalMapSpriteImage = new Bitmap(mapSpritePath);
             m_MapSpriteImage = new Bitmap(originalMapSpriteImage, originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
 			// create the mirrored image from the loaded one
-			CreateMirroredImage(m_MapSpriteImage);
+			m_MapSpriteImageMirrored = new Bitmap(m_MapSpriteImage);
+			CreateTaintedAndMirroredImage(m_MapSpriteImage, Rectangle.Empty, ref m_MapSpriteImageMirrored, true, 0.5f, 0.7f, 1f);
             // and init the image
             DrawMapSprite();
-        }
 
-		private void CreateMirroredImage(Bitmap image)
+			// get the START
+			string startSpritePath = Application.StartupPath + @"/../../../../Assets/Start.png";
+			Bitmap startSpriteImage = new Bitmap(startSpritePath);
+			//draw only the last frame of the start and mirror it
+			Bitmap lastFrameImage = new Bitmap(8,8);
+			CreateTaintedAndMirroredImage(startSpriteImage, new Rectangle(40,0,8,8), ref lastFrameImage, false, 1f, 0.7f, 0.5f);
+			Bitmap lastFrameMirroredImage = new Bitmap(8, 8);
+			CreateTaintedAndMirroredImage(startSpriteImage, new Rectangle(40,0,8,8), ref lastFrameMirroredImage, true, 1f, 0.7f, 0.5f);
+			// draw the two part in the final image
+			m_StartImage = new Bitmap(16, 8);
+			Graphics gc = Graphics.FromImage(m_StartImage);
+			SetGCInPixelMode(ref gc);
+			gc.DrawImage(lastFrameImage,	// source image
+				new Rectangle(0, 0, 8, 8),  // destination rectangle 
+				new Rectangle(0, 0, 8, 8),	// source rectangle
+				GraphicsUnit.Pixel);
+			gc.DrawImage(lastFrameMirroredImage,// source image
+				new Rectangle(8, 0, 8, 8),		// destination rectangle 
+				new Rectangle(0, 0, 8, 8),		// source rectangle
+				GraphicsUnit.Pixel);
+			m_StartImage.MakeTransparent(Color.Black);
+
+			// get the HOME
+			string homeSpritePath = Application.StartupPath + @"/../../../../Assets/Home.png";
+			Bitmap homeSpriteImage = new Bitmap(homeSpritePath);
+			// get the bottom and top parts
+			Bitmap homeBottomImage = new Bitmap(15, 8);
+			CreateTaintedAndMirroredImage(homeSpriteImage, new Rectangle(0, 0, 15, 8), ref homeBottomImage, false, 1f, 0.7f, 0.5f);
+			Bitmap homeTopImage = new Bitmap(5, 4);
+			CreateTaintedAndMirroredImage(homeSpriteImage, new Rectangle(16, 0, 5, 4), ref homeTopImage, false, 1f, 0.7f, 0.5f);
+			// draw the two parts of home
+			m_HomeImage = new Bitmap(15, 12);
+			gc = Graphics.FromImage(m_HomeImage);
+			SetGCInPixelMode(ref gc);
+			gc.Clear(Color.Black);
+			gc.DrawImage(homeBottomImage,	// source image
+				new Rectangle(0, 4, 15, 8), // destination rectangle 
+				new Rectangle(0, 0, 15, 8),	// source rectangle
+				GraphicsUnit.Pixel);
+			gc.DrawImage(homeTopImage,		// source image
+				new Rectangle(5, 0, 5, 4),  // destination rectangle 
+				new Rectangle(0, 0, 5, 4),	// source rectangle
+				GraphicsUnit.Pixel);
+			m_HomeImage.MakeTransparent(Color.Black);
+		}
+
+		private void CreateTaintedAndMirroredImage(Bitmap sourceImage, Rectangle sourceRectangle, ref Bitmap resultImage, bool shouldMirror, float red, float green, float blue)
 		{
-			// copy the image in the mirrored image
-			m_MapSpriteImageMirrored = new Bitmap(image);
-
 			// Create some image attribut to change the color of the mirrored image
 			ImageAttributes imageAttributes = new ImageAttributes();
 			float[][] colorMatrixElements = { 
-			   new float[] {.5f,  0,  0,  0, 0},     // red scaling factor of 0
-			   new float[] {0,  .7f,  0,  0, 0},     // green scaling factor of 0
-			   new float[] {0,  0,  1,  0, 0},     // blue scaling factor of 1
+			   new float[] {red,  0,  0,  0, 0},     // red scaling factor
+			   new float[] {0,  green,  0,  0, 0},     // green scaling factor
+			   new float[] {0,  0,  blue,  0, 0},     // blue scaling factor
 			   new float[] {0,  0,  0,  1, 0},     // alpha scaling factor of 1
 			   new float[] {0,  0,  0,  0, 1}};    // translations
 			ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
 			imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
+			// check if the source rectangle is empty, use the full source image
+			if (sourceRectangle.IsEmpty)
+				sourceRectangle = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height);
+
 			// paint the image in the mirrored one with the image attribute
-			Graphics gc = Graphics.FromImage(m_MapSpriteImageMirrored);
-			gc.DrawImage(image,		// source image
-				new Rectangle(0, 0, image.Width, image.Height),  // destination rectangle 
-				0, 0,				// upper-left corner of source rectangle 
-				image.Width,		// width of source rectangle
-				image.Height,		// height of source rectangle
+			Graphics gc = Graphics.FromImage(resultImage);
+			SetGCInPixelMode(ref gc);
+			gc.DrawImage(sourceImage,		// source image
+				new Rectangle(0, 0, resultImage.Width, resultImage.Height),  // destination rectangle 
+				sourceRectangle.X,
+				sourceRectangle.Y,			// upper-left corner of source rectangle 
+				sourceRectangle.Width,		// width of source rectangle
+				sourceRectangle.Height,		// height of source rectangle
 				GraphicsUnit.Pixel,
 				imageAttributes);
 
-			// and mirror it
-			m_MapSpriteImageMirrored.RotateFlip(RotateFlipType.RotateNoneFlipX);
+			// and mirror it if needed
+			if (shouldMirror)
+				resultImage.RotateFlip(RotateFlipType.RotateNoneFlipX);
+		}
+
+		private void SetGCInPixelMode(ref Graphics gc)
+		{
+			gc.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+			gc.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
+			gc.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
+			gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 		}
         #endregion
 
@@ -142,6 +202,7 @@ namespace ArudlemEditor
 
             // get the gc of the image
             Graphics gc = Graphics.FromImage(this.LevelPictureBox.Image);
+			SetGCInPixelMode(ref gc);
 
             // get the sprite cell size and level cell size
             SizeF spriteCellSize = GetMapSpriteCellSize(m_MapSpriteImage.Size);
@@ -172,10 +233,26 @@ namespace ArudlemEditor
                     }
                 }
 
+			// draw the start and home
+			if (this.drawStartAndHomeToolStripMenuItem.Checked)
+			{
+				gc.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceOver;
+				DrawStartAndHome(gc, m_CurrentLevelData.StartX, m_CurrentLevelData.StartY, this.m_StartImage);
+				DrawStartAndHome(gc, m_CurrentLevelData.HomeX, m_CurrentLevelData.HomeY, this.m_HomeImage);
+			}
+
             // finally draw the grid on top of it
             if (this.drawLevelGridToolStripMenuItem.Checked)
                 DrawMapSpriteLines(gc, this.LevelPictureBox.Image.Size, Level.LEVEL_WIDTH, Level.LEVEL_HEIGHT, m_LevelLinesPen);
         }
+
+		private void DrawStartAndHome(Graphics gc, int x, int y, Bitmap startOrHomeImage)
+		{
+			SizeF scale = new SizeF((float)this.LevelPictureBox.Image.Width / 256f, (float)this.LevelPictureBox.Image.Height / 64f);
+			Rectangle sourceRectangle = new Rectangle(0, 0, startOrHomeImage.Width, startOrHomeImage.Height);
+			Rectangle destRectangle = new Rectangle((int)(x * scale.Width), (int)(y * scale.Height), (int)(startOrHomeImage.Width * scale.Width), (int)(startOrHomeImage.Height * scale.Height));
+			gc.DrawImage(startOrHomeImage, destRectangle, sourceRectangle, GraphicsUnit.Pixel);
+		}
         #endregion
 
         #region form events from menus
@@ -205,6 +282,9 @@ namespace ArudlemEditor
 				isOk = m_CurrentLevelData.LoadFromClipboard();
 				if (isOk)
 				{
+					// redraw the level (because start and home position may have change)
+					DrawLevel();
+
 					// set the various data parsed
 					this.StartXNumeric.Value = m_CurrentLevelData.StartX;
 					this.StartYNumeric.Value = m_CurrentLevelData.StartY;
@@ -362,6 +442,30 @@ namespace ArudlemEditor
 				if (this.TimeMinNumeric.Value < this.TimeMinNumeric.Maximum)
 					this.TimeMinNumeric.Value = (int)this.TimeMinNumeric.Value + 1;
 			}
+		}
+
+		private void StartXNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.StartX = (int)this.StartXNumeric.Value;
+			DrawLevel();
+		}
+
+		private void StartYNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.StartY = (int)this.StartYNumeric.Value;
+			DrawLevel();
+		}
+
+		private void HomeXNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.HomeX = (int)this.HomeXNumeric.Value;
+			DrawLevel();
+		}
+
+		private void HomeYNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.HomeY = (int)this.HomeYNumeric.Value;
+			DrawLevel();
 		}
 		#endregion
 	}
