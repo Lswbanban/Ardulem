@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -64,6 +64,7 @@
 			this.WalkNumeric = new System.Windows.Forms.NumericUpDown();
 			this.label11 = new System.Windows.Forms.Label();
 			this.groupBox4 = new System.Windows.Forms.GroupBox();
+			this.label20 = new System.Windows.Forms.Label();
 			this.MinDropSpeedNumeric = new System.Windows.Forms.NumericUpDown();
 			this.label10 = new System.Windows.Forms.Label();
 			this.RequiredLemCountNumeric = new System.Windows.Forms.NumericUpDown();
@@ -82,6 +83,7 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.ExportWithWinEOLCheckBox = new System.Windows.Forms.CheckBox();
 			this.TrimLevelCheckBox = new System.Windows.Forms.CheckBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.HelpTableListView = new System.Windows.Forms.ListView();
@@ -93,8 +95,6 @@
 			this.MapIdsTextBox = new System.Windows.Forms.TextBox();
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.label20 = new System.Windows.Forms.Label();
-			this.ExportWithWinEOLCheckBox = new System.Windows.Forms.CheckBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -295,6 +295,11 @@
 			// ParachuteNumeric
 			// 
 			this.ParachuteNumeric.Location = new System.Drawing.Point(287, 91);
+			this.ParachuteNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.ParachuteNumeric.Name = "ParachuteNumeric";
 			this.ParachuteNumeric.Size = new System.Drawing.Size(40, 20);
 			this.ParachuteNumeric.TabIndex = 29;
@@ -311,6 +316,11 @@
 			// ClimbNumeric
 			// 
 			this.ClimbNumeric.Location = new System.Drawing.Point(173, 91);
+			this.ClimbNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.ClimbNumeric.Name = "ClimbNumeric";
 			this.ClimbNumeric.Size = new System.Drawing.Size(40, 20);
 			this.ClimbNumeric.TabIndex = 27;
@@ -327,6 +337,11 @@
 			// StairNumeric
 			// 
 			this.StairNumeric.Location = new System.Drawing.Point(62, 91);
+			this.StairNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.StairNumeric.Name = "StairNumeric";
 			this.StairNumeric.Size = new System.Drawing.Size(40, 20);
 			this.StairNumeric.TabIndex = 25;
@@ -343,6 +358,11 @@
 			// DigVertNumeric
 			// 
 			this.DigVertNumeric.Location = new System.Drawing.Point(287, 59);
+			this.DigVertNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.DigVertNumeric.Name = "DigVertNumeric";
 			this.DigVertNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigVertNumeric.TabIndex = 23;
@@ -359,6 +379,11 @@
 			// DigHorizNumeric
 			// 
 			this.DigHorizNumeric.Location = new System.Drawing.Point(173, 59);
+			this.DigHorizNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.DigHorizNumeric.Name = "DigHorizNumeric";
 			this.DigHorizNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigHorizNumeric.TabIndex = 21;
@@ -375,6 +400,11 @@
 			// DigDiagNumeric
 			// 
 			this.DigDiagNumeric.Location = new System.Drawing.Point(62, 59);
+			this.DigDiagNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.DigDiagNumeric.Name = "DigDiagNumeric";
 			this.DigDiagNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigDiagNumeric.TabIndex = 19;
@@ -391,6 +421,11 @@
 			// BombNumeric
 			// 
 			this.BombNumeric.Location = new System.Drawing.Point(287, 26);
+			this.BombNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.BombNumeric.Name = "BombNumeric";
 			this.BombNumeric.Size = new System.Drawing.Size(40, 20);
 			this.BombNumeric.TabIndex = 17;
@@ -407,6 +442,11 @@
 			// BlockNumeric
 			// 
 			this.BlockNumeric.Location = new System.Drawing.Point(173, 26);
+			this.BlockNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.BlockNumeric.Name = "BlockNumeric";
 			this.BlockNumeric.Size = new System.Drawing.Size(40, 20);
 			this.BlockNumeric.TabIndex = 15;
@@ -423,6 +463,11 @@
 			// WalkNumeric
 			// 
 			this.WalkNumeric.Location = new System.Drawing.Point(62, 26);
+			this.WalkNumeric.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
 			this.WalkNumeric.Name = "WalkNumeric";
 			this.WalkNumeric.Size = new System.Drawing.Size(40, 20);
 			this.WalkNumeric.TabIndex = 13;
@@ -462,6 +507,15 @@
 			this.groupBox4.TabIndex = 3;
 			this.groupBox4.TabStop = false;
 			this.groupBox4.Text = "Level Data";
+			// 
+			// label20
+			// 
+			this.label20.AutoSize = true;
+			this.label20.Location = new System.Drawing.Point(306, 109);
+			this.label20.Name = "label20";
+			this.label20.Size = new System.Drawing.Size(61, 13);
+			this.label20.TabIndex = 17;
+			this.label20.Text = "x 27 frames";
 			// 
 			// MinDropSpeedNumeric
 			// 
@@ -574,13 +628,14 @@
             0});
 			this.TimeSecNumeric.Location = new System.Drawing.Point(294, 77);
 			this.TimeSecNumeric.Maximum = new decimal(new int[] {
-            50,
+            60,
             0,
             0,
             0});
 			this.TimeSecNumeric.Name = "TimeSecNumeric";
 			this.TimeSecNumeric.Size = new System.Drawing.Size(43, 20);
 			this.TimeSecNumeric.TabIndex = 9;
+			this.TimeSecNumeric.ValueChanged += new System.EventHandler(this.TimeSecNumeric_ValueChanged);
 			// 
 			// label6
 			// 
@@ -689,6 +744,19 @@
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Export Options";
 			// 
+			// ExportWithWinEOLCheckBox
+			// 
+			this.ExportWithWinEOLCheckBox.AutoSize = true;
+			this.ExportWithWinEOLCheckBox.Checked = true;
+			this.ExportWithWinEOLCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.ExportWithWinEOLCheckBox.Location = new System.Drawing.Point(11, 40);
+			this.ExportWithWinEOLCheckBox.Name = "ExportWithWinEOLCheckBox";
+			this.ExportWithWinEOLCheckBox.Size = new System.Drawing.Size(209, 17);
+			this.ExportWithWinEOLCheckBox.TabIndex = 7;
+			this.ExportWithWinEOLCheckBox.Text = "Export with Windows EOL format (\\r\\n)";
+			this.ExportWithWinEOLCheckBox.UseVisualStyleBackColor = true;
+			this.ExportWithWinEOLCheckBox.CheckedChanged += new System.EventHandler(this.ExportWithWinEOLCheckBox_CheckedChanged);
+			// 
 			// TrimLevelCheckBox
 			// 
 			this.TrimLevelCheckBox.AutoSize = true;
@@ -723,7 +791,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem2});
+            listViewItem3});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -794,28 +862,6 @@
 			this.label1.Size = new System.Drawing.Size(55, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Loca Map";
-			// 
-			// label20
-			// 
-			this.label20.AutoSize = true;
-			this.label20.Location = new System.Drawing.Point(306, 109);
-			this.label20.Name = "label20";
-			this.label20.Size = new System.Drawing.Size(61, 13);
-			this.label20.TabIndex = 17;
-			this.label20.Text = "x 27 frames";
-			// 
-			// ExportWithWinEOLCheckBox
-			// 
-			this.ExportWithWinEOLCheckBox.AutoSize = true;
-			this.ExportWithWinEOLCheckBox.Checked = true;
-			this.ExportWithWinEOLCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.ExportWithWinEOLCheckBox.Location = new System.Drawing.Point(11, 40);
-			this.ExportWithWinEOLCheckBox.Name = "ExportWithWinEOLCheckBox";
-			this.ExportWithWinEOLCheckBox.Size = new System.Drawing.Size(209, 17);
-			this.ExportWithWinEOLCheckBox.TabIndex = 7;
-			this.ExportWithWinEOLCheckBox.Text = "Export with Windows EOL format (\\r\\n)";
-			this.ExportWithWinEOLCheckBox.UseVisualStyleBackColor = true;
-			this.ExportWithWinEOLCheckBox.CheckedChanged += new System.EventHandler(this.ExportWithWinEOLCheckBox_CheckedChanged);
 			// 
 			// MainForm
 			// 

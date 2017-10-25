@@ -15,15 +15,15 @@ namespace ArudlemEditor
 		private int m_TotalTimeIn10thSec = 0;
 		private int m_SpawnLemCount = 0;
 		private int m_RequiredLemCount = 0;
-		public int m_MinDropSpeed = 0;
-		public int m_Walker = 0;
-		public int m_Blocker = 0;
-		public int m_Bomber = 0;
-		public int m_DiagDigger = 0;
-		public int m_HorizDigger = 0;
-		public int m_VertDigger = 0;
-		public int m_Stairer = 0;
-		public int m_Climber = 0;
+		private int m_MinDropSpeed = 0;
+		private int m_Walker = 0;
+		private int m_Blocker = 0;
+		private int m_Bomber = 0;
+		private int m_DiagDigger = 0;
+		private int m_HorizDigger = 0;
+		private int m_VertDigger = 0;
+		private int m_Stairer = 0;
+		private int m_Climber = 0;
 		public int m_Parachuter = 0;
 		public string m_LocaMapName = string.Empty;
 		public string m_MapIdsName = string.Empty;
@@ -92,6 +92,66 @@ namespace ArudlemEditor
 			{
 				m_RequiredLemCount = value / 5;
 			}
+		}
+
+		public int MinDropSpeed
+		{
+			get { return Clamp(m_MinDropSpeed, 0, 15); }
+			set { m_MinDropSpeed = value; }
+		}
+
+		public int Walker
+		{
+			get { return Clamp(m_Walker, 0, 9); }
+			set { m_Walker = value; }
+		}
+
+		public int Blocker
+		{
+			get { return Clamp(m_Blocker, 0, 9); }
+			set { m_Blocker = value; }
+		}
+
+		public int Bomber
+		{
+			get { return Clamp(m_Bomber, 0, 9); }
+			set { m_Bomber = value; }
+		}
+
+		public int DiagDigger
+		{
+			get { return Clamp(m_DiagDigger, 0, 9); }
+			set { m_DiagDigger = value; }
+		}
+
+		public int HorizDigger
+		{
+			get { return Clamp(m_HorizDigger, 0, 9); }
+			set { m_HorizDigger = value; }
+		}
+
+		public int VertDigger
+		{
+			get { return Clamp(m_VertDigger, 0, 9); }
+			set { m_VertDigger = value; }
+		}
+
+		public int Stairer
+		{
+			get { return Clamp(m_Stairer, 0, 9); }
+			set { m_Stairer = value; }
+		}
+
+		public int Climber
+		{
+			get { return Clamp(m_Climber, 0, 9); }
+			set { m_Climber = value; }
+		}
+
+		public int Parachuter
+		{
+			get { return Clamp(m_Parachuter, 0, 9); }
+			set { m_Parachuter = value; }
 		}
 
 		private static int Clamp(int value, int min, int max)  

@@ -214,15 +214,15 @@ namespace ArudlemEditor
 					this.TimeSecNumeric.Value = m_CurrentLevelData.TimeSec;
 					this.SpawnLemCountNumeric.Value = m_CurrentLevelData.SpawnLemCount;
 					this.RequiredLemCountNumeric.Value = m_CurrentLevelData.RequiredLemCount;
-					this.MinDropSpeedNumeric.Value = m_CurrentLevelData.m_MinDropSpeed;
-					this.WalkNumeric.Value = m_CurrentLevelData.m_Walker;
-					this.BlockNumeric.Value = m_CurrentLevelData.m_Blocker;
-					this.BombNumeric.Value = m_CurrentLevelData.m_Bomber;
-					this.DigDiagNumeric.Value = m_CurrentLevelData.m_DiagDigger;
-					this.DigHorizNumeric.Value = m_CurrentLevelData.m_HorizDigger;
-					this.DigVertNumeric.Value = m_CurrentLevelData.m_VertDigger;
-					this.StairNumeric.Value = m_CurrentLevelData.m_Stairer;
-					this.ClimbNumeric.Value = m_CurrentLevelData.m_Climber;
+					this.MinDropSpeedNumeric.Value = m_CurrentLevelData.MinDropSpeed;
+					this.WalkNumeric.Value = m_CurrentLevelData.Walker;
+					this.BlockNumeric.Value = m_CurrentLevelData.Blocker;
+					this.BombNumeric.Value = m_CurrentLevelData.Bomber;
+					this.DigDiagNumeric.Value = m_CurrentLevelData.DiagDigger;
+					this.DigHorizNumeric.Value = m_CurrentLevelData.HorizDigger;
+					this.DigVertNumeric.Value = m_CurrentLevelData.VertDigger;
+					this.StairNumeric.Value = m_CurrentLevelData.Stairer;
+					this.ClimbNumeric.Value = m_CurrentLevelData.Climber;
 					this.ParachuteNumeric.Value = m_CurrentLevelData.m_Parachuter;
 					// also set the map names from the level data
 					this.LocaMapNameTextBox.Text = m_CurrentLevelData.m_LocaMapName;
@@ -306,6 +306,28 @@ namespace ArudlemEditor
 			// set both for Level and LevelData as they both use it
 			m_CurrentLevel.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
 			m_CurrentLevelData.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
+		}
+
+		private void TimeSecNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			// only accecpt 10th of seconds
+			int modulo = ((int)this.TimeSecNumeric.Value % 10);
+			if (modulo != 0)
+			{
+				int tenth = (int)TimeSecNumeric.Value / 10;
+				if (modulo < 5)
+					this.TimeSecNumeric.Value = tenth * 10;
+				else
+					this.TimeSecNumeric.Value = (tenth + 1) * 10;
+			}
+
+			if (this.TimeSecNumeric.Value == 60)
+			{
+				// reset the seconds and add one minute if possible
+				this.TimeSecNumeric.Value = 0;
+				if (this.TimeMinNumeric.Value < this.TimeMinNumeric.Maximum)
+					this.TimeMinNumeric.Value = (int)this.TimeMinNumeric.Value + 1;
+			}
 		}
 		#endregion
 	}
