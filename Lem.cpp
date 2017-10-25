@@ -922,12 +922,23 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	// by placing the root of the new anim at the place of the root of the old anim
 	if (shiftX == 255)
 		shiftX = GetRootPosition((StateId)mCurrentState) - GetRootPosition(stateId);
+	
 	// set the state id and reset the current frame
 	mCurrentState = stateId;
 	mCurrentAnimFrame = 0;
+	
 	// add the shift in x and y when transitionning
 	mPosX += shiftX;
 	mPosY += shiftY;
+
+	// for stair builder only, set 2 pixel under itself at start
+	if (stateId == STAIR)
+	{
+		int y = mPosY+6;
+		MapManager::SetPixel(mPosX+2, y,  true);
+		MapManager::SetPixel(mIsDirectionMirrored ? mPosX+3 : mPosX+1, y,  true);
+	}
+
 	// call update state again because we may need to change again
 	UpdateState();
 }
