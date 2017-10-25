@@ -493,7 +493,7 @@ bool Lem::UpdateStair()
 	}
 	
 	// get the pixel under my feet, if no ground, I start to fall
-	if (GetGroundDepth(mPosX+1, mPosY+6, true, true) > 0)
+	if (GetGroundDepth(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, true) > 0)
 	{
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 		return true;
