@@ -147,7 +147,7 @@ namespace ArudlemEditor
 			gc.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
 			gc.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 			gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-			gc.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.None;
+			gc.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
 		}
         #endregion
 
