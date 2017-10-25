@@ -48,7 +48,13 @@ namespace ArudlemEditor
             // get the original image
             string mapSpritePath = Application.StartupPath + @"/../../../../Assets/Maps/MapSprite.png";
             Bitmap originalMapSpriteImage = new Bitmap(mapSpritePath);
-            m_MapSpriteImage = new Bitmap(originalMapSpriteImage, originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
+			m_MapSpriteImage = new Bitmap(originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
+			Graphics gc = Graphics.FromImage(m_MapSpriteImage);
+			SetGCInPixelMode(ref gc);
+			gc.DrawImage(originalMapSpriteImage,	// source image
+				new Rectangle(0, 0, m_MapSpriteImage.Width, m_MapSpriteImage.Height),  // destination rectangle 
+				new Rectangle(0, 0, originalMapSpriteImage.Width, originalMapSpriteImage.Height),	// source rectangle
+				GraphicsUnit.Pixel);
 			// create the mirrored image from the loaded one
 			m_MapSpriteImageMirrored = new Bitmap(m_MapSpriteImage);
 			CreateTaintedAndMirroredImage(m_MapSpriteImage, Rectangle.Empty, ref m_MapSpriteImageMirrored, true, 0.5f, 0.7f, 1f);
@@ -65,7 +71,7 @@ namespace ArudlemEditor
 			CreateTaintedAndMirroredImage(startSpriteImage, new Rectangle(40,0,8,8), ref lastFrameMirroredImage, true, 1f, 0.7f, 0.5f);
 			// draw the two part in the final image
 			m_StartImage = new Bitmap(16, 8);
-			Graphics gc = Graphics.FromImage(m_StartImage);
+			gc = Graphics.FromImage(m_StartImage);
 			SetGCInPixelMode(ref gc);
 			gc.DrawImage(lastFrameImage,	// source image
 				new Rectangle(0, 0, 8, 8),  // destination rectangle 
@@ -139,8 +145,9 @@ namespace ArudlemEditor
 		{
 			gc.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
 			gc.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
-			gc.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Low;
+			gc.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
 			gc.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+			gc.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.None;
 		}
         #endregion
 
@@ -187,7 +194,8 @@ namespace ArudlemEditor
             
             // get the gc of the image
             Graphics gc = Graphics.FromImage(this.MapSpritePictureBox.Image);
-            
+			SetGCInPixelMode(ref gc);
+
             // draw the lines
             DrawMapSpriteLines(gc, this.MapSpritePictureBox.Image.Size, MAP_SPRITE_WIDTH, MAP_SPRITE_HEIGHT, m_MapSpriteLinesPen);
 
