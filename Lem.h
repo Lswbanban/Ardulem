@@ -81,7 +81,8 @@ private:
 	void 	UpdateCrash();
 	void 	UpdateParachute();
 	void	DrawExplosiontFx();
-	
+	void	CheckGroundAndStepDownOrFall(bool checkInFront, int shiftXIfFall);
+
 	// helper functions for update
 	bool	IsXInsideWorld(int x);
 	bool	IsYInsideWorld(int y);

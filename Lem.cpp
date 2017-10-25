@@ -241,14 +241,29 @@ void Lem::UpdateByeByeBoom()
 	}
 }
 
+void Lem::CheckGroundAndStepDownOrFall(bool checkInFront, int shiftXIfFall)
+{
+	// check the pixel under
+	int groundDepth = GetGroundDepth(GetPosXPlus(1), mPosY+6, checkInFront, true);
+	if (groundDepth > 2)
+	{
+		// no pixel in front of me (inside), and no pixel just under, so fall
+		SetCurrentState(StateId::START_FALL, shiftXIfFall, 1);
+		return;
+	}
+	else
+	{
+		// there's a ground a bit under (like a step down) so adjust the y
+		mPosY += groundDepth;
+	}
+}
+
 void Lem::UpdateWalk()
 {
-	// cache the posY because we may change it during this update, and still want to check more stuff with the original value
-	unsigned char posY = mPosY;
 	bool isMirrored = mIsDirectionMirrored;
 
 	// check if there's a stair in front of me, or a ground under my feet, if no ground, I start to fall
-	int wallHeight = GetWallHeight(GetPosXPlus(2), posY+4, 3, true);
+	int wallHeight = GetWallHeight(GetPosXPlus(2), mPosY+4, 3, true);
 	if (wallHeight > 0)
 	{
 		// step on the stair
@@ -256,19 +271,8 @@ void Lem::UpdateWalk()
 	}
 	else
 	{
-		// check the pixel under
-		int groundDepth = GetGroundDepth(mPosX+1, posY+6, false, true);
-		if (groundDepth > 2)
-		{
-			// no pixel in front of me (inside), and no pixel just under, so fall
-			SetCurrentState(StateId::START_FALL, -1, 1);
-			return;
-		}
-		else
-		{
-			// there's a ground a bit under (like a step down) so adjust the y
-			mPosY += groundDepth;
-		}
+		// no need to check in front, cause we have already check with the step up, with the wall height
+		CheckGroundAndStepDownOrFall(false, -1);
 	}
 
 	// get the x pixel in front of me
@@ -394,11 +398,11 @@ void Lem::UpdateDigHoriz()
 	}
 	
 	// get the pixel under my feet, if no ground, I start to fall
+	// we need to use the same function as walk, because the dig horiz can be triggered
+	// by the player 3 pixels before the wall, so if the ground is going down, the lem
+	// need to go down while reaching the wall, or he will fall before reaching the wall and stop the digging
 	if (shouldTestGround)
-	{
-		if (GetGroundDepth(GetPosXPlus(1), mPosY+6, true, false) > 0)
-			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
-	}
+		CheckGroundAndStepDownOrFall(true, mIsDirectionMirrored ? -1 : 0);
 }
 
 void Lem::UpdateDigVert()
@@ -687,8 +691,11 @@ bool Lem::UpdateCurrentAnim()
 								|| (currentFrame <= 2); // need to dig on the first frames
 				break;
 			case StateId::DIG_HORIZ:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0])) 
-								|| (currentFrame <= 1); // need to dig on the first frames
+				UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]));
+				// need to dig on the first frames (0,1,2), on frame 3 because we move 
+				// on frame 4, we move so we ought to update, but in fact we will check ground in last frame
+				// so update only on frame 0 to 3, and the 5 will be updated in the last frame
+				doesNeedUpdate = (currentFrame < 4);
 				break;
 			case StateId::DIG_VERT:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]))
