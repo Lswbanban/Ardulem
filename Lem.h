@@ -97,6 +97,7 @@ private:
 	unsigned int	GetFrameCountForCurrentAnim();
 	unsigned int 	GetFrameWidthForCurrentAnim();
 	int				GetRootPosition(StateId stateId);
+	int				GetPosXPlus(int plus);
 };
 
 #endif

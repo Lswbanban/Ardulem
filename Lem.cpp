@@ -248,8 +248,7 @@ void Lem::UpdateWalk()
 	bool isMirrored = mIsDirectionMirrored;
 
 	// check if there's a stair in front of me, or a ground under my feet, if no ground, I start to fall
-	int inFrontXInside = isMirrored ? mPosX : mPosX+2;
-	int wallHeight = GetWallHeight(inFrontXInside, posY+4, 3, true);
+	int wallHeight = GetWallHeight(GetPosXPlus(2), posY+4, 3, true);
 	if (wallHeight > 0)
 	{
 		// step on the stair
@@ -257,8 +256,7 @@ void Lem::UpdateWalk()
 	}
 	else
 	{
-		// check the pixel under and the pixel behind
-		// (no need to check in front because it was already done in the GetWallHeight)
+		// check the pixel under
 		int groundDepth = GetGroundDepth(mPosX+1, posY+6, false, true);
 		if (groundDepth > 2)
 		{
@@ -274,7 +272,7 @@ void Lem::UpdateWalk()
 	}
 
 	// get the x pixel in front of me
-	int inFrontXOutside = isMirrored ? mPosX-1 : mPosX+3;
+	int inFrontXOutside = GetPosXPlus(3);
 
 	// check if there's no blocker in front of me, then I would need to reverse my direction
 	if (LemManager::IsThereABlockerAt(inFrontXOutside, mPosY+1, isMirrored))
@@ -346,14 +344,12 @@ void Lem::UpdateDigDiag()
 		}
 		case 1:
 		{
-			int x = mIsDirectionMirrored ? mPosX+1 : mPosX+3;
-			Dig8Pixels(x, mPosY, 0x007F);
+			Dig8Pixels(GetPosXPlus(3), mPosY, 0x007F);
 			break;
 		}
 		case 2:
 		{
-			int x = mIsDirectionMirrored ? mPosX : mPosX+4;
-			Dig8Pixels(x, mPosY, 0x007F);
+			Dig8Pixels(GetPosXPlus(4), mPosY, 0x007F);
 			break;
 		}
 	}
@@ -378,11 +374,7 @@ void Lem::UpdateDigHoriz()
 		case 1:
 		case 2:
 		{
-			int x = mPosX+2;
-			if (mIsDirectionMirrored)
-				Dig8Pixels(x - mCurrentAnimFrame, mPosY, 0x003F);
-			else
-				Dig8Pixels(x + mCurrentAnimFrame, mPosY, 0x003F);
+			Dig8Pixels(GetPosXPlus(2 + mCurrentAnimFrame), mPosY, 0x003F);
 			break;
 		}
 		case 3:
@@ -394,8 +386,8 @@ void Lem::UpdateDigHoriz()
 		{
 			shouldTestGround = true;
 			// in last frame check if there's some pixel in front to continue to dig
-			if ((GetWallHeight(mIsDirectionMirrored ? mPosX+1 : mPosX+3, mPosY+1, 5, true) == 0) &&
-				(GetWallHeight(mIsDirectionMirrored ? mPosX : mPosX+4, mPosY+1, 5, true) == 0))
+			if ((GetWallHeight(GetPosXPlus(3), mPosY+1, 5, true) == 0) &&
+				(GetWallHeight(GetPosXPlus(4), mPosY+1, 5, true) == 0))
 				SetCurrentState(StateId::WALK, mIsDirectionMirrored ? -2 : 0, 0);
 			break;
 		}
@@ -404,7 +396,7 @@ void Lem::UpdateDigHoriz()
 	// get the pixel under my feet, if no ground, I start to fall
 	if (shouldTestGround)
 	{
-		if (GetGroundDepth(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, false) > 0)
+		if (GetGroundDepth(GetPosXPlus(1), mPosY+6, true, false) > 0)
 			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 	}
 }
@@ -455,12 +447,13 @@ bool Lem::UpdateStair()
 	{
 		case 1:
 		{
-			int inFrontX = mIsDirectionMirrored ? mPosX+2 : mPosX+3;
+			int inFrontX2 = mPosX + 2;
+			int inFrontX3 = GetPosXPlus(3);
 			// check if there's a blocker or a wall, after steping on the step
 			// (do not consider the stairs added by me or another stairer)
-			if (LemManager::IsThereABlockerAt(inFrontX, mPosY+1, mIsDirectionMirrored) || 
-				LemManager::IsThereABlockerAt(inFrontX-1, mPosY+1, mIsDirectionMirrored) || 
-				(GetWallHeight(inFrontX, mPosY+1, 5, false) > 2) || (GetWallHeight(inFrontX-1, mPosY+1, 5, false) > 2))
+			if (LemManager::IsThereABlockerAt(inFrontX2, mPosY+1, mIsDirectionMirrored) || 
+				LemManager::IsThereABlockerAt(inFrontX3, mPosY+1, mIsDirectionMirrored) || 
+				(GetWallHeight(inFrontX2, mPosY+1, 5, false) > 2) || (GetWallHeight(inFrontX3, mPosY+1, 5, false) > 2))
 			{
 				ReverseMirroredDirection();
 				if (mIsDirectionMirrored)
@@ -473,27 +466,17 @@ bool Lem::UpdateStair()
 		break;
 
 		case 3:
-			if (mIsDirectionMirrored)
-			{
-				int x = mPosX;
-				int y = mPosY + 5;
-				MapManager::SetPixel(x,   y,  true);
-				MapManager::SetPixel(x+1, y,  true);
-				MapManager::SetPixel(x+1, y+1, true);
-			}
-			else
-			{
-				int x = mPosX + 3;
-				int y = mPosY + 5;
-				MapManager::SetPixel(x,   y,  true);
-				MapManager::SetPixel(x+1, y,  true);
-				MapManager::SetPixel(x,	  y+1, true);
-			}
+			int x1 = GetPosXPlus(3);
+			int x2 = GetPosXPlus(4);
+			int y = mPosY + 5;
+			MapManager::SetPixel(x1, y,  true);
+			MapManager::SetPixel(x2, y,  true);
+			MapManager::SetPixel(x1, y+1, true);
 		break;
 	}
 	
 	// get the pixel under my feet, if no ground, I start to fall
-	if (GetGroundDepth(mIsDirectionMirrored ? mPosX+3 : mPosX+1, mPosY+6, true, true) > 0)
+	if (GetGroundDepth(GetPosXPlus(1), mPosY+6, true, true) > 0)
 	{
 		SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 		return true;
@@ -509,7 +492,7 @@ void Lem::UpdateClimb()
 	bool isMirrored = mIsDirectionMirrored;
 
 	// if we reach the top of the screen or if we reach a roof, we fall down opposite to the wall
-	if ((posY == 0) || IsThereRoofAt(isMirrored ? mPosX : mPosX+1, posY))
+	if ((posY == 0) || IsThereRoofAt(GetPosXPlus(1), posY))
 	{
 		ReverseMirroredDirection();
 		SetCurrentState(StateId::START_FALL, isMirrored ? 0 : -2, 0);
@@ -518,7 +501,7 @@ void Lem::UpdateClimb()
 	
 	// then check if we reach the top of the climb
 	// (we can consider the stairs for climber to climb above the stairs, or not to stop through the stairs)
-	int wallHeight = GetWallHeight(isMirrored ? mPosX-1 : mPosX+2, posY+1, 5, true);
+	int wallHeight = GetWallHeight(GetPosXPlus(2), posY+1, 5, true);
 	if (wallHeight <= 3)
 	{
 		SetCurrentState(StateId::CLIMB_TOP, isMirrored ? -2 : 0, 0);
@@ -619,6 +602,16 @@ unsigned int Lem::GetFrameRateForCurrentAnim(bool useSlowAnimation)
 		default:
 			return 10;
 	}
+}
+
+/*
+ * This function return the m_XPos + the specified parameter as if the lem is not mirrored, 
+ * but adjust the parameter with the correct value if the lem is mirrored 
+ * (using the width of the sprite)
+ */ 
+int Lem::GetPosXPlus(int plus)
+{
+	return mPosX + (mIsDirectionMirrored ? GetFrameWidthForCurrentAnim() - 1 - plus : plus);
 }
 
 /*
@@ -780,20 +773,15 @@ bool Lem::UpdateOneAnimFrame(const unsigned char animFrame[], int animFrameWidth
 	// check if there's any movement
 	hasMoved = (xMove != 0) || (yMove != 0);
 	
-	// first move the x
-	bool isInsideMap = true;
+	// reverse xMove if I'm mirrored
 	if (mIsDirectionMirrored)
-	{
-		// cast the mPosX and PosY in int before removing, because if the map is 256 pixel wide, mPosX will reboot, and same for y
-		isInsideMap = MapManager::IsInMapBoundary((int)mPosX - xMove, (int)mPosY + yMove);
-		mPosX -= xMove;
-	}
-	else
-	{
-		// cast the mPosX in int before removing, because if the map is 256 pixel wide, mPosX will reboot
-		isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY + yMove);
-		mPosX += xMove;
-	}
+		xMove = -xMove;
+
+	// cast the mPosX and PosY in int before removing, because if the map is 256 pixel wide, mPosX will reboot, and same for y
+	bool isInsideMap = MapManager::IsInMapBoundary((int)mPosX + xMove, (int)mPosY + yMove);
+
+	// first move the x
+	mPosX += xMove;
 
 	// then move the lem Y position according to the move found in the animation
 	mPosY += yMove;
@@ -936,7 +924,7 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	{
 		int y = mPosY+6;
 		MapManager::SetPixel(mPosX+2, y,  true);
-		MapManager::SetPixel(mIsDirectionMirrored ? mPosX+3 : mPosX+1, y,  true);
+		MapManager::SetPixel(GetPosXPlus(1), y,  true);
 	}
 
 	// call update state again because we may need to change again
