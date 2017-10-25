@@ -77,17 +77,31 @@ namespace ArudlemEditor
 
         private string parseVariableName(string variableDeclaration, string variableType)
         {
-            int startIndex = variableDeclaration.IndexOf(variableType) + variableType.Length;
-            int endIndex = variableDeclaration.IndexOf('[');
-            return variableDeclaration.Substring(startIndex, endIndex - startIndex).Trim();
+			int index = variableDeclaration.IndexOf(variableType);
+			if (index > -1)
+			{
+				int startIndex = index + variableType.Length;
+				int endIndex = variableDeclaration.IndexOf('[');
+				if (endIndex > -1)
+					return variableDeclaration.Substring(startIndex, endIndex - startIndex).Trim();
+			}
+			return string.Empty;
         }
 
         private string[] tokenizeArray(string arrayDefinition, string[] separators)
         {
-            int startIndex = arrayDefinition.IndexOf('{') + 1;
-            int endIndex = arrayDefinition.IndexOf('}');
-            string arrayValues = arrayDefinition.Substring(startIndex, endIndex - startIndex);
-            return arrayValues.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+			int index = arrayDefinition.IndexOf('{');
+			if (index > -1)
+			{
+				int startIndex = index + 1;
+				int endIndex = arrayDefinition.IndexOf('}');
+				if (endIndex > -1)
+				{
+					string arrayValues = arrayDefinition.Substring(startIndex, endIndex - startIndex);
+					return arrayValues.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+				}
+			}
+			return new string[0];
         }
 
         private bool GetNextValidCoordinate(ref int x, ref int y)

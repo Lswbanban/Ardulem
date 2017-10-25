@@ -279,5 +279,35 @@ namespace ArudlemEditor
 			// if we reached here everything was fine
 			return true;
 		}
+
+		public void SaveToClipboard()
+		{
+			// start the string with the declaration of the map
+			string text = "\t{ // -------- LEVEL -----------" + GetEOL();
+			text += "\t\t" + StartX.ToString() + ", //StartX" + GetEOL();
+			text += "\t\t" + StartY.ToString() + ", //StartY" + GetEOL();
+			text += "\t\t" + HomeX.ToString() + ", //HomeX" + GetEOL();
+			text += "\t\t" + HomeY.ToString() + ", //HomeY" + GetEOL();
+			text += "\t\t" + m_TotalTimeIn10thSec.ToString() + ", //Time In Multiple Of 10 seconds" + GetEOL();
+			text += "\t\t" + m_SpawnLemCount.ToString() + ", //Available Lem Count in multiple of 5 (from 0 to 15 max!!)" + GetEOL();
+			text += "\t\t" + m_RequiredLemCount.ToString() + ", //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)" + GetEOL();
+			text += "\t\t" + MinDropSpeed.ToString() + ", //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)" + GetEOL();
+			text += "\t\t" + Walker.ToString() + ", //Nb of available Walker" + GetEOL();
+			text += "\t\t" + Blocker.ToString() + ", //Nb of available Blocker" + GetEOL();
+			text += "\t\t" + Bomber.ToString() + ", //Nb of available Bomber" + GetEOL();
+			text += "\t\t" + DiagDigger.ToString() + ", //Nb of available Diagonal Digger" + GetEOL();
+			text += "\t\t" + HorizDigger.ToString() + ", //Nb of available Horizontal Digger" + GetEOL();
+			text += "\t\t" + VertDigger.ToString() + ", //Nb of available Vertical Digger" + GetEOL();
+			text += "\t\t" + Stairer.ToString() + ", //Nb of available Stair Builder" + GetEOL();
+			text += "\t\t" + Climber.ToString() + ", //Nb of available Climber" + GetEOL();
+			text += "\t\t" + Parachuter.ToString() + ", //Nb of available Parachuter" + GetEOL();
+			text += "\t\t(const unsigned char *)" + m_LocaMapName + ", //SpriteLocalization" + GetEOL();
+			text += "\t\tsizeof(" + m_LocaMapName + "), //size of the Map in number of sprite columns" + GetEOL();
+			text += "\t\t(const unsigned int *)" + m_MapIdsName + " //SpriteIdList" + GetEOL();
+			text += "\t},";
+
+			// copy the text to the clipboard
+			Clipboard.SetText(text);
+		}
 	}
 }

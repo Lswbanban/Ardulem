@@ -48,26 +48,26 @@ const unsigned int Map02IdList[] PROGMEM = {
  * The various maps
  */
 const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
-	{ // -------- LEVEL 01 -----------
+	{ // -------- LEVEL -----------
 		26, //StartX
 		37, //StartY
 		147, //HomeX
 		39, //HomeY
 		20, //Time In Multiple Of 10 seconds
-		1, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)
+		1, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
 		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15) 
-		1, //Nb of available Walker,
-		1, //Nb of available Blocker,
-		0, //Nb of available Bomb,
-		0, //Nb of available Dig diagonal,
-		2, //Nb of available Dig horizontal
-		0, //Nb of available Dig vertical
-		2, //Nb of available Stair
-		1, //Nb of available Climb
-		1, //Nb of available Parachute
+		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		1, //Nb of available Walker
+		1, //Nb of available Blocker
+		0, //Nb of available Bomber
+		0, //Nb of available Diagonal Digger
+		2, //Nb of available Horizontal Digger
+		0, //Nb of available Vertical Digger
+		2, //Nb of available Stair Builder
+		1, //Nb of available Climber
+		1, //Nb of available Parachuter
 		(const unsigned char *)Map01Loca, //SpriteLocalization
-		sizeof(Map01Loca), // size of the Map in number of sprite columns
+		sizeof(Map01Loca), //size of the Map in number of sprite columns
 		(const unsigned int *)Map01IdList //SpriteIdList
 	},
 	{ // -------- LEVEL 02 -----------

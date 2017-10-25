@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -95,6 +95,7 @@
 			this.MapIdsTextBox = new System.Windows.Forms.TextBox();
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.saveLevelDataToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -148,6 +149,7 @@
             this.newToolStripMenuItem,
             this.loadLevelFromClipboardToolStripMenuItem,
             this.saveLevelToClipboardToolStripMenuItem,
+            this.saveLevelDataToClipboardToolStripMenuItem,
             this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -156,7 +158,7 @@
 			// newToolStripMenuItem
 			// 
 			this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-			this.newToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
+			this.newToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
 			this.newToolStripMenuItem.Text = "New Level";
 			this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
 			// 
@@ -164,22 +166,22 @@
 			// 
 			this.loadLevelFromClipboardToolStripMenuItem.Name = "loadLevelFromClipboardToolStripMenuItem";
 			this.loadLevelFromClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-			this.loadLevelFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
-			this.loadLevelFromClipboardToolStripMenuItem.Text = "Load Level from Clipboard";
+			this.loadLevelFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
+			this.loadLevelFromClipboardToolStripMenuItem.Text = "Load Level/Level Data  from Clipboard";
 			this.loadLevelFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.loadLevelFromClipboardToolStripMenuItem_Click);
 			// 
 			// saveLevelToClipboardToolStripMenuItem
 			// 
 			this.saveLevelToClipboardToolStripMenuItem.Name = "saveLevelToClipboardToolStripMenuItem";
 			this.saveLevelToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-			this.saveLevelToClipboardToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
+			this.saveLevelToClipboardToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
 			this.saveLevelToClipboardToolStripMenuItem.Text = "Save Level to Clipboard";
 			this.saveLevelToClipboardToolStripMenuItem.Click += new System.EventHandler(this.saveLevelToClipboardToolStripMenuItem_Click);
 			// 
 			// exitToolStripMenuItem
 			// 
 			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
+			this.exitToolStripMenuItem.Size = new System.Drawing.Size(329, 22);
 			this.exitToolStripMenuItem.Text = "Exit";
 			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
 			// 
@@ -791,7 +793,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem3});
+            listViewItem2});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -862,6 +864,15 @@
 			this.label1.Size = new System.Drawing.Size(55, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Loca Map";
+			// 
+			// saveLevelDataToClipboardToolStripMenuItem
+			// 
+			this.saveLevelDataToClipboardToolStripMenuItem.Name = "saveLevelDataToClipboardToolStripMenuItem";
+			this.saveLevelDataToClipboardToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
+						| System.Windows.Forms.Keys.C)));
+			this.saveLevelDataToClipboardToolStripMenuItem.Size = new System.Drawing.Size(317, 22);
+			this.saveLevelDataToClipboardToolStripMenuItem.Text = "Save Level Data to Clipboard";
+			this.saveLevelDataToClipboardToolStripMenuItem.Click += new System.EventHandler(this.saveLevelDataToClipboardToolStripMenuItem_Click);
 			// 
 			// MainForm
 			// 
@@ -982,6 +993,7 @@
 		private System.Windows.Forms.NumericUpDown SpawnLemCountNumeric;
 		private System.Windows.Forms.Label label20;
 		private System.Windows.Forms.CheckBox ExportWithWinEOLCheckBox;
+		private System.Windows.Forms.ToolStripMenuItem saveLevelDataToClipboardToolStripMenuItem;
     }
 }
 

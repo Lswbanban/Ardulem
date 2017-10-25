@@ -236,19 +236,53 @@ namespace ArudlemEditor
 			}            
         }
 
-        private void saveLevelToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
-        {
+		private void SetExportConfigToLevel()
+		{
 			// set the export config before calling the save
-            m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
+			m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
 			m_CurrentLevel.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
 			m_CurrentLevelData.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
+		}
 
+        private void saveLevelToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+			SetExportConfigToLevel();
 			// set the values from the combo boxes to the current level before calling the save
 			m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
 			m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
 			// and copy the current level to clipboard
             m_CurrentLevel.SaveToClipboard();
         }
+
+		private void saveLevelDataToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			SetExportConfigToLevel();
+
+			// set the values from the combo boxes to the current level before calling the save
+			m_CurrentLevelData.StartX = (int)this.StartXNumeric.Value;
+			m_CurrentLevelData.StartY = (int)this.StartYNumeric.Value;
+			m_CurrentLevelData.HomeX = (int)this.HomeXNumeric.Value;
+			m_CurrentLevelData.HomeY = (int)this.HomeYNumeric.Value;
+			m_CurrentLevelData.TimeMin = (int)this.TimeMinNumeric.Value;
+			m_CurrentLevelData.TimeSec = (int)this.TimeSecNumeric.Value;
+			m_CurrentLevelData.SpawnLemCount = (int)this.SpawnLemCountNumeric.Value;
+			m_CurrentLevelData.RequiredLemCount = (int)this.RequiredLemCountNumeric.Value;
+			m_CurrentLevelData.MinDropSpeed = (int)this.MinDropSpeedNumeric.Value;
+			m_CurrentLevelData.Walker = (int)this.WalkNumeric.Value;
+			m_CurrentLevelData.Blocker = (int)this.BlockNumeric.Value;
+			m_CurrentLevelData.Bomber = (int)this.BombNumeric.Value;
+			m_CurrentLevelData.DiagDigger = (int)this.DigDiagNumeric.Value;
+			m_CurrentLevelData.HorizDigger = (int)this.DigHorizNumeric.Value;
+			m_CurrentLevelData.VertDigger = (int)this.DigVertNumeric.Value;
+			m_CurrentLevelData.Stairer = (int)this.StairNumeric.Value;
+			m_CurrentLevelData.Climber = (int)this.ClimbNumeric.Value;
+			m_CurrentLevelData.m_Parachuter = (int)this.ParachuteNumeric.Value;
+			m_CurrentLevelData.m_LocaMapName = this.LocaMapNameTextBox.Text;
+			m_CurrentLevelData.m_MapIdsName = this.MapIdsTextBox.Text;
+
+			// and copy the current level to clipboard
+			m_CurrentLevelData.SaveToClipboard();
+		}
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
