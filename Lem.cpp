@@ -392,7 +392,7 @@ void Lem::UpdateDigHoriz()
 			// in last frame check if there's some pixel in front to continue to dig
 			if ((GetWallHeight(GetPosXPlus(3), mPosY+1, 5, true) == 0) &&
 				(GetWallHeight(GetPosXPlus(4), mPosY+1, 5, true) == 0))
-				SetCurrentState(StateId::WALK, mIsDirectionMirrored ? -2 : 0, 0);
+				SetCurrentState(StateId::WALK, mIsDirectionMirrored ? 2 : 0, 0);
 			break;
 		}
 	}
