@@ -30,6 +30,7 @@ namespace ArudlemEditor
         private int m_CurrentSpriteIndex = 0;
 
         private Level m_CurrentLevel = new Level();
+		private LevelData m_CurrentLevelData = new LevelData();
         #endregion
 
         #region init
@@ -187,29 +188,65 @@ namespace ArudlemEditor
 
         private void loadLevelFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
+			// try to load the level first
             bool isOk = m_CurrentLevel.LoadFromClipboard();
-            if (!isOk)
-            {
-                MessageBox.Show("Error while parsing the clipboard, please try again to copy.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            
-            // redraw the level
-            DrawLevel();
+			if (isOk)
+			{
+				// redraw the level
+				DrawLevel();
 
-            // set the values in the combo boxes
-            this.LocaMapNameTextBox.Text = m_CurrentLevel.m_LocaMapName;
-            this.MapIdsTextBox.Text = m_CurrentLevel.m_MapIdsName;
+				// set the values in the combo boxes
+				this.LocaMapNameTextBox.Text = m_CurrentLevel.m_LocaMapName;
+				this.MapIdsTextBox.Text = m_CurrentLevel.m_MapIdsName;
+			}
+			else
+			{
+				// now try to load the level data
+				isOk = m_CurrentLevelData.LoadFromClipboard();
+				if (isOk)
+				{
+					// set the various data parsed
+					this.StartXNumeric.Value = m_CurrentLevelData.m_StartX;
+					this.StartYNumeric.Value = m_CurrentLevelData.m_StartY;
+					this.HomeXNumeric.Value = m_CurrentLevelData.m_HomeX;
+					this.HomeYNumeric.Value = m_CurrentLevelData.m_HomeY;
+					this.TimeMinNumeric.Value = m_CurrentLevelData.m_TimeMin;
+					this.TimeSecNumeric.Value = m_CurrentLevelData.m_TimeSec;
+					this.SpawnLemCountNumeric.Value = m_CurrentLevelData.m_SpawnLemCount;
+					this.RequiredLemCountNumeric.Value = m_CurrentLevelData.RequiredLemCount;
+					this.MinDropSpeedNumeric.Value = m_CurrentLevelData.m_MinDropSpeed;
+					this.WalkNumeric.Value = m_CurrentLevelData.m_Walker;
+					this.BlockNumeric.Value = m_CurrentLevelData.m_Blocker;
+					this.BombNumeric.Value = m_CurrentLevelData.m_Bomber;
+					this.DigDiagNumeric.Value = m_CurrentLevelData.m_DiagDigger;
+					this.DigHorizNumeric.Value = m_CurrentLevelData.m_HorizDigger;
+					this.DigVertNumeric.Value = m_CurrentLevelData.m_VertDigger;
+					this.StairNumeric.Value = m_CurrentLevelData.m_Stairer;
+					this.ClimbNumeric.Value = m_CurrentLevelData.m_Climber;
+					this.ParachuteNumeric.Value = m_CurrentLevelData.m_Parachuter;
+					// also set the map names from the level data
+					this.LocaMapNameTextBox.Text = m_CurrentLevelData.m_LocaMapName;
+					this.MapIdsTextBox.Text = m_CurrentLevelData.m_MapIdsName;
+				}
+				else
+				{
+					MessageBox.Show("Error while parsing the clipboard, please try again to copy.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					return;
+				}
+			}            
         }
 
         private void saveLevelToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // set the values from the combo boxes to the current level before calling the save
-            m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
-            m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
+			// set the export config before calling the save
             m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
+			m_CurrentLevel.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
+			m_CurrentLevelData.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
 
-            // and copy the current level to clipboard
+			// set the values from the combo boxes to the current level before calling the save
+			m_CurrentLevel.m_LocaMapName = this.LocaMapNameTextBox.Text;
+			m_CurrentLevel.m_MapIdsName = this.MapIdsTextBox.Text;
+			// and copy the current level to clipboard
             m_CurrentLevel.SaveToClipboard();
         }
 
@@ -263,6 +300,13 @@ namespace ArudlemEditor
         {
             m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
         }
-        #endregion
-    }
+
+		private void ExportWithWinEOLCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			// set both for Level and LevelData as they both use it
+			m_CurrentLevel.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
+			m_CurrentLevelData.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
+		}
+		#endregion
+	}
 }

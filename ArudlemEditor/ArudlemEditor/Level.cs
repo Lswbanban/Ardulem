@@ -20,6 +20,7 @@ namespace ArudlemEditor
         public string m_LocaMapName = string.Empty;
         public string m_MapIdsName = string.Empty;
         public bool m_ShouldTrimLevelAtExport = true;
+		public bool m_ExportWithWindowsEOL = true;
 
         public Level()
         {
@@ -67,6 +68,11 @@ namespace ArudlemEditor
 		public bool IsSpriteMirrored(int x, int y)
 		{
 			return m_Mirror[x,y];
+		}
+
+		private string GetEOL()
+		{
+			return (m_ExportWithWindowsEOL ? "\r\n" : "\n");
 		}
 
         private string parseVariableName(string variableDeclaration, string variableType)
@@ -246,7 +252,7 @@ namespace ArudlemEditor
             List<bool> mirrorList = new List<bool>();
 
             // now declare the map id variables
-            text += "};\nconst unsigned int " + m_MapIdsName + "[] PROGMEM = {\n";
+			text += "};" + GetEOL() + "const unsigned int " + m_MapIdsName + "[] PROGMEM = {" + GetEOL();
 
             // parse again the data to save the map ids
             int nbIds = 0;
@@ -273,7 +279,7 @@ namespace ArudlemEditor
 
                             // and restart a new triplet (with go to next line every ten triplet)
                             if ((nbIds % 10) == 0)
-                                triplet = ",\n\tID(";
+                                triplet = "," + GetEOL() + "\tID(";
                             else
                                 triplet = ", ID(";
                         }
@@ -322,7 +328,7 @@ namespace ArudlemEditor
 				text += ", MIRROR(" + bitfield.ToString() + ")";
 
             // close the variable definition
-            text += "};\n";
+			text += "};" + GetEOL();
 
             // and copy the text to the clipboard
             Clipboard.SetText(text);

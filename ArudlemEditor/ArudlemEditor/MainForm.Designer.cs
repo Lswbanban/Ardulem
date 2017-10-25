@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -94,6 +94,7 @@
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
 			this.label20 = new System.Windows.Forms.Label();
+			this.ExportWithWinEOLCheckBox = new System.Windows.Forms.CheckBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -659,6 +660,7 @@
 			// 
 			// groupBox3
 			// 
+			this.groupBox3.Controls.Add(this.ExportWithWinEOLCheckBox);
 			this.groupBox3.Controls.Add(this.TrimLevelCheckBox);
 			this.groupBox3.Location = new System.Drawing.Point(207, 8);
 			this.groupBox3.Name = "groupBox3";
@@ -672,7 +674,7 @@
 			this.TrimLevelCheckBox.AutoSize = true;
 			this.TrimLevelCheckBox.Checked = true;
 			this.TrimLevelCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.TrimLevelCheckBox.Location = new System.Drawing.Point(17, 28);
+			this.TrimLevelCheckBox.Location = new System.Drawing.Point(11, 19);
 			this.TrimLevelCheckBox.Name = "TrimLevelCheckBox";
 			this.TrimLevelCheckBox.Size = new System.Drawing.Size(136, 17);
 			this.TrimLevelCheckBox.TabIndex = 6;
@@ -701,7 +703,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem3});
+            listViewItem1});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -781,6 +783,19 @@
 			this.label20.Size = new System.Drawing.Size(61, 13);
 			this.label20.TabIndex = 17;
 			this.label20.Text = "x 27 frames";
+			// 
+			// ExportWithWinEOLCheckBox
+			// 
+			this.ExportWithWinEOLCheckBox.AutoSize = true;
+			this.ExportWithWinEOLCheckBox.Checked = true;
+			this.ExportWithWinEOLCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.ExportWithWinEOLCheckBox.Location = new System.Drawing.Point(11, 40);
+			this.ExportWithWinEOLCheckBox.Name = "ExportWithWinEOLCheckBox";
+			this.ExportWithWinEOLCheckBox.Size = new System.Drawing.Size(209, 17);
+			this.ExportWithWinEOLCheckBox.TabIndex = 7;
+			this.ExportWithWinEOLCheckBox.Text = "Export with Windows EOL format (\\r\\n)";
+			this.ExportWithWinEOLCheckBox.UseVisualStyleBackColor = true;
+			this.ExportWithWinEOLCheckBox.CheckedChanged += new System.EventHandler(this.ExportWithWinEOLCheckBox_CheckedChanged);
 			// 
 			// MainForm
 			// 
@@ -900,6 +915,7 @@
 		private System.Windows.Forms.Label label9;
 		private System.Windows.Forms.NumericUpDown SpawnLemCountNumeric;
 		private System.Windows.Forms.Label label20;
+		private System.Windows.Forms.CheckBox ExportWithWinEOLCheckBox;
     }
 }
 
