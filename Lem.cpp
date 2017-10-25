@@ -313,7 +313,7 @@ bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool is
 void Lem::UpdateBlocker()
 {
 	// get the pixel under my feet, if no ground, I start to fall
-	if (GetGroundDepth(mPosX+2, mPosY+6, false, false) > 0)
+	if (GetGroundDepth(mPosX+2, mPosY+6, false, false) > 2)
 	{
 		// check if I need to fall toward left or right (if no ground on my left, set mirror to true)
 		mIsDirectionMirrored = (GetGroundDepth(mPosX+1, mPosY+6, false, false) > 0) ? 1 : 0;
