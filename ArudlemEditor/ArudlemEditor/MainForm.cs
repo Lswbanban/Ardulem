@@ -206,13 +206,13 @@ namespace ArudlemEditor
 				if (isOk)
 				{
 					// set the various data parsed
-					this.StartXNumeric.Value = m_CurrentLevelData.m_StartX;
-					this.StartYNumeric.Value = m_CurrentLevelData.m_StartY;
-					this.HomeXNumeric.Value = m_CurrentLevelData.m_HomeX;
-					this.HomeYNumeric.Value = m_CurrentLevelData.m_HomeY;
-					this.TimeMinNumeric.Value = m_CurrentLevelData.m_TimeMin;
-					this.TimeSecNumeric.Value = m_CurrentLevelData.m_TimeSec;
-					this.SpawnLemCountNumeric.Value = m_CurrentLevelData.m_SpawnLemCount;
+					this.StartXNumeric.Value = m_CurrentLevelData.StartX;
+					this.StartYNumeric.Value = m_CurrentLevelData.StartY;
+					this.HomeXNumeric.Value = m_CurrentLevelData.HomeX;
+					this.HomeYNumeric.Value = m_CurrentLevelData.HomeY;
+					this.TimeMinNumeric.Value = m_CurrentLevelData.TimeMin;
+					this.TimeSecNumeric.Value = m_CurrentLevelData.TimeSec;
+					this.SpawnLemCountNumeric.Value = m_CurrentLevelData.SpawnLemCount;
 					this.RequiredLemCountNumeric.Value = m_CurrentLevelData.RequiredLemCount;
 					this.MinDropSpeedNumeric.Value = m_CurrentLevelData.m_MinDropSpeed;
 					this.WalkNumeric.Value = m_CurrentLevelData.m_Walker;

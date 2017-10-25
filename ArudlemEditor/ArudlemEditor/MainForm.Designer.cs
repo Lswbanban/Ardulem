@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -615,6 +615,11 @@
 			// HomeYNumeric
 			// 
 			this.HomeYNumeric.Location = new System.Drawing.Point(129, 50);
+			this.HomeYNumeric.Maximum = new decimal(new int[] {
+            47,
+            0,
+            0,
+            0});
 			this.HomeYNumeric.Name = "HomeYNumeric";
 			this.HomeYNumeric.Size = new System.Drawing.Size(48, 20);
 			this.HomeYNumeric.TabIndex = 5;
@@ -622,6 +627,11 @@
 			// HomeXNumeric
 			// 
 			this.HomeXNumeric.Location = new System.Drawing.Point(75, 50);
+			this.HomeXNumeric.Maximum = new decimal(new int[] {
+            240,
+            0,
+            0,
+            0});
 			this.HomeXNumeric.Name = "HomeXNumeric";
 			this.HomeXNumeric.Size = new System.Drawing.Size(48, 20);
 			this.HomeXNumeric.TabIndex = 4;
@@ -629,6 +639,11 @@
 			// StartYNumeric
 			// 
 			this.StartYNumeric.Location = new System.Drawing.Point(129, 22);
+			this.StartYNumeric.Maximum = new decimal(new int[] {
+            55,
+            0,
+            0,
+            0});
 			this.StartYNumeric.Name = "StartYNumeric";
 			this.StartYNumeric.Size = new System.Drawing.Size(48, 20);
 			this.StartYNumeric.TabIndex = 3;
@@ -636,6 +651,11 @@
 			// StartXNumeric
 			// 
 			this.StartXNumeric.Location = new System.Drawing.Point(75, 22);
+			this.StartXNumeric.Maximum = new decimal(new int[] {
+            239,
+            0,
+            0,
+            0});
 			this.StartXNumeric.Name = "StartXNumeric";
 			this.StartXNumeric.Size = new System.Drawing.Size(48, 20);
 			this.StartXNumeric.TabIndex = 2;
@@ -703,7 +723,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem2});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
