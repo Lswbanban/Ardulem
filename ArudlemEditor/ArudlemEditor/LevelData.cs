@@ -50,7 +50,7 @@ namespace ArudlemEditor
 
 		public int HomeY
 		{
-			get { return Clamp(m_HomeY, 0, 47); }
+			get { return Clamp(m_HomeY, 0, 62); }
 			set { m_HomeY = value; }
 		}
 

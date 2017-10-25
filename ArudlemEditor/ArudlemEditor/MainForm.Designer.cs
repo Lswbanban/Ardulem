@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -693,7 +693,7 @@
 			// 
 			this.HomeYNumeric.Location = new System.Drawing.Point(129, 50);
 			this.HomeYNumeric.Maximum = new decimal(new int[] {
-            47,
+            62,
             0,
             0,
             0});
@@ -817,7 +817,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem3});
+            listViewItem5});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";

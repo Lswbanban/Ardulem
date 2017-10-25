@@ -37,12 +37,12 @@ const unsigned int Map01IdList[] PROGMEM = {
 	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(29,31,3), ID(2,31,31), ID(30,31,27), ID(5,27,4), ID(31,6,1), ID(31,4,31),
 	ID(4,31,4), ID(31,6,1), ID(27,4,5), MIRROR(10304), MIRROR(8464), MIRROR(80)};
 
-const unsigned char Map02Loca[] PROGMEM = { 0x90, 0x90, 0x98, 0x9C, 0xB8, 0x30, 0x70, 0x78, 0x7C, 0x68, 0xF0, 0xF8, 0xD0, 0xE0, 0xE0, 0xF0, 0x60, 0xE0, 0xF0, 0xF8, 0xF0, 0xE0, 0xC0, 0xE0, 0xC0, 0xE0, 0x60, 0x70, 0x38, 0x38, 0x1C, 0x8, };
+const unsigned char Map02Loca[] PROGMEM = { 0x90, 0x90, 0x98, 0x9C, 0xB8, 0x30, 0x70, 0x78, 0x7C, 0x68, 0xF0, 0xF8, 0xD0, 0xE0, 0xE0, 0xE0, 0x60, 0xE0, 0xF0, 0xF8, 0xF0, 0xE0, 0xC0, 0xE0, 0xC0, 0xE0, 0x60, 0x70, 0x38, 0x38, 0x18, 0x8, };
 const unsigned int Map02IdList[] PROGMEM = {
 	ID(22,9,21), ID(28,15,24), ID(28,19,11), ID(21,28,15), ID(31,20,9), ID(27,21,19), ID(31,20,22), ID(18,31,24), ID(28,31,7), ID(31,26,22),
-	ID(27,21,22), ID(28,31,20), ID(28,31,7), ID(31,26,22), ID(30,25,18), ID(31,24,27), ID(31,25,18), ID(31,31,20), ID(27,31,28), ID(31,20,15),
-	ID(27,31,25), ID(19,11,31), ID(31,26,15), ID(29,31,25), ID(27,31,24), ID(30,24,23), ID(31,26,31), ID(25,27,31), ID(20,31,21), ID(27,31,20),
-	ID(28,31,31), ID(27,31,21), ID(18,31,21), ID(22,0,0), MIRROR(51373), MIRROR(17104), MIRROR(24599), MIRROR(120), MIRROR(49428), MIRROR(37488), MIRROR(4)};
+	ID(27,21,22), ID(28,31,20), ID(28,31,7), ID(31,26,22), ID(30,25,18), ID(31,24,27), ID(31,25,31), ID(31,20,27), ID(31,28,31), ID(20,15,27),
+	ID(31,25,19), ID(11,31,31), ID(26,15,29), ID(31,25,27), ID(31,24,30), ID(24,18,31), ID(26,31,25), ID(27,31,20), ID(31,21,27), ID(31,20,28),
+	ID(31,31,27), ID(31,21,31), ID(21,22,0), MIRROR(51373), MIRROR(17104), MIRROR(24599), MIRROR(60), MIRROR(24714), MIRROR(18744), MIRROR(1)};
 
 /*
  * The various maps
@@ -70,26 +70,26 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		sizeof(Map01Loca), //size of the Map in number of sprite columns
 		(const unsigned int *)Map01IdList //SpriteIdList
 	},
-	{ // -------- LEVEL 02 -----------
+	{ // -------- LEVEL -----------
 		222, //StartX
 		10, //StartY
 		20, //HomeX
 		61, //HomeY
 		20, //Time In Multiple Of 10 seconds
-		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!, 0 means 16, ie 80 lems)
+		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
 		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames)
-		3, //Nb of available Walker,
-		4, //Nb of available Blocker,
-		5, //Nb of available Bomb,
-		6, //Nb of available Dig diagonal,
-		7, //Nb of available Dig horizontal
-		7, //Nb of available Dig vertical
-		8, //Nb of available Stair
-		9, //Nb of available Climb
-		9, //Nb of available Parachute
+		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		4, //Nb of available Walker
+		4, //Nb of available Blocker
+		4, //Nb of available Bomber
+		3, //Nb of available Diagonal Digger
+		1, //Nb of available Horizontal Digger
+		2, //Nb of available Vertical Digger
+		9, //Nb of available Stair Builder
+		0, //Nb of available Climber
+		1, //Nb of available Parachuter
 		(const unsigned char *)Map02Loca, //SpriteLocalization
-		sizeof(Map02Loca), // size of the Map in number of sprite columns
+		sizeof(Map02Loca), //size of the Map in number of sprite columns
 		(const unsigned int *)Map02IdList //SpriteIdList
 	},
 };
