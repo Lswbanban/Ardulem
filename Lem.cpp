@@ -335,34 +335,26 @@ void Lem::Dig8Pixels(int x, int y, unsigned int pixels)
 
 void Lem::UpdateDigDiag()
 {
-	// only test ground in specific frame id (when the lem is moving)
-	bool shouldTestGround = false;
-	
 	// remove specific pixels depending on the frame num
 	switch (mCurrentAnimFrame)
 	{
 		case 0:
 		{
-			shouldTestGround = true;
+			if (GetGroundDepth(mPosX+2, mPosY+6, true, true) > 0)
+				SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
 			break;
 		}
 		case 1:
-		{
-			Dig8Pixels(GetPosXPlus(3), mPosY, 0x007F);
-			break;
-		}
 		case 2:
 		{
-			Dig8Pixels(GetPosXPlus(4), mPosY, 0x007F);
+			Dig8Pixels(GetPosXPlus(2 + mCurrentAnimFrame), mPosY, 0x3F);
 			break;
 		}
-	}
-	
-	// get the pixel under my feet, if no ground, I start to fall
-	if (shouldTestGround)
-	{
-		if (GetGroundDepth(mPosX+2, mPosY+6, true, true) > 0)
-			SetCurrentState(StateId::START_FALL, mIsDirectionMirrored ? -1 : 0, 1);
+		case 3:
+		{
+			Dig8Pixels(GetPosXPlus(4), mPosY, 0x3F);
+			break;
+		}
 	}
 }
 
@@ -687,8 +679,9 @@ bool Lem::UpdateCurrentAnim()
 				doesNeedUpdate = true; // blocker never move, but we can dig under their feet, so they have to check their state some times to time
 				break;
 			case StateId::DIG_DIAG:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]))
-								|| (currentFrame <= 2); // need to dig on the first frames
+				UpdateOneAnimFrame(anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]));
+				// need to check ground on frame 0, need to dig on frame (1,2,3), need to move on frame 5
+				doesNeedUpdate = (currentFrame != 4);
 				break;
 			case StateId::DIG_HORIZ:
 				UpdateOneAnimFrame(anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]));
@@ -698,12 +691,15 @@ bool Lem::UpdateCurrentAnim()
 				doesNeedUpdate = (currentFrame < 4);
 				break;
 			case StateId::DIG_VERT:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]))
-								|| ((currentFrame >= 2) && (currentFrame <= 4)); // need to dig on the first frames
+				UpdateOneAnimFrame(anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]));
+				// need to dig on frame 2,3,4, and move on frame 3
+				doesNeedUpdate = ((currentFrame >= 2) && (currentFrame <= 4));
 				break;
 			case StateId::STAIR:
-				doesNeedUpdate = UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]))
-								|| ((currentFrame == 1) || (currentFrame == 3));
+				UpdateOneAnimFrame(anim_LemStair[currentFrame], sizeof(anim_LemStair[0]));
+				// need to reverse direction in 1, add pixel in 3, and move in 3 and 5
+				// so update on all the odd frames
+				doesNeedUpdate = (currentFrame % 2);
 				break;
 			case StateId::CLIMB:
 				doesNeedUpdate = UpdateOneAnimFrame(anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]));

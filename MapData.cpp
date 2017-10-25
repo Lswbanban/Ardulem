@@ -44,6 +44,11 @@ const unsigned int Map02IdList[] PROGMEM = {
 	ID(31,25,19), ID(11,31,31), ID(26,15,29), ID(31,25,27), ID(31,24,30), ID(24,18,31), ID(26,31,25), ID(27,31,20), ID(31,21,27), ID(31,20,28),
 	ID(31,31,27), ID(31,21,31), ID(21,22,0), MIRROR(51373), MIRROR(17104), MIRROR(24599), MIRROR(60), MIRROR(24714), MIRROR(18744), MIRROR(1)};
 
+const unsigned char MapTest[] PROGMEM = { 0x30, 0x3C, 0x3C, 0x30, 0x30, 0x30, 0x30, 0x3C, 0x3C, 0x3C, 0x0, 0x0, 0x0, 0x0, 0x10, };
+const unsigned int MapTestIdList[] PROGMEM = {
+	ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31),
+	ID(31,0,0), MIRROR(0), MIRROR(0)};
+
 /*
  * The various maps
  */
@@ -91,6 +96,28 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		(const unsigned char *)Map02Loca, //SpriteLocalization
 		sizeof(Map02Loca), //size of the Map in number of sprite columns
 		(const unsigned int *)Map02IdList //SpriteIdList
+	},
+	{ // -------- LEVEL -----------
+		33, //StartX
+		16, //StartY
+		20, //HomeX
+		61, //HomeY
+		20, //Time In Multiple Of 10 seconds
+		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		9, //Nb of available Walker
+		9, //Nb of available Blocker
+		9, //Nb of available Bomber
+		9, //Nb of available Diagonal Digger
+		9, //Nb of available Horizontal Digger
+		9, //Nb of available Vertical Digger
+		9, //Nb of available Stair Builder
+		9, //Nb of available Climber
+		9, //Nb of available Parachuter
+		(const unsigned char *)MapTest, //SpriteLocalization
+		sizeof(MapTest), //size of the Map in number of sprite columns
+		(const unsigned int *)MapTestIdList //SpriteIdList
 	},
 };
 

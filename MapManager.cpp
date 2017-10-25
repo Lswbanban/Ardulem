@@ -39,7 +39,7 @@ namespace MapManager
 	const unsigned int MODIFICATION_MAP_SIZE = MODIF_MAP_LINE_COUNT * MODIF_MAP_COLUMN_COUNT;
 	unsigned int ModificationMap[MODIFICATION_MAP_SIZE];
 	
-	const unsigned int MODIFICATION_LIST_SIZE = 100;
+	const unsigned int MODIFICATION_LIST_SIZE = 200;
 	unsigned char ModificationList[MODIFICATION_LIST_SIZE];
 	unsigned int ModificationListCount = 0;
 	
