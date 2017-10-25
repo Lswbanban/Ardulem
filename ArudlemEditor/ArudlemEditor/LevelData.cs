@@ -177,6 +177,23 @@ namespace ArudlemEditor
 			return false;
 		}
 
+		private bool ParseMapName(string[] mapParts, ref int currentIndex, out string result)
+		{
+			// read the token and increase the index
+			string token = mapParts[currentIndex];
+			currentIndex++;
+
+			// check if we can find the end bracket
+			int indexOfEndBracket = token.IndexOf(')');
+			if (indexOfEndBracket == -1)
+			{
+				result = string.Empty;
+				return false;
+			}
+			result = token.Substring(indexOfEndBracket + 1).Trim();
+			return true;
+		}
+
 		public bool LoadFromClipboard()
 		{
 			string text = Clipboard.GetText();
@@ -241,11 +258,25 @@ namespace ArudlemEditor
 				return false;
 			if (!ParseNextInt(mapParts, ref currentIndex, out m_VertDigger))
 				return false;
+			if (!ParseNextInt(mapParts, ref currentIndex, out m_Stairer))
+				return false;
 			if (!ParseNextInt(mapParts, ref currentIndex, out m_Climber))
 				return false;
 			if (!ParseNextInt(mapParts, ref currentIndex, out m_Parachuter))
 				return false;
 
+			// parse the map
+			if (!ParseMapName(mapParts, ref currentIndex, out m_LocaMapName))
+				return false;
+
+			// skipe the sizeof 
+			currentIndex++;
+
+			// parse the map id name
+			if (!ParseMapName(mapParts, ref currentIndex, out m_MapIdsName))
+				return false;
+			
+			// if we reached here everything was fine
 			return true;
 		}
 	}
