@@ -37,17 +37,23 @@ const unsigned int Map01IdList[] PROGMEM = {
 	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(29,31,3), ID(2,31,31), ID(30,31,27), ID(5,27,4), ID(31,6,1), ID(31,4,31),
 	ID(4,31,4), ID(31,6,1), ID(27,4,5), MIRROR(10304), MIRROR(8464), MIRROR(80)};
 
-const unsigned char Map02Loca[] PROGMEM = { 0x90, 0x90, 0x98, 0x9C, 0xB8, 0x30, 0x70, 0x78, 0x7C, 0x68, 0xF0, 0xF8, 0xD0, 0xE0, 0xE0, 0xE0, 0x60, 0xE0, 0xF0, 0xF8, 0xF0, 0xE0, 0xC0, 0xE0, 0xC0, 0xE0, 0x60, 0x70, 0x38, 0x38, 0x18, 0x8, };
-const unsigned int Map02IdList[] PROGMEM = {
+const unsigned char ForestLoca[] PROGMEM = { 0x90, 0x90, 0x98, 0x9C, 0xB8, 0x30, 0x70, 0x78, 0x7C, 0x68, 0xF0, 0xF8, 0xD0, 0xE0, 0xE0, 0xE0, 0x60, 0xE0, 0xF0, 0xF8, 0xF0, 0xE0, 0xC0, 0xE0, 0xC0, 0xE0, 0x60, 0x70, 0x38, 0x38, 0x18, 0x8, };
+const unsigned int ForestIds[] PROGMEM = {
 	ID(22,9,21), ID(28,15,24), ID(28,19,11), ID(21,28,15), ID(31,20,9), ID(27,21,19), ID(31,20,22), ID(18,31,24), ID(28,31,7), ID(31,26,22),
 	ID(27,21,22), ID(28,31,20), ID(28,31,7), ID(31,26,22), ID(30,25,18), ID(31,24,27), ID(31,25,31), ID(31,20,27), ID(31,28,31), ID(20,15,27),
 	ID(31,25,19), ID(11,31,31), ID(26,15,29), ID(31,25,27), ID(31,24,30), ID(24,18,31), ID(26,31,25), ID(27,31,20), ID(31,21,27), ID(31,20,28),
 	ID(31,31,27), ID(31,21,31), ID(21,22,0), MIRROR(51373), MIRROR(17104), MIRROR(24599), MIRROR(60), MIRROR(24714), MIRROR(18744), MIRROR(1)};
 
-const unsigned char MapTest[] PROGMEM = { 0x30, 0x3C, 0x3C, 0x30, 0x30, 0x30, 0x30, 0x3C, 0x3C, 0x3C, 0x0, 0x0, 0x0, 0x0, 0x10, };
+const unsigned char PyramidLoca[] PROGMEM = { 0x3F, 0x77, 0x73, 0x79, 0x39, 0x73, 0x63, 0x73, 0xFF, 0xFF, 0xF2, 0xF0, 0xF0, 0xE1, 0xC3, 0x83, 0x81, 0xC0, 0xE0, 0xF0, 0xB8, 0x9C, 0x9C, 0xB9, 0xF1, 0xE0, 0xC0, 0x80, };
+const unsigned int PyramidIds[] PROGMEM = {
+	ID(31,31,31), ID(31,31,21), ID(31,21,22), ID(27,31,20), ID(31,20,13), ID(30,25,31), ID(13,12,29), ID(20,31,13), ID(12,30,31), ID(20,13,30),
+	ID(20,31,24), ID(30,24,31), ID(21,13,29), ID(21,31,31), ID(14,13,12), ID(29,31,20), ID(27,31,14), ID(13,12,30), ID(31,4,22), ID(13,30,31),
+	ID(6,13,12), ID(31,4,13), ID(12,12,4), ID(14,13,12), ID(4,12,14), ID(13,4,12), ID(14,4,14), ID(4,13,4), ID(13,12,6), ID(13,12,14),
+	ID(4,13,12), ID(14,4,13), ID(12,14,4), ID(13,12,14), ID(4,14,13), ID(12,14,4), ID(14,13,12), ID(14,4,13), ID(12,6,13), ID(4,5,0), MIRROR(8841), MIRROR(37810), MIRROR(576), MIRROR(557), MIRROR(18498), MIRROR(8705), MIRROR(12554), MIRROR(82)};
+
+const unsigned char MapTest[] PROGMEM = { 0x0, 0x3C, 0x3C, 0x30, 0x30, 0x30, 0x30, 0x3C, 0x3C, };
 const unsigned int MapTestIdList[] PROGMEM = {
-	ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31),
-	ID(31,0,0), MIRROR(0), MIRROR(0)};
+	ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), MIRROR(0), MIRROR(0)};
 
 /*
  * The various maps
@@ -93,9 +99,31 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		9, //Nb of available Stair Builder
 		0, //Nb of available Climber
 		1, //Nb of available Parachuter
-		(const unsigned char *)Map02Loca, //SpriteLocalization
-		sizeof(Map02Loca), //size of the Map in number of sprite columns
-		(const unsigned int *)Map02IdList //SpriteIdList
+		(const unsigned char *)ForestLoca, //SpriteLocalization
+		sizeof(ForestLoca), //size of the Map in number of sprite columns
+		(const unsigned int *)ForestIds //SpriteIdList
+	},
+	{ // -------- LEVEL -----------
+		24, //StartX
+		8, //StartY
+		175, //HomeX
+		55, //HomeY
+		12, //Time In Multiple Of 10 seconds
+		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		10, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		0, //Nb of available Walker
+		0, //Nb of available Blocker
+		9, //Nb of available Bomber
+		2, //Nb of available Diagonal Digger
+		2, //Nb of available Horizontal Digger
+		2, //Nb of available Vertical Digger
+		0, //Nb of available Stair Builder
+		0, //Nb of available Climber
+		0, //Nb of available Parachuter
+		(const unsigned char *)PyramidLoca, //SpriteLocalization
+		sizeof(PyramidLoca), //size of the Map in number of sprite columns
+		(const unsigned int *)PyramidIds //SpriteIdList
 	},
 	{ // -------- LEVEL -----------
 		33, //StartX

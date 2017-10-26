@@ -268,8 +268,36 @@ namespace ArudlemEditor
         {
             // instantiate an empty new level
             m_CurrentLevel = new Level();
+			m_CurrentLevelData = new LevelData();
+			SetUIValueFromLevelDataValues();
             DrawLevel();
         }
+
+		private void SetUIValueFromLevelDataValues()
+		{
+			// set the various data parsed
+			this.StartXNumeric.Value = m_CurrentLevelData.StartX;
+			this.StartYNumeric.Value = m_CurrentLevelData.StartY;
+			this.HomeXNumeric.Value = m_CurrentLevelData.HomeX;
+			this.HomeYNumeric.Value = m_CurrentLevelData.HomeY;
+			this.TimeMinNumeric.Value = m_CurrentLevelData.TimeMin;
+			this.TimeSecNumeric.Value = m_CurrentLevelData.TimeSec;
+			this.SpawnLemCountNumeric.Value = m_CurrentLevelData.SpawnLemCount;
+			this.RequiredLemCountNumeric.Value = m_CurrentLevelData.RequiredLemCount;
+			this.MinDropSpeedNumeric.Value = m_CurrentLevelData.MinDropSpeed;
+			this.WalkNumeric.Value = m_CurrentLevelData.Walker;
+			this.BlockNumeric.Value = m_CurrentLevelData.Blocker;
+			this.BombNumeric.Value = m_CurrentLevelData.Bomber;
+			this.DigDiagNumeric.Value = m_CurrentLevelData.DiagDigger;
+			this.DigHorizNumeric.Value = m_CurrentLevelData.HorizDigger;
+			this.DigVertNumeric.Value = m_CurrentLevelData.VertDigger;
+			this.StairNumeric.Value = m_CurrentLevelData.Stairer;
+			this.ClimbNumeric.Value = m_CurrentLevelData.Climber;
+			this.ParachuteNumeric.Value = m_CurrentLevelData.m_Parachuter;
+			// also set the map names from the level data
+			this.LocaMapNameTextBox.Text = m_CurrentLevelData.m_LocaMapName;
+			this.MapIdsTextBox.Text = m_CurrentLevelData.m_MapIdsName;
+		}
 
         private void loadLevelFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -292,29 +320,7 @@ namespace ArudlemEditor
 				{
 					// redraw the level (because start and home position may have change)
 					DrawLevel();
-
-					// set the various data parsed
-					this.StartXNumeric.Value = m_CurrentLevelData.StartX;
-					this.StartYNumeric.Value = m_CurrentLevelData.StartY;
-					this.HomeXNumeric.Value = m_CurrentLevelData.HomeX;
-					this.HomeYNumeric.Value = m_CurrentLevelData.HomeY;
-					this.TimeMinNumeric.Value = m_CurrentLevelData.TimeMin;
-					this.TimeSecNumeric.Value = m_CurrentLevelData.TimeSec;
-					this.SpawnLemCountNumeric.Value = m_CurrentLevelData.SpawnLemCount;
-					this.RequiredLemCountNumeric.Value = m_CurrentLevelData.RequiredLemCount;
-					this.MinDropSpeedNumeric.Value = m_CurrentLevelData.MinDropSpeed;
-					this.WalkNumeric.Value = m_CurrentLevelData.Walker;
-					this.BlockNumeric.Value = m_CurrentLevelData.Blocker;
-					this.BombNumeric.Value = m_CurrentLevelData.Bomber;
-					this.DigDiagNumeric.Value = m_CurrentLevelData.DiagDigger;
-					this.DigHorizNumeric.Value = m_CurrentLevelData.HorizDigger;
-					this.DigVertNumeric.Value = m_CurrentLevelData.VertDigger;
-					this.StairNumeric.Value = m_CurrentLevelData.Stairer;
-					this.ClimbNumeric.Value = m_CurrentLevelData.Climber;
-					this.ParachuteNumeric.Value = m_CurrentLevelData.m_Parachuter;
-					// also set the map names from the level data
-					this.LocaMapNameTextBox.Text = m_CurrentLevelData.m_LocaMapName;
-					this.MapIdsTextBox.Text = m_CurrentLevelData.m_MapIdsName;
+					SetUIValueFromLevelDataValues();
 				}
 				else
 				{
