@@ -35,12 +35,13 @@ For that, you need to first select your command in the left toolbar. The tool dr
 #### The toolbar
 
 From the top to bottom of the HUD, you can see:
- - First you can see the percentage of Lems who has already drop.
- - Then the percentage of Lems who have reached the exit.
- - Then the percentage of Lems that you need to save to win the level. If you have reach that number, the little flag will move. This option is selectable in the toolbar. If you select it and press **B**, you will be prompt with a message asking you if you want to abandon. This is the normal way to return to the menu.
- - Then you have the timer. When the time is out, the game is over. You can also press **B** on the timer, if you do so, it will pause the game, but you can still scroll the view to observe the level. The game always start with the timer selected, so you can immediately press B when you enter in a level, to take time to observe it. Moreover, if you **hold A + RIGHT** you can swith to Speedy Mode, which accelerate the time, and make everything goes faster. This is usefull if you have already create a path all the way to exit and don't want to wait too long for all of them to reach the exit.
- - Then you have a 3x3 grid that regroups the 9 orders that you can give to your Lems, in this order: Walker, Blocker, Exploder, Diagonal Digger, Horizontal Digger, Vertical Digger, Stair Builder, Climber, Parachuter. The first role "Walker" doesn't exist in the original game. This can be used to stop a digger or a stair builder for example. In each on the 9 cells, you can also see the number of available orders. 
- - Finally, the last tool is to control the Lems drop speed. You can increase or decrease the dropping speed by **holding A** and use the **left and right arrows**.
+
+- First you can see the percentage of Lems who has already drop.
+- Then the percentage of Lems who have reached the exit.
+- Then the percentage of Lems that you need to save to win the level. If you have reach that number, the little flag will move. This option is selectable in the toolbar. If you select it and press **B**, you will be prompt with a message asking you if you want to abandon. This is the normal way to return to the menu.
+- Then you have the timer. When the time is out, the game is over. You can also press **B** on the timer, if you do so, it will pause the game, but you can still scroll the view to observe the level. The game always start with the timer selected, so you can immediately press B when you enter in a level, to take time to observe it. Moreover, if you **hold A + RIGHT** you can swith to Speedy Mode, which accelerate the time, and make everything goes faster. This is usefull if you have already create a path all the way to exit and don't want to wait too long for all of them to reach the exit.
+- Then you have a 3x3 grid that regroups the 9 orders that you can give to your Lems, in this order: Walker, Blocker, Exploder, Diagonal Digger, Horizontal Digger, Vertical Digger, Stair Builder, Climber, Parachuter. The first role "Walker" doesn't exist in the original game. This can be used to stop a digger or a stair builder for example. In each on the 9 cells, you can also see the number of available orders. 
+- Finally, the last tool is to control the Lems drop speed. You can increase or decrease the dropping speed by **holding A** and use the **left and right arrows**.
 
 
 ### Result page
@@ -61,7 +62,9 @@ Here is a complete summary of the key bindings
 - **A** or **B**: Start to play the level - Enable or disable the music - Reset the save (Warning! there's no feedback on this menu item)
 
 ### In Game
+
 Here is the list of possible actions and how to perform them:
+
 - *Move the cursor and/or scroll the screen:* **UP/DOWN/LEFT/RIGHT**
 - *Move the selected tool in the HUD:* **Hold A + UP/DOWN/LEFT/RIGHT**. Or simply press **A** to move to the next one.
 - *Give an order to a Lem:* Select the correct order in the HUD, then move the cursor on the Lem, and press **B**
@@ -72,6 +75,7 @@ Here is the list of possible actions and how to perform them:
 - *Adjust the Lem drop speed:* Move the selection on the drop speed widget, then **hold B + LEFT/RIGHT**
 
 Or if you prefer to see what each button does:
+
 - **UP/DOWN/LEFT/RIGHT** alone: Move the cursor. If the cursor reach the border of the screen, that scrolls the screen.
 - **Hold A + UP/DOWN/LEFT/RIGHT**: navigate in the toolbar. While doing so, the cursor won't move on screen. On the drop speed widget it can adjust the drop speed, and on the timer it can switch between Speedy and Normal Mode.
 - **B**: This is the action button. It gives an order to a Lem if the cursor is on a Lem and the current selected tool is an Lem command - Pause the game if the timer is selected - Abandon if the Flag is selected.
