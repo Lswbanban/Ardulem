@@ -336,35 +336,35 @@ void HUD::DrawLemButton(int animFrameIndex, Button button, int startY, int width
 	switch (button)
 	{
 		case Button::LEM_WALK:
-			Lem::DrawOneAnimFrame(x+1, y, anim_LemWalk[animFrameIndex%ANIM_LEM_WALK_FRAME_COUNT], sizeof(anim_LemWalk[0]), false, color);
+			arduboy.drawBitmap(x+1, y, anim_LemWalk[animFrameIndex%ANIM_LEM_WALK_FRAME_COUNT], sizeof(anim_LemWalk[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_BLOCKER:
-			Lem::DrawOneAnimFrame(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_LemBlocker[0], sizeof(anim_LemBlocker[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_BOMB:
 			{
 				int index = animFrameIndex%ANIM_LEM_CRASH_FRAME_COUNT;
 				if (index > 1)
-					Lem::DrawOneAnimFrame(x, y, anim_LemCrash[index], sizeof(anim_LemCrash[0]), false, color);
+					arduboy.drawBitmap(x, y, anim_LemCrash[index], sizeof(anim_LemCrash[0]), color, false, 0x7F);
 			}
 			break;
 		case Button::LEM_DIG_DIAG:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigDiagonal[animFrameIndex%ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT], sizeof(anim_LemDigDiagonal[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_LemDigDiagonal[animFrameIndex%ANIM_LEM_DIG_DIAGONAL_FRAME_COUNT], sizeof(anim_LemDigDiagonal[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_DIG_HORIZ:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigHorizontal[animFrameIndex%ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT], sizeof(anim_LemDigHorizontal[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_LemDigHorizontal[animFrameIndex%ANIM_LEM_DIG_HORIZONTAL_FRAME_COUNT], sizeof(anim_LemDigHorizontal[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_DIG_VERT:
-			Lem::DrawOneAnimFrame(x, y, anim_LemDigVertical[animFrameIndex%ANIM_LEM_DIG_VERTICAL_FRAME_COUNT], sizeof(anim_LemDigVertical[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_LemDigVertical[animFrameIndex%ANIM_LEM_DIG_VERTICAL_FRAME_COUNT], sizeof(anim_LemDigVertical[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_STAIR:
-			Lem::DrawOneAnimFrame(x, y, anim_LemStair[animFrameIndex%ANIM_LEM_STAIR_FRAME_COUNT], sizeof(anim_LemStair[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_LemStair[animFrameIndex%ANIM_LEM_STAIR_FRAME_COUNT], sizeof(anim_LemStair[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_CLIMB:
-			Lem::DrawOneAnimFrame(x+1, y, anim_LemClimb[animFrameIndex%ANIM_LEM_CLIMB_FRAME_COUNT], sizeof(anim_LemClimb[0]), false, color);
+			arduboy.drawBitmap(x+1, y, anim_LemClimb[animFrameIndex%ANIM_LEM_CLIMB_FRAME_COUNT], sizeof(anim_LemClimb[0]), color, false, 0x7F);
 			break;
 		case Button::LEM_PARACHUTE:
-			Lem::DrawOneAnimFrame(x, y, anim_ParaButton[animFrameIndex%ANIM_PARA_BUTTON_FRAME_COUNT], sizeof(anim_ParaButton[0]), false, color);
+			arduboy.drawBitmap(x, y, anim_ParaButton[animFrameIndex%ANIM_PARA_BUTTON_FRAME_COUNT], sizeof(anim_ParaButton[0]), color, false, 0x7F);
 			break;
 	}
 	

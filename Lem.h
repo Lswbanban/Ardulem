@@ -42,7 +42,6 @@ public:
 	bool			IsAParachuter()			{ return mIsAParachuter; }
 	bool			IsDirectionMirrored()	{ return mIsDirectionMirrored; }
 	bool			IsThereAWallInFrontOfYou(int minHeight, bool shouldCheckAddedStairs);
-	static void		DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color);
 
 private:
 	// position (and we also packed the climb and parachute flags in the Y)

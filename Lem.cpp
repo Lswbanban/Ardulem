@@ -304,6 +304,7 @@ bool Lem::IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool is
 {
 	if ((mCurrentState == StateId::BLOCKER) && (worldY+4 >= mPosY+1) && (worldY <= mPosY+5) && (worldX >= mPosX) && (worldX < mPosX+5))
 	{
+		// The second test is to avoid to block lems inside a blocker (for example if a lem falls on a blocker)
 		int xBefore = worldX + (isWalkingInMirror ? 1 : -1);
 		return ((xBefore < mPosX) || (xBefore > mPosX+4));
 	}
@@ -818,47 +819,47 @@ void Lem::Draw()
 				DrawExplosiontFx();
 				break;
 			case StateId::CRASH:
-				DrawOneAnimFrame(screenX, screenY, anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemCrash[currentFrame], sizeof(anim_LemCrash[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::BYE_BYE_BOOM:
-				DrawOneAnimFrame(screenX, screenY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemBomb[currentFrame], sizeof(anim_LemBomb[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::WALK:
-				DrawOneAnimFrame(screenX, screenY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemWalk[currentFrame], sizeof(anim_LemWalk[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::BLOCKER:
-				DrawOneAnimFrame(screenX, screenY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemBlocker[currentFrame], sizeof(anim_LemBlocker[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::DIG_DIAG:
-				DrawOneAnimFrame(screenX, screenY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemDigDiagonal[currentFrame], sizeof(anim_LemDigDiagonal[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::DIG_HORIZ:
-				DrawOneAnimFrame(screenX, screenY, anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemDigHorizontal[currentFrame], sizeof(anim_LemDigHorizontal[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::DIG_VERT:
-				DrawOneAnimFrame(screenX, screenY, anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemDigVertical[currentFrame], sizeof(anim_LemDigVertical[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::STAIR:
-				DrawOneAnimFrame(screenX, screenY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemStair[currentFrame], sizeof(anim_LemStair[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::CLIMB:
-				DrawOneAnimFrame(screenX, screenY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemClimb[currentFrame], sizeof(anim_LemClimb[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::CLIMB_TOP:
-				DrawOneAnimFrame(screenX, screenY, anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemClimbTop[currentFrame], sizeof(anim_LemClimbTop[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::START_FALL:
-				DrawOneAnimFrame(screenX, screenY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemStartFall[currentFrame], sizeof(anim_LemStartFall[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::FALL:
-				DrawOneAnimFrame(screenX, screenY, anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemFall[currentFrame % ANIM_LEM_FALL_FRAME_COUNT], sizeof(anim_LemFall[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::FALL_TO_DEATH:
-				DrawOneAnimFrame(screenX, screenY, anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX, screenY, anim_LemFallToDeath[currentFrame], sizeof(anim_LemFallToDeath[0]), WHITE, isMirrored, 0x7F);
 				break;
 			case StateId::PARACHUTE:
-				DrawOneAnimFrame(screenX-2, screenY-4, anim_Parachute[currentFrame], sizeof(anim_Parachute[0]), isMirrored, WHITE);
-				DrawOneAnimFrame(currentFrame==1 ? screenX-1: currentFrame==3 ? screenX+1 : screenX, screenY, anim_LemPara[currentFrame], sizeof(anim_LemPara[0]), isMirrored, WHITE);
+				arduboy.drawBitmap(screenX-2, screenY-4, anim_Parachute[currentFrame], sizeof(anim_Parachute[0]), WHITE, isMirrored, 0x7F);
+				arduboy.drawBitmap(currentFrame==1 ? screenX-1: currentFrame==3 ? screenX+1 : screenX, screenY, anim_LemPara[currentFrame], sizeof(anim_LemPara[0]), WHITE, isMirrored, 0x7F);
 				break;
 		}
 	}
@@ -868,14 +869,6 @@ void Lem::DrawTimerAboveHead(unsigned char timer)
 {
 	if (MapManager::IsOnScreen(mPosX) || MapManager::IsOnScreen(mPosX+5))
 		arduboy.drawBitmap(MapManager::ConvertToScreenCoord(mCurrentState == StateId::WALK ? mPosX : mPosX+1), mPosY-5, sprite_TinyNumbers[timer], 3, WHITE);
-}
-
-/*
- * Draw a specific frame of a lem animation at the specified position and with the specified color
- */
-void Lem::DrawOneAnimFrame(unsigned char x, unsigned char y, const unsigned char animFrame[], int animFrameWidth, bool drawMirrored, char color)
-{
-	arduboy.drawBitmap(x, y, animFrame, animFrameWidth, color, drawMirrored, 0x7F);
 }
 
 void Lem::DrawExplosiontFx()
