@@ -19,7 +19,8 @@ namespace ArudlemEditor
         // the variable names for the two arrays of the map
         public string m_LocaMapName = string.Empty;
         public string m_MapIdsName = string.Empty;
-        public bool m_ShouldTrimLevelAtExport = true;
+        public bool m_ShouldTrimLevelLeftAtExport = true;
+		public bool m_ShouldTrimLevelRightAtExport = true;
 		public bool m_ExportWithWindowsEOL = true;
 
         public Level()
@@ -220,6 +221,43 @@ namespace ArudlemEditor
             return true;
         }
 
+		public int GetMinX()
+		{
+			int minCol = 0;
+			int maxCol = 0;
+			ComputeMinAndMaxColumn(out minCol, out maxCol);
+			return minCol * 8;
+		}
+
+		private void ComputeMinAndMaxColumn(out int minCol, out int maxCol)
+		{
+			// init with the larger possibility
+			minCol = 0;
+			maxCol = LEVEL_WIDTH - 1;
+
+			// modify the start and end if we need to trim the level
+			if (m_ShouldTrimLevelLeftAtExport || m_ShouldTrimLevelRightAtExport)
+			{
+				bool wasStartIFound = false;
+				// do a first blanck iteration to find start and end column of the level
+				for (int i = 0; i < LEVEL_WIDTH; ++i)
+					for (int j = 0; j < LEVEL_HEIGHT; ++j)
+						if (m_Data[i, j] >= 0)
+						{
+							// set the start i if it was never set yet
+							if (!wasStartIFound)
+							{
+								wasStartIFound = true;
+								if (m_ShouldTrimLevelLeftAtExport)
+									minCol = i;
+							}
+							// always set the end i, as we want the most one on the right
+							if (m_ShouldTrimLevelRightAtExport)
+								maxCol = i;
+						}
+			}
+		}
+
         public void SaveToClipboard()
         {
             // start the string with the declaration of the map
@@ -228,26 +266,7 @@ namespace ArudlemEditor
             // determines the start and end column depending if we need to trim the border
             int startI = 0;
             int endI = LEVEL_WIDTH-1;
-
-            // modify the start and end if we need to trim the level
-            if (m_ShouldTrimLevelAtExport)
-            {
-                bool wasStartIFound = false;
-                // do a first blanck iteration to find start and end column of the level
-                for (int i = 0; i < LEVEL_WIDTH; ++i)
-                    for (int j = 0; j < LEVEL_HEIGHT; ++j)
-                        if (m_Data[i, j] >= 0)
-                        {
-                            // set the start i if it was never set yet
-                            if (!wasStartIFound)
-                            {
-                                wasStartIFound = true;
-                                startI = i;
-                            }
-                            // always set the end i, as we want the most one on the right
-                            endI = i;
-                        }
-            }
+			ComputeMinAndMaxColumn(out startI, out endI);
 
             // parse the data to compute the bitfield, from start to end found column
             for (int i = startI; i <= endI; ++i)

@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Mirror Sprite",
             "Delete Sprite"}, -1);
@@ -86,7 +86,7 @@
 			this.label3 = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
 			this.ExportWithWinEOLCheckBox = new System.Windows.Forms.CheckBox();
-			this.TrimLevelCheckBox = new System.Windows.Forms.CheckBox();
+			this.TrimLevelLeftCheckBox = new System.Windows.Forms.CheckBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
 			this.HelpTableListView = new System.Windows.Forms.ListView();
 			this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -97,6 +97,7 @@
 			this.MapIdsTextBox = new System.Windows.Forms.TextBox();
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
+			this.TrimLevelRightCheckBox = new System.Windows.Forms.CheckBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -761,8 +762,9 @@
 			// 
 			// groupBox3
 			// 
+			this.groupBox3.Controls.Add(this.TrimLevelRightCheckBox);
 			this.groupBox3.Controls.Add(this.ExportWithWinEOLCheckBox);
-			this.groupBox3.Controls.Add(this.TrimLevelCheckBox);
+			this.groupBox3.Controls.Add(this.TrimLevelLeftCheckBox);
 			this.groupBox3.Location = new System.Drawing.Point(207, 8);
 			this.groupBox3.Name = "groupBox3";
 			this.groupBox3.Size = new System.Drawing.Size(268, 67);
@@ -783,18 +785,16 @@
 			this.ExportWithWinEOLCheckBox.UseVisualStyleBackColor = true;
 			this.ExportWithWinEOLCheckBox.CheckedChanged += new System.EventHandler(this.ExportWithWinEOLCheckBox_CheckedChanged);
 			// 
-			// TrimLevelCheckBox
+			// TrimLevelLeftCheckBox
 			// 
-			this.TrimLevelCheckBox.AutoSize = true;
-			this.TrimLevelCheckBox.Checked = true;
-			this.TrimLevelCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.TrimLevelCheckBox.Location = new System.Drawing.Point(11, 19);
-			this.TrimLevelCheckBox.Name = "TrimLevelCheckBox";
-			this.TrimLevelCheckBox.Size = new System.Drawing.Size(136, 17);
-			this.TrimLevelCheckBox.TabIndex = 6;
-			this.TrimLevelCheckBox.Text = "Trim Level left and right";
-			this.TrimLevelCheckBox.UseVisualStyleBackColor = true;
-			this.TrimLevelCheckBox.CheckedChanged += new System.EventHandler(this.TrimLevelCheckBox_CheckedChanged);
+			this.TrimLevelLeftCheckBox.AutoSize = true;
+			this.TrimLevelLeftCheckBox.Location = new System.Drawing.Point(11, 19);
+			this.TrimLevelLeftCheckBox.Name = "TrimLevelLeftCheckBox";
+			this.TrimLevelLeftCheckBox.Size = new System.Drawing.Size(92, 17);
+			this.TrimLevelLeftCheckBox.TabIndex = 6;
+			this.TrimLevelLeftCheckBox.Text = "Trim Level left";
+			this.TrimLevelLeftCheckBox.UseVisualStyleBackColor = true;
+			this.TrimLevelLeftCheckBox.CheckedChanged += new System.EventHandler(this.TrimLevelCheckBox_CheckedChanged);
 			// 
 			// groupBox2
 			// 
@@ -817,7 +817,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem5});
+            listViewItem2});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -888,6 +888,19 @@
 			this.label1.Size = new System.Drawing.Size(55, 13);
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Loca Map";
+			// 
+			// TrimLevelRightCheckBox
+			// 
+			this.TrimLevelRightCheckBox.AutoSize = true;
+			this.TrimLevelRightCheckBox.Checked = true;
+			this.TrimLevelRightCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.TrimLevelRightCheckBox.Location = new System.Drawing.Point(122, 19);
+			this.TrimLevelRightCheckBox.Name = "TrimLevelRightCheckBox";
+			this.TrimLevelRightCheckBox.Size = new System.Drawing.Size(98, 17);
+			this.TrimLevelRightCheckBox.TabIndex = 8;
+			this.TrimLevelRightCheckBox.Text = "Trim Level right";
+			this.TrimLevelRightCheckBox.UseVisualStyleBackColor = true;
+			this.TrimLevelRightCheckBox.CheckedChanged += new System.EventHandler(this.TrimLevelRightCheckBox_CheckedChanged);
 			// 
 			// MainForm
 			// 
@@ -962,7 +975,7 @@
         private System.Windows.Forms.TextBox MapIdsTextBox;
         private System.Windows.Forms.TextBox LocaMapNameTextBox;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.CheckBox TrimLevelCheckBox;
+        private System.Windows.Forms.CheckBox TrimLevelLeftCheckBox;
 		private System.Windows.Forms.GroupBox groupBox3;
 		private System.Windows.Forms.GroupBox groupBox2;
 		private System.Windows.Forms.ListView HelpTableListView;
@@ -1010,6 +1023,7 @@
 		private System.Windows.Forms.CheckBox ExportWithWinEOLCheckBox;
 		private System.Windows.Forms.ToolStripMenuItem saveLevelDataToClipboardToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem drawStartAndHomeToolStripMenuItem;
+		private System.Windows.Forms.CheckBox TrimLevelRightCheckBox;
     }
 }
 

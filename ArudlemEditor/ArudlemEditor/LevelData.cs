@@ -280,13 +280,22 @@ namespace ArudlemEditor
 			return true;
 		}
 
-		public void SaveToClipboard()
+		public void SaveToClipboard(int minX)
 		{
+			// adjust startX and HomeX, without going outside of the screen
+			int shiftedStartX = StartX - minX;
+			if (shiftedStartX < 0)
+				shiftedStartX = 0;
+
+			int shiftedHomeX = HomeX - minX;
+			if (shiftedHomeX < 0)
+				shiftedHomeX = 0;
+
 			// start the string with the declaration of the map
 			string text = "\t{ // -------- LEVEL -----------" + GetEOL();
-			text += "\t\t" + StartX.ToString() + ", //StartX" + GetEOL();
+			text += "\t\t" + shiftedStartX.ToString() + ", //StartX" + GetEOL();
 			text += "\t\t" + StartY.ToString() + ", //StartY" + GetEOL();
-			text += "\t\t" + HomeX.ToString() + ", //HomeX" + GetEOL();
+			text += "\t\t" + shiftedHomeX.ToString() + ", //HomeX" + GetEOL();
 			text += "\t\t" + HomeY.ToString() + ", //HomeY" + GetEOL();
 			text += "\t\t" + m_TotalTimeIn10thSec.ToString() + ", //Time In Multiple Of 10 seconds" + GetEOL();
 			text += "\t\t" + m_SpawnLemCount.ToString() + ", //Available Lem Count in multiple of 5 (from 0 to 15 max!!)" + GetEOL();

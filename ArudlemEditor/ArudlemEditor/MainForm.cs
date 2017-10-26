@@ -327,7 +327,8 @@ namespace ArudlemEditor
 		private void SetExportConfigToLevel()
 		{
 			// set the export config before calling the save
-			m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
+			m_CurrentLevel.m_ShouldTrimLevelLeftAtExport = this.TrimLevelLeftCheckBox.Checked;
+			m_CurrentLevel.m_ShouldTrimLevelRightAtExport = this.TrimLevelRightCheckBox.Checked;
 			m_CurrentLevel.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
 			m_CurrentLevelData.m_ExportWithWindowsEOL = this.ExportWithWinEOLCheckBox.Checked;
 		}
@@ -369,7 +370,7 @@ namespace ArudlemEditor
 			m_CurrentLevelData.m_MapIdsName = this.MapIdsTextBox.Text;
 
 			// and copy the current level to clipboard
-			m_CurrentLevelData.SaveToClipboard();
+			m_CurrentLevelData.SaveToClipboard(m_CurrentLevel.GetMinX());
 		}
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -420,8 +421,13 @@ namespace ArudlemEditor
         #region event for parameter changes
         private void TrimLevelCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            m_CurrentLevel.m_ShouldTrimLevelAtExport = this.TrimLevelCheckBox.Checked;
+            m_CurrentLevel.m_ShouldTrimLevelLeftAtExport = this.TrimLevelLeftCheckBox.Checked;
         }
+
+		private void TrimLevelRightCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevel.m_ShouldTrimLevelRightAtExport = this.TrimLevelRightCheckBox.Checked;
+		}
 
 		private void ExportWithWinEOLCheckBox_CheckedChanged(object sender, EventArgs e)
 		{
