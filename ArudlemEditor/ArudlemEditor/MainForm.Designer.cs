@@ -40,6 +40,14 @@
 			this.saveLevelDataToClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.redoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.shiftLevelToRightToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.shiftLevelToLeftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.shiftLevelUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.shiftLevelDownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawLevelGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.drawStartAndHomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
@@ -85,6 +93,7 @@
 			this.label4 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.groupBox3 = new System.Windows.Forms.GroupBox();
+			this.TrimLevelRightCheckBox = new System.Windows.Forms.CheckBox();
 			this.ExportWithWinEOLCheckBox = new System.Windows.Forms.CheckBox();
 			this.TrimLevelLeftCheckBox = new System.Windows.Forms.CheckBox();
 			this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -97,7 +106,6 @@
 			this.MapIdsTextBox = new System.Windows.Forms.TextBox();
 			this.LocaMapNameTextBox = new System.Windows.Forms.TextBox();
 			this.label1 = new System.Windows.Forms.Label();
-			this.TrimLevelRightCheckBox = new System.Windows.Forms.CheckBox();
 			this.menuStrip1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
 			this.splitContainer1.Panel1.SuspendLayout();
@@ -138,7 +146,8 @@
 			// 
 			this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem});
+            this.editToolStripMenuItem,
+            this.viewToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
 			this.menuStrip1.Size = new System.Drawing.Size(740, 24);
@@ -199,11 +208,77 @@
 			// editToolStripMenuItem
 			// 
 			this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.drawLevelGridToolStripMenuItem,
-            this.drawStartAndHomeToolStripMenuItem});
+            this.undoToolStripMenuItem,
+            this.redoToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.shiftLevelToRightToolStripMenuItem,
+            this.shiftLevelToLeftToolStripMenuItem,
+            this.shiftLevelUpToolStripMenuItem,
+            this.shiftLevelDownToolStripMenuItem});
 			this.editToolStripMenuItem.Name = "editToolStripMenuItem";
 			this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
 			this.editToolStripMenuItem.Text = "Edit";
+			// 
+			// undoToolStripMenuItem
+			// 
+			this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+			this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+			this.undoToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.undoToolStripMenuItem.Text = "Undo";
+			// 
+			// redoToolStripMenuItem
+			// 
+			this.redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+			this.redoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Y)));
+			this.redoToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.redoToolStripMenuItem.Text = "Redo";
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(232, 6);
+			// 
+			// shiftLevelToRightToolStripMenuItem
+			// 
+			this.shiftLevelToRightToolStripMenuItem.Name = "shiftLevelToRightToolStripMenuItem";
+			this.shiftLevelToRightToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Right)));
+			this.shiftLevelToRightToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.shiftLevelToRightToolStripMenuItem.Text = "Shift Level to Right";
+			this.shiftLevelToRightToolStripMenuItem.Click += new System.EventHandler(this.shiftLevelToRightToolStripMenuItem_Click);
+			// 
+			// shiftLevelToLeftToolStripMenuItem
+			// 
+			this.shiftLevelToLeftToolStripMenuItem.Name = "shiftLevelToLeftToolStripMenuItem";
+			this.shiftLevelToLeftToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Left)));
+			this.shiftLevelToLeftToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.shiftLevelToLeftToolStripMenuItem.Text = "Shift Level to Left";
+			this.shiftLevelToLeftToolStripMenuItem.Click += new System.EventHandler(this.shiftLevelToLeftToolStripMenuItem_Click);
+			// 
+			// shiftLevelUpToolStripMenuItem
+			// 
+			this.shiftLevelUpToolStripMenuItem.Name = "shiftLevelUpToolStripMenuItem";
+			this.shiftLevelUpToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Up)));
+			this.shiftLevelUpToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.shiftLevelUpToolStripMenuItem.Text = "Shift Level Up";
+			this.shiftLevelUpToolStripMenuItem.Click += new System.EventHandler(this.shiftLevelUpToolStripMenuItem_Click);
+			// 
+			// shiftLevelDownToolStripMenuItem
+			// 
+			this.shiftLevelDownToolStripMenuItem.Name = "shiftLevelDownToolStripMenuItem";
+			this.shiftLevelDownToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Down)));
+			this.shiftLevelDownToolStripMenuItem.Size = new System.Drawing.Size(235, 22);
+			this.shiftLevelDownToolStripMenuItem.Text = "Shift Level Down";
+			this.shiftLevelDownToolStripMenuItem.Click += new System.EventHandler(this.shiftLevelDownToolStripMenuItem_Click);
+			// 
+			// viewToolStripMenuItem
+			// 
+			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.drawLevelGridToolStripMenuItem,
+            this.drawStartAndHomeToolStripMenuItem});
+			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+			this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+			this.viewToolStripMenuItem.Text = "View";
+			this.viewToolStripMenuItem.Click += new System.EventHandler(this.drawLevelGridToolStripMenuItem_Click);
 			// 
 			// drawLevelGridToolStripMenuItem
 			// 
@@ -219,11 +294,13 @@
 			// drawStartAndHomeToolStripMenuItem
 			// 
 			this.drawStartAndHomeToolStripMenuItem.Checked = true;
+			this.drawStartAndHomeToolStripMenuItem.CheckOnClick = true;
 			this.drawStartAndHomeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.drawStartAndHomeToolStripMenuItem.Name = "drawStartAndHomeToolStripMenuItem";
 			this.drawStartAndHomeToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F6;
 			this.drawStartAndHomeToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
 			this.drawStartAndHomeToolStripMenuItem.Text = "Draw Start and Home";
+			this.drawStartAndHomeToolStripMenuItem.Click += new System.EventHandler(this.drawStartAndHomeToolStripMenuItem_Click);
 			// 
 			// splitContainer1
 			// 
@@ -772,6 +849,19 @@
 			this.groupBox3.TabStop = false;
 			this.groupBox3.Text = "Export Options";
 			// 
+			// TrimLevelRightCheckBox
+			// 
+			this.TrimLevelRightCheckBox.AutoSize = true;
+			this.TrimLevelRightCheckBox.Checked = true;
+			this.TrimLevelRightCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.TrimLevelRightCheckBox.Location = new System.Drawing.Point(122, 19);
+			this.TrimLevelRightCheckBox.Name = "TrimLevelRightCheckBox";
+			this.TrimLevelRightCheckBox.Size = new System.Drawing.Size(98, 17);
+			this.TrimLevelRightCheckBox.TabIndex = 8;
+			this.TrimLevelRightCheckBox.Text = "Trim Level right";
+			this.TrimLevelRightCheckBox.UseVisualStyleBackColor = true;
+			this.TrimLevelRightCheckBox.CheckedChanged += new System.EventHandler(this.TrimLevelRightCheckBox_CheckedChanged);
+			// 
 			// ExportWithWinEOLCheckBox
 			// 
 			this.ExportWithWinEOLCheckBox.AutoSize = true;
@@ -889,19 +979,6 @@
 			this.label1.TabIndex = 0;
 			this.label1.Text = "Loca Map";
 			// 
-			// TrimLevelRightCheckBox
-			// 
-			this.TrimLevelRightCheckBox.AutoSize = true;
-			this.TrimLevelRightCheckBox.Checked = true;
-			this.TrimLevelRightCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-			this.TrimLevelRightCheckBox.Location = new System.Drawing.Point(122, 19);
-			this.TrimLevelRightCheckBox.Name = "TrimLevelRightCheckBox";
-			this.TrimLevelRightCheckBox.Size = new System.Drawing.Size(98, 17);
-			this.TrimLevelRightCheckBox.TabIndex = 8;
-			this.TrimLevelRightCheckBox.Text = "Trim Level right";
-			this.TrimLevelRightCheckBox.UseVisualStyleBackColor = true;
-			this.TrimLevelRightCheckBox.CheckedChanged += new System.EventHandler(this.TrimLevelRightCheckBox_CheckedChanged);
-			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -968,8 +1045,7 @@
         private System.Windows.Forms.SplitContainer splitContainer2;
         private System.Windows.Forms.PictureBox MapSpritePictureBox;
         private System.Windows.Forms.PictureBox LevelPictureBox;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem drawLevelGridToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox MapIdsTextBox;
@@ -1022,8 +1098,17 @@
 		private System.Windows.Forms.Label label20;
 		private System.Windows.Forms.CheckBox ExportWithWinEOLCheckBox;
 		private System.Windows.Forms.ToolStripMenuItem saveLevelDataToClipboardToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem drawStartAndHomeToolStripMenuItem;
 		private System.Windows.Forms.CheckBox TrimLevelRightCheckBox;
+		private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.ToolStripMenuItem shiftLevelToRightToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem shiftLevelToLeftToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem shiftLevelUpToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem shiftLevelDownToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem drawLevelGridToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem drawStartAndHomeToolStripMenuItem;
     }
 }
 

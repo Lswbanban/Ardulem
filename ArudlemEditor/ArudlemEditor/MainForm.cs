@@ -388,10 +388,38 @@ namespace ArudlemEditor
         {
             DrawLevel();
         }
+
+		private void drawStartAndHomeToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			DrawLevel();
+		}
+
+		private void shiftLevelToRightToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			m_CurrentLevel.ShiftHorizontally(1);
+			DrawLevel();
+		}
+
+		private void shiftLevelToLeftToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			m_CurrentLevel.ShiftHorizontally(-1);
+			DrawLevel();
+		}
+
+		private void shiftLevelUpToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			m_CurrentLevel.ShiftVertically(-1);
+			DrawLevel();
+		}
+
+		private void shiftLevelDownToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			m_CurrentLevel.ShiftVertically(1);
+			DrawLevel();
+		}
         #endregion
 
         #region click events
-
         private void MapSpritePictureBox_MouseClick(object sender, MouseEventArgs e)
         {
             SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Size);

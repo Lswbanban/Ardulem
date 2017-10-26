@@ -35,6 +35,74 @@ namespace ArudlemEditor
                     m_Data[i, j] = -1;
         }
 
+		public void ShiftHorizontally(int shiftX)
+		{
+			if (shiftX < 0)
+			{
+				for (int i = 0; i < LEVEL_WIDTH; ++i)
+					for (int j = 0; j < LEVEL_HEIGHT; ++j)
+						if (i < LEVEL_WIDTH + shiftX)
+						{
+							m_Data[i, j] = m_Data[i + 1, j];
+							m_Mirror[i, j] = m_Mirror[i + 1, j];
+						}
+						else
+						{
+							m_Data[i, j] = -1;
+							m_Mirror[i, j] = false;
+						}
+			}
+			else if (shiftX > 0)
+			{
+				for (int i = LEVEL_WIDTH-1; i >= 0 ; --i)
+					for (int j = 0; j < LEVEL_HEIGHT; ++j)
+						if (i >= shiftX)
+						{
+							m_Data[i, j] = m_Data[i - 1, j];
+							m_Mirror[i, j] = m_Mirror[i - 1, j];
+						}
+						else
+						{
+							m_Data[i, j] = -1;
+							m_Mirror[i, j] = false;
+						}
+			}
+		}
+
+		public void ShiftVertically(int shiftY)
+		{
+			if (shiftY < 0)
+			{
+				for (int i = 0; i < LEVEL_WIDTH; ++i)
+					for (int j = 0; j < LEVEL_HEIGHT; ++j)
+						if (j < LEVEL_HEIGHT + shiftY)
+						{
+							m_Data[i, j] = m_Data[i, j + 1];
+							m_Mirror[i, j] = m_Mirror[i, j + 1];
+						}
+						else
+						{
+							m_Data[i, j] = -1;
+							m_Mirror[i, j] = false;
+						}
+			}
+			else if (shiftY > 0)
+			{
+				for (int i = 0; i < LEVEL_WIDTH; ++i)
+					for (int j = LEVEL_HEIGHT - 1; j >= 0; --j)
+						if (j >= shiftY)
+						{
+							m_Data[i, j] = m_Data[i, j - 1];
+							m_Mirror[i, j] = m_Mirror[i, j - 1];
+						}
+						else
+						{
+							m_Data[i, j] = -1;
+							m_Mirror[i, j] = false;
+						}
+			}
+		}
+
         public void SetSprite(int x, int y, int spriteId)
         {
             if ((x >= 0) && (x < LEVEL_WIDTH) && (y >= 0) && (y < LEVEL_HEIGHT))
