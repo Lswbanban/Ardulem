@@ -587,9 +587,9 @@ void Lem::UpdateParachute()
 unsigned int Lem::GetFrameRateForCurrentAnim(bool useSlowAnimation)
 {
 	if (HUD::IsGameSpeedUp())
-		return 1;
+		return (useSlowAnimation && (mCurrentState == StateId::FALL)) ? 2 : 1;
 
-	switch (GetCurrentState())
+	switch (mCurrentState)
 	{
 		case StateId::EXPLOSION_FX:
 			return 1;
