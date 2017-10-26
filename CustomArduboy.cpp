@@ -348,7 +348,7 @@ void CustomArduboy::drawBitmap(int16_t x, int16_t y, const uint8_t *bitmap, uint
 		int iColDirection = 1;
 		if (xMirrored)
 		{
-			iCol = endX-1;
+			iCol = w-1;
 			iColDirection = -1;
 		}
 
