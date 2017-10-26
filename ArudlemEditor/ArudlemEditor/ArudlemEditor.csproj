@@ -61,6 +61,8 @@
     <Compile Include="UndoRedo\ClearCell.cs" />
     <Compile Include="UndoRedo\MirrorCell.cs" />
     <Compile Include="UndoRedo\SetCell.cs" />
+    <Compile Include="UndoRedo\ShiftHorizontally.cs" />
+    <Compile Include="UndoRedo\ShiftVertically.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

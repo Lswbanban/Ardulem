@@ -134,6 +134,11 @@ namespace ArudlemEditor
 			m_Mirror[x, y] = !m_Mirror[x, y];
 		}
 
+		public void SetMirrorStatus(int x, int y, bool mirrorValue)
+		{
+			m_Mirror[x, y] = mirrorValue;
+		}
+
 		public bool IsSpriteMirrored(int x, int y)
 		{
 			return m_Mirror[x,y];

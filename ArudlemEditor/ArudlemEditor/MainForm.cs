@@ -403,25 +403,25 @@ namespace ArudlemEditor
 
 		private void shiftLevelToRightToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			m_CurrentLevel.ShiftHorizontally(1);
+			m_ActionManager.Do(new ShiftHorizontally(m_CurrentLevel, 1));
 			DrawLevel();
 		}
 
 		private void shiftLevelToLeftToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			m_CurrentLevel.ShiftHorizontally(-1);
+			m_ActionManager.Do(new ShiftHorizontally(m_CurrentLevel, -1));
 			DrawLevel();
 		}
 
 		private void shiftLevelUpToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			m_CurrentLevel.ShiftVertically(-1);
+			m_ActionManager.Do(new ShiftVertically(m_CurrentLevel, -1));
 			DrawLevel();
 		}
 
 		private void shiftLevelDownToolStripMenuItem_Click(object sender, EventArgs e)
 		{
-			m_CurrentLevel.ShiftVertically(1);
+			m_ActionManager.Do(new ShiftVertically(m_CurrentLevel, 1));
 			DrawLevel();
 		}
 		#endregion
