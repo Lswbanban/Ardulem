@@ -300,7 +300,10 @@ void MapManager::DrawMap()
 	
 	// compute the last column drawn by adding the number of sprite column visible on the screen
 	int lastSpriteColumn = firstSpriteColumn + ((WIDTH - HUD::HUD_WIDTH)/8);
-	
+	// clamp the last column if the map is less wide than the screen
+	if (lastSpriteColumn >= CurrentMapDescription.SpriteColumnCount)
+		lastSpriteColumn = CurrentMapDescription.SpriteColumnCount -1;
+
 	// now iterate from the first to last column to draw the sprites
 	for (int col = firstSpriteColumn; col <= lastSpriteColumn; ++col)
 	{
