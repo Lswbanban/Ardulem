@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using ArudlemEditor.UndoRedo;
 
 namespace ArudlemEditor
 {
@@ -33,6 +34,7 @@ namespace ArudlemEditor
 
         private Level m_CurrentLevel = new Level();
 		private LevelData m_CurrentLevelData = new LevelData();
+		private ActionManager m_ActionManager = new ActionManager();
         #endregion
 
         #region init
@@ -264,6 +266,7 @@ namespace ArudlemEditor
         #endregion
 
         #region form events from menus
+		#region File menu
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // instantiate an empty new level
@@ -383,14 +386,18 @@ namespace ArudlemEditor
         {
             Application.Exit();
         }
+		#endregion
 
-        private void drawLevelGridToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DrawLevel();
-        }
-
-		private void drawStartAndHomeToolStripMenuItem_Click(object sender, EventArgs e)
+		#region Edit menu
+		private void undoToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			m_ActionManager.Undo();
+			DrawLevel();
+		}
+
+		private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			m_ActionManager.Redo();
 			DrawLevel();
 		}
 
@@ -417,10 +424,23 @@ namespace ArudlemEditor
 			m_CurrentLevel.ShiftVertically(1);
 			DrawLevel();
 		}
-        #endregion
+		#endregion
 
-        #region click events
-        private void MapSpritePictureBox_MouseClick(object sender, MouseEventArgs e)
+		#region View menu
+		private void drawLevelGridToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			DrawLevel();
+		}
+
+		private void drawStartAndHomeToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			DrawLevel();
+		}
+		#endregion
+		#endregion
+
+		#region click events
+		private void MapSpritePictureBox_MouseClick(object sender, MouseEventArgs e)
         {
             SizeF cellSize = GetMapSpriteCellSize(this.MapSpritePictureBox.Size);
 
@@ -441,11 +461,11 @@ namespace ArudlemEditor
 
             // set the current index in the correct column
 			if (e.Button == System.Windows.Forms.MouseButtons.Left)
-				m_CurrentLevel.SetSprite(x, y, m_CurrentSpriteIndex);
-			else if (e.Button == System.Windows.Forms.MouseButtons.Right)
-				m_CurrentLevel.ClearSprite(x, y);
+				m_ActionManager.Do(new SetCell(m_CurrentLevel, x, y, m_CurrentSpriteIndex));
 			else if (e.Button == System.Windows.Forms.MouseButtons.Middle)
-				m_CurrentLevel.InverseMirrorStatus(x, y);
+				m_ActionManager.Do(new ClearCell(m_CurrentLevel, x, y));
+			else if (e.Button == System.Windows.Forms.MouseButtons.Right)
+				m_ActionManager.Do(new MirrorCell(m_CurrentLevel, x, y));
 
             // redraw the map sprite
             DrawLevel();
