@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-			System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
+			System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "Set Sprite",
             "Delete Sprite",
             "Mirror Sprite"}, -1);
@@ -54,6 +54,8 @@
 			this.splitContainer2 = new System.Windows.Forms.SplitContainer();
 			this.MapSpritePictureBox = new System.Windows.Forms.PictureBox();
 			this.LevelPictureBox = new System.Windows.Forms.PictureBox();
+			this.StatusBar = new System.Windows.Forms.StatusStrip();
+			this.StatusBarText = new System.Windows.Forms.ToolStripStatusLabel();
 			this.groupBox5 = new System.Windows.Forms.GroupBox();
 			this.ParachuteNumeric = new System.Windows.Forms.NumericUpDown();
 			this.label17 = new System.Windows.Forms.Label();
@@ -117,6 +119,7 @@
 			this.splitContainer2.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.MapSpritePictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.LevelPictureBox)).BeginInit();
+			this.StatusBar.SuspendLayout();
 			this.groupBox5.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.ParachuteNumeric)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.ClimbNumeric)).BeginInit();
@@ -318,13 +321,14 @@
 			// 
 			// splitContainer1.Panel2
 			// 
+			this.splitContainer1.Panel2.Controls.Add(this.StatusBar);
 			this.splitContainer1.Panel2.Controls.Add(this.groupBox5);
 			this.splitContainer1.Panel2.Controls.Add(this.groupBox4);
 			this.splitContainer1.Panel2.Controls.Add(this.groupBox3);
 			this.splitContainer1.Panel2.Controls.Add(this.groupBox2);
 			this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
-			this.splitContainer1.Size = new System.Drawing.Size(740, 433);
-			this.splitContainer1.SplitterDistance = 197;
+			this.splitContainer1.Size = new System.Drawing.Size(740, 470);
+			this.splitContainer1.SplitterDistance = 213;
 			this.splitContainer1.TabIndex = 1;
 			// 
 			// splitContainer2
@@ -341,7 +345,7 @@
 			// splitContainer2.Panel2
 			// 
 			this.splitContainer2.Panel2.Controls.Add(this.LevelPictureBox);
-			this.splitContainer2.Size = new System.Drawing.Size(740, 197);
+			this.splitContainer2.Size = new System.Drawing.Size(740, 213);
 			this.splitContainer2.SplitterDistance = 192;
 			this.splitContainer2.TabIndex = 0;
 			// 
@@ -350,7 +354,7 @@
 			this.MapSpritePictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.MapSpritePictureBox.Location = new System.Drawing.Point(0, 0);
 			this.MapSpritePictureBox.Name = "MapSpritePictureBox";
-			this.MapSpritePictureBox.Size = new System.Drawing.Size(188, 193);
+			this.MapSpritePictureBox.Size = new System.Drawing.Size(188, 209);
 			this.MapSpritePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.MapSpritePictureBox.TabIndex = 0;
 			this.MapSpritePictureBox.TabStop = false;
@@ -361,11 +365,27 @@
 			this.LevelPictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.LevelPictureBox.Location = new System.Drawing.Point(0, 0);
 			this.LevelPictureBox.Name = "LevelPictureBox";
-			this.LevelPictureBox.Size = new System.Drawing.Size(540, 193);
+			this.LevelPictureBox.Size = new System.Drawing.Size(540, 209);
 			this.LevelPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
 			this.LevelPictureBox.TabIndex = 0;
 			this.LevelPictureBox.TabStop = false;
 			this.LevelPictureBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.LevelPictureBox_MouseClick);
+			// 
+			// StatusBar
+			// 
+			this.StatusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StatusBarText});
+			this.StatusBar.Location = new System.Drawing.Point(0, 227);
+			this.StatusBar.Name = "StatusBar";
+			this.StatusBar.Size = new System.Drawing.Size(736, 22);
+			this.StatusBar.TabIndex = 5;
+			// 
+			// StatusBarText
+			// 
+			this.StatusBarText.Margin = new System.Windows.Forms.Padding(0);
+			this.StatusBarText.Name = "StatusBarText";
+			this.StatusBarText.Size = new System.Drawing.Size(84, 22);
+			this.StatusBarText.Text = "MemoryUsage";
 			// 
 			// groupBox5
 			// 
@@ -468,6 +488,7 @@
 			this.DigVertNumeric.Name = "DigVertNumeric";
 			this.DigVertNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigVertNumeric.TabIndex = 23;
+			this.DigVertNumeric.ValueChanged += new System.EventHandler(this.DigVertNumeric_ValueChanged);
 			// 
 			// label14
 			// 
@@ -489,6 +510,7 @@
 			this.DigHorizNumeric.Name = "DigHorizNumeric";
 			this.DigHorizNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigHorizNumeric.TabIndex = 21;
+			this.DigHorizNumeric.ValueChanged += new System.EventHandler(this.DigHorizNumeric_ValueChanged);
 			// 
 			// label15
 			// 
@@ -510,6 +532,7 @@
 			this.DigDiagNumeric.Name = "DigDiagNumeric";
 			this.DigDiagNumeric.Size = new System.Drawing.Size(40, 20);
 			this.DigDiagNumeric.TabIndex = 19;
+			this.DigDiagNumeric.ValueChanged += new System.EventHandler(this.DigDiagNumeric_ValueChanged);
 			// 
 			// label16
 			// 
@@ -531,6 +554,7 @@
 			this.BombNumeric.Name = "BombNumeric";
 			this.BombNumeric.Size = new System.Drawing.Size(40, 20);
 			this.BombNumeric.TabIndex = 17;
+			this.BombNumeric.ValueChanged += new System.EventHandler(this.BombNumeric_ValueChanged);
 			// 
 			// label13
 			// 
@@ -702,6 +726,7 @@
             0,
             0,
             0});
+			this.SpawnLemCountNumeric.ValueChanged += new System.EventHandler(this.SpawnLemCountNumeric_ValueChanged);
 			// 
 			// label8
 			// 
@@ -909,7 +934,7 @@
 			this.HelpTableListView.GridLines = true;
 			this.HelpTableListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
 			this.HelpTableListView.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem1});
+            listViewItem2});
 			this.HelpTableListView.Location = new System.Drawing.Point(6, 19);
 			this.HelpTableListView.MultiSelect = false;
 			this.HelpTableListView.Name = "HelpTableListView";
@@ -985,7 +1010,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(740, 457);
+			this.ClientSize = new System.Drawing.Size(740, 494);
 			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.menuStrip1);
 			this.MainMenuStrip = this.menuStrip1;
@@ -995,6 +1020,7 @@
 			this.menuStrip1.PerformLayout();
 			this.splitContainer1.Panel1.ResumeLayout(false);
 			this.splitContainer1.Panel2.ResumeLayout(false);
+			this.splitContainer1.Panel2.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
 			this.splitContainer1.ResumeLayout(false);
 			this.splitContainer2.Panel1.ResumeLayout(false);
@@ -1003,6 +1029,8 @@
 			this.splitContainer2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.MapSpritePictureBox)).EndInit();
 			((System.ComponentModel.ISupportInitialize)(this.LevelPictureBox)).EndInit();
+			this.StatusBar.ResumeLayout(false);
+			this.StatusBar.PerformLayout();
 			this.groupBox5.ResumeLayout(false);
 			this.groupBox5.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.ParachuteNumeric)).EndInit();
@@ -1111,6 +1139,8 @@
 		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem drawLevelGridToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem drawStartAndHomeToolStripMenuItem;
+		private System.Windows.Forms.StatusStrip StatusBar;
+		private System.Windows.Forms.ToolStripStatusLabel StatusBarText;
     }
 }
 

@@ -19,6 +19,8 @@ namespace ArudlemEditor
         private const int MAP_SPRITE_HEIGHT = 4;
         // the zoom that should be applied on the original images used for the arduboy
         private const int IMAGE_ZOOM_SCALE = 16;
+		// current size of the memory pool
+		private const int MEMORY_ALLOCATED_IN_ARDUBOY = 328;
         #endregion
 
         #region variables
@@ -265,9 +267,66 @@ namespace ArudlemEditor
 		}
         #endregion
 
-        #region form events from menus
+		#region memory estimation
+		private int GetMemoryUsageEstimation()
+		{
+			// a lem class take 3 chars in Arduboy (this is a exact value)
+			int spawnLemSize = m_CurrentLevelData.SpawnLemCount * 3;
+
+			// A exploders make a hole of 11 pixel wide on 9 pixels heigh,
+			// which makes between 16 to 22 modif depending on the explosion Y
+			// However, since the lem is rarely totally enclosed by pixel when exploding
+			// we can estimate that half the 20 modfifs will be necessary
+			int bomberModifSize = m_CurrentLevelData.Bomber * (20 / 2);
+
+			// Stair makers, build 10 steps of 2 pixels (including those under their feet at the beggining),
+			// so if they build in straight line (their direction is not reversed by a wall or a blocker)
+			// they will use 20 modifs. However, the two modifs under the feet at start, or when prolonging
+			// a stair are free, so lets count only 18.
+			int stairModifSize = m_CurrentLevelData.Stairer * 18;
+
+			// Vertical diggers are the cheapest ones. They dig a hole of 5 contiguous columns.
+			// Each column is 8 pixels high and the maxium they can dig is the total screen
+			// which only contains 8 columns. So at the maximum, they use 5*8 = 40 modifs.
+			// but since they don't often dig the whole, screen, we can estimate that
+			// they dig one third of the screen before falling
+			int vertDiggerModifSize = m_CurrentLevelData.VertDigger * (40 / 3);
+
+			// diagonal digger are a bit more expensive that vertical but less than horizontal 
+			// (as we could expect). They are also limited by the height of the screen, but not
+			// limited horizontally. Diag Digger dig a tunnel of 6 pixel high, so it's between 
+			// 1 or 2 modif for each pixel of the tunnel. Diag digger advance 2 pixel for each pixel
+			// going down. We can estimate their tunnel length around 20 pixels before they fall.
+			// for which you should take 50% more for when one x needs 2 modifs
+			int diagDiggerModifSize = m_CurrentLevelData.DiagDigger * (int)(20 * 1.5f);
+
+			// horizontal digger are the most expensive one. They take 1 or 2 modif per x
+			// of their tunnel, depending on the y of the tunnel.
+			// They can dig the whole level (256 pixels), for maybe 512 modif!!!
+			// it's more than the memory pool allocated in the game.
+			// let's estimate their tunnel lenght like the diag digger
+			int horizDiggerModifSize = m_CurrentLevelData.HorizDigger * (int)(20 * 1.5f);
+
+			// return the sum
+			return spawnLemSize + bomberModifSize + stairModifSize + vertDiggerModifSize + diagDiggerModifSize + horizDiggerModifSize;
+		}
+
+		private void UpdateStatusBar()
+		{
+			int memoryUsage = GetMemoryUsageEstimation();
+			this.StatusBarText.Text = "Memory Usage Estimation: " + memoryUsage.ToString() + " bytes (max " + MEMORY_ALLOCATED_IN_ARDUBOY + " bytes)";
+
+			// change the color of the background of the status depending on the size
+			if (memoryUsage > MEMORY_ALLOCATED_IN_ARDUBOY)
+				this.StatusBar.BackColor = Color.LightSalmon;
+			else
+				this.StatusBar.BackColor = Color.LightGreen;
+		}
+		#endregion
+
+		#region form events from menus
 		#region File menu
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+		private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // instantiate an empty new level
             m_CurrentLevel = new Level();
@@ -323,6 +382,7 @@ namespace ArudlemEditor
 				{
 					// redraw the level (because start and home position may have change)
 					DrawLevel();
+					UpdateStatusBar();
 					SetUIValueFromLevelDataValues();
 				}
 				else
@@ -354,6 +414,7 @@ namespace ArudlemEditor
 
 		private void saveLevelDataToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
 		{
+			// set the export config
 			SetExportConfigToLevel();
 
 			// set the values from the combo boxes to the current level before calling the save
@@ -377,6 +438,27 @@ namespace ArudlemEditor
 			m_CurrentLevelData.m_Parachuter = (int)this.ParachuteNumeric.Value;
 			m_CurrentLevelData.m_LocaMapName = this.LocaMapNameTextBox.Text;
 			m_CurrentLevelData.m_MapIdsName = this.MapIdsTextBox.Text;
+
+			// check if the time is null
+			if ((m_CurrentLevelData.TimeMin == 0) && (m_CurrentLevelData.TimeSec == 0))
+			{
+				DialogResult result = MessageBox.Show("The time is null, then the level will exit immediately. Do you want to continue anyway?",
+					"Export Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+				if (result == System.Windows.Forms.DialogResult.No)
+					return;
+			}
+
+			// check the memory usage
+			int memUsageEstimation = GetMemoryUsageEstimation();
+			if (memUsageEstimation > MEMORY_ALLOCATED_IN_ARDUBOY)
+			{
+				DialogResult result = MessageBox.Show("You have used a lot of Lems to spawn with a lot of lem modifiers, the Arduboy may not have enough memory to store all the modification.\n" +
+					"The memory usage estimation is " + memUsageEstimation.ToString() + " bytes. Try to reduce the Spawn lems (bigger impact), Diggers, Stair makers or exploder. Do you want to continue anyway?",
+					"Export Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2);
+				if (result == System.Windows.Forms.DialogResult.No)
+					return;
+			}
+
 
 			// and copy the current level to clipboard
 			m_CurrentLevelData.SaveToClipboard(m_CurrentLevel.GetMinX());
@@ -534,6 +616,42 @@ namespace ArudlemEditor
 		{
 			m_CurrentLevelData.HomeY = (int)this.HomeYNumeric.Value;
 			DrawLevel();
+		}
+
+		private void SpawnLemCountNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.SpawnLemCount = (int)this.SpawnLemCountNumeric.Value;
+			UpdateStatusBar();
+		}
+
+		private void BombNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.Bomber = (int)this.BombNumeric.Value;
+			UpdateStatusBar();
+		}
+
+		private void DigDiagNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.DiagDigger = (int)this.DigDiagNumeric.Value;
+			UpdateStatusBar();
+		}
+
+		private void DigHorizNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.HorizDigger = (int)this.DigHorizNumeric.Value;
+			UpdateStatusBar();
+		}
+
+		private void DigVertNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.VertDigger = (int)this.DigVertNumeric.Value;
+			UpdateStatusBar();
+		}
+
+		private void StairNumeric_ValueChanged(object sender, EventArgs e)
+		{
+			m_CurrentLevelData.Stairer = (int)this.StairNumeric.Value;
+			UpdateStatusBar();
 		}
 		#endregion
 	}
