@@ -32,7 +32,7 @@ public:
 	bool			Update();
 	void			Draw();
 	void			DrawTimerAboveHead(unsigned char timer);
-	bool			InUnderCursorPosition();
+	bool			IsUnderCursorPosition();
 	bool			IsBlockingPosition(unsigned char worldX, unsigned char worldY, bool isWalkingInMirror);
 	unsigned char	GetCurrentState()		{ return mCurrentState;}
 	void			SetCurrentState(StateId stateId, int shiftX = 255, int shiftY = 0);
@@ -57,6 +57,7 @@ private:
 	// a static flag to avoid infinite recursive call to update function,
 	// because we want to call update in the SetState function, and usually the update function call the SetState
 	static unsigned char sRecursiveUpdateStateCount;
+	static unsigned int sStateThatNeedsUpdateInTheLastFrame;
 
 	// state data manipulation
 	void			ReverseMirroredDirection()	{ mIsDirectionMirrored = !mIsDirectionMirrored; }

@@ -327,7 +327,7 @@ void LemManager::UpdateLemUnderCursor()
 	
 	// iterate on all lem to find the best candidate
 	for (char i = 0; i < OutLemCount; ++i)
-		if (LemArray[i].InUnderCursorPosition())
+		if (LemArray[i].IsUnderCursorPosition())
 		{
 			// otherwise check if it is better one
 			switch (HUD::GetSelectedButton())

@@ -7,6 +7,14 @@
 
 // static functions
 unsigned char Lem::sRecursiveUpdateStateCount = 0;
+unsigned int Lem::sStateThatNeedsUpdateInTheLastFrame = 
+	(1 << Lem::CLIMB_TOP) | 
+	(1 << Lem::START_FALL) |
+	(1 << Lem::DIG_HORIZ) |
+	(1 << Lem::CRASH) | 
+	(1 << Lem::BYE_BYE_BOOM) |
+	(1 << Lem::EXPLOSION_FX) |
+	(1 << Lem::FALL);
 
 void Lem::Spawn()
 {
@@ -736,13 +744,9 @@ bool Lem::UpdateCurrentAnim()
 	}
 
 	// special case for the anims that doesn't loop, if it is their last frame, then need to also update
-	if (checkLastFrame && IsLastFrame())
-	{
-		doesNeedUpdate = (mCurrentState == StateId::CLIMB_TOP) || (mCurrentState == StateId::START_FALL) ||
-						(mCurrentState == StateId::DIG_HORIZ) || (mCurrentState == StateId::CRASH) || 
-						(mCurrentState == StateId::BYE_BYE_BOOM) || (mCurrentState == StateId::EXPLOSION_FX) ||
-						(mCurrentState == StateId::FALL);
-	}
+	// but do not override doesNeedUpdate, if it is already true
+	if (checkLastFrame && !doesNeedUpdate && IsLastFrame())
+		doesNeedUpdate = sStateThatNeedsUpdateInTheLastFrame & (1 << mCurrentState);
 	
 	// return the flag
 	return doesNeedUpdate;
@@ -927,7 +931,7 @@ void Lem::SetCurrentState(StateId stateId, int shiftX, int shiftY)
 	UpdateState();
 }
 
-bool Lem::InUnderCursorPosition()
+bool Lem::IsUnderCursorPosition()
 {
 	// check the easiest test first
 	int curY = HUD::GetCursorY();
