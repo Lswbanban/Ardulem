@@ -6,6 +6,8 @@
 #include "SpriteData.h"
 #include "MainMenu.h"
 #include "Music.h"
+#include "MemoryPool.h"
+#include "Lem.h"
 
 // we need a compiler builtin function to count the number of bits set in a char (well, we'll use the int func)
 extern int __builtin_popcount(unsigned int);
@@ -39,9 +41,9 @@ namespace MapManager
 	const unsigned int MODIFICATION_MAP_SIZE = MODIF_MAP_LINE_COUNT * MODIF_MAP_COLUMN_COUNT;
 	unsigned int ModificationMap[MODIFICATION_MAP_SIZE];
 	
-	const unsigned int MODIFICATION_LIST_SIZE = 200;
-	unsigned char ModificationList[MODIFICATION_LIST_SIZE];
-	unsigned int ModificationListCount = 0;
+	unsigned char * ModificationList;
+	unsigned int ModificationListCount;
+	unsigned int ModificationListSize;
 	
 	// the current map Description we are playing
 	unsigned char CurrentMapId = 0;
@@ -170,9 +172,14 @@ void MapManager::InitMap()
 	// init the start intro frame
 	IntroAnimFrameIndex = 0;
 	
+	// compute the size of the modification list and its position
+	int LemSize = sizeof(Lem) * GetAvailableLemCount();
+	ModificationList = &(MemoryPool::Pool[LemSize]);
+	ModificationListSize = MemoryPool::MEMORY_POOL_SIZE - LemSize;
+
 	// clear the modification list
 	memset(ModificationMap, 0, sizeof(ModificationMap));
-	memset(ModificationList, 0, sizeof(ModificationList));
+	memset(ModificationList, 0, ModificationListSize);
 	ModificationListCount = 0;
 	
 	// init the HUD with the data of the map
@@ -405,7 +412,7 @@ unsigned char MapManager::Get8PixelsOutsideScreen(int worldX, int lineY, bool co
 	{
 		// we found a modif, get it from the list
 		int modifIndex = GetModificationIndex(mapIndex, bitX);
-		if (modifIndex < MODIFICATION_LIST_SIZE)
+		if (modifIndex < ModificationListSize)
 		{
 			// if there's a modif, apply it to the original map data depending if we need the added pixels
 			// If we want the added pixels (wich means we also want the deletd ones), we can use a XOR
@@ -564,7 +571,7 @@ void MapManager::Modify8Pixels(int worldX, int lineY, unsigned char pixels)
 	int modifIndex = GetModificationIndex(mapIndex, bitX);
 	
 	// check if the modif index is inside the list
-	if (modifIndex < MODIFICATION_LIST_SIZE)
+	if (modifIndex < ModificationListSize)
 	{
 		int mapMaskForX = (1 << bitX);
 		
@@ -588,7 +595,7 @@ void MapManager::Modify8Pixels(int worldX, int lineY, unsigned char pixels)
 			}
 		}
 		// otherwise we need to add a new modif, but only if the list is not full
-		else if (ModificationListCount < MODIFICATION_LIST_SIZE)
+		else if (ModificationListCount < ModificationListSize)
 		{
 			// otherwise we need to set the bit in the modif map
 			ModificationMap[mapIndex] |= mapMaskForX;
@@ -628,7 +635,7 @@ void MapManager::DrawModifications()
 					// draw the modif on screen
 					arduboy.invertBufferCharWithSpecifiedChar(screenX + b, lineY, ModificationList[modifIndex++]);
 					// stop drawing if we reach the end of the modification list
-					if (modifIndex >= MODIFICATION_LIST_SIZE)
+					if (modifIndex >= ModificationListSize)
 						return;
 				}
 			// reset start b to 0 for the next column

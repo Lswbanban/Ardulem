@@ -6,6 +6,7 @@
 #include "Input.h"
 #include "MainMenu.h"
 #include "LEDManager.h"
+#include "MemoryPool.h"
 
 namespace LemManager
 {
@@ -25,7 +26,7 @@ namespace LemManager
 	};
 	
 	// the array storing all the Lems
-	Lem LemArray[LemManager::MAX_LEM_COUNT];
+	Lem * LemArray = (Lem *)&MemoryPool::Pool;
 
 	// The lem array is sorted, and we place the lem that needs counter at the beggining of the list
 	unsigned char OutLemCount = 0; // the number of lem currently out and that should be managed in the LemArray
