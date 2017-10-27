@@ -300,7 +300,7 @@ namespace ArudlemEditor
 			text += "\t\t" + m_TotalTimeIn10thSec.ToString() + ", //Time In Multiple Of 10 seconds" + GetEOL();
 			text += "\t\t" + m_SpawnLemCount.ToString() + ", //Available Lem Count in multiple of 5 (from 0 to 15 max!!)" + GetEOL();
 			text += "\t\t" + m_RequiredLemCount.ToString() + ", //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)" + GetEOL();
-			text += "\t\t" + MinDropSpeed.ToString() + ", //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)" + GetEOL();
+			text += "\t\t" + MinDropSpeed.ToString() + ", //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15) (high value = slow)" + GetEOL();
 			text += "\t\t" + Walker.ToString() + ", //Nb of available Walker" + GetEOL();
 			text += "\t\t" + Blocker.ToString() + ", //Nb of available Blocker" + GetEOL();
 			text += "\t\t" + Bomber.ToString() + ", //Nb of available Bomber" + GetEOL();
@@ -313,7 +313,7 @@ namespace ArudlemEditor
 			text += "\t\t(const unsigned char *)" + m_LocaMapName + ", //SpriteLocalization" + GetEOL();
 			text += "\t\tsizeof(" + m_LocaMapName + "), //size of the Map in number of sprite columns" + GetEOL();
 			text += "\t\t(const unsigned int *)" + m_MapIdsName + " //SpriteIdList" + GetEOL();
-			text += "\t},";
+			text += "\t}," + GetEOL();
 
 			// copy the text to the clipboard
 			Clipboard.SetText(text);

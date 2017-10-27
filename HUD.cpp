@@ -604,7 +604,8 @@ int HUD::PrintNumber(int x, int y, int number, int numDigits, bool shouldAddZero
 
 int HUD::GetLemDropFrameRate()
 {
-	int dropFrameRate = (VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * MapManager::GetMinDropSpeed(); 
+	// add 1 to avoid dropFrameRate equals to 0, which may generate a division by zero later
+	int dropFrameRate = 1 + ((VELOCITY_BAR_WIDTH - 1 - LemDropBarCursorInPixel) * MapManager::GetMinDropSpeed());
 	if (CurrentFPS == FAST_SPEED_FPS)
 		dropFrameRate /= RATIO_BETWEEN_FAST_AND_NORMAL_FPS;
 	return dropFrameRate;

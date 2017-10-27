@@ -113,7 +113,7 @@ public:
 
   void setFrameRate(uint8_t rate);
   bool nextFrame();
-  bool everyXFrames(uint8_t frames);
+  bool everyXFrames(int frames);
     
   uint16_t frameCount;
   uint8_t eachFrameMillis;

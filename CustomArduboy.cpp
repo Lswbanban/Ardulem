@@ -51,7 +51,7 @@ void CustomArduboy::setFrameRate(uint8_t rate)
   eachFrameMillis = 1000/rate;
 }
 
-bool CustomArduboy::everyXFrames(uint8_t frames)
+bool CustomArduboy::everyXFrames(int frames)
 {
   return frameCount % frames == 0;
 }
