@@ -57,6 +57,12 @@ const unsigned int PyramidIds[] PROGMEM = {
 	ID(6,13,12), ID(30,4,13), ID(12,12,4), ID(14,13,12), ID(4,12,14), ID(13,4,12), ID(14,4,14), ID(4,13,4), ID(13,12,6), ID(13,12,14),
 	ID(4,13,12), ID(14,4,13), ID(12,14,4), ID(13,12,14), ID(4,14,13), ID(12,14,4), ID(14,13,12), ID(14,4,13), ID(12,6,13), ID(4,5,0), MIRROR(8841), MIRROR(37810), MIRROR(576), MIRROR(557), MIRROR(18498), MIRROR(8705), MIRROR(12554), MIRROR(82)};
 
+const unsigned char BrickLoca[] PROGMEM = { 0xFC, 0xF8, 0xA2, 0xA3, 0xBA, 0xBB, 0xA2, 0xB8, 0xA0, 0xB0, 0xBC, 0xB0, 0x90, 0x90, 0x90, 0x90, 0x80, 0xC0, 0xC4, 0xC7, 0xC4, 0xC4, 0xC0, 0xF8, 0xC0, };
+const unsigned int BrickIds[] PROGMEM = {
+	ID(3,1,2), ID(9,9,9), ID(3,2,9), ID(10,9,9), ID(10,9,2), ID(9,10,9), ID(9,9,9), ID(9,9,3), ID(9,10,10), ID(9,9,9),
+	ID(9,9,3), ID(2,9,9), ID(9,9,10), ID(9,9,3), ID(2,9,9), ID(9,9,9), ID(9,9,9), ID(9,9,9), ID(9,10,9), ID(9,10,9),
+	ID(10,9,9), ID(3,2,9), ID(9,9,9), ID(9,9,9), ID(9,9,9), ID(9,0,1), ID(2,9,9), ID(10,10,0), MIRROR(4609), MIRROR(1536), MIRROR(1), MIRROR(128), MIRROR(0), MIRROR(6)};
+
 /*
  * The various maps
  */
@@ -148,6 +154,28 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		(const unsigned char *)PyramidLoca, //SpriteLocalization
 		sizeof(PyramidLoca), //size of the Map in number of sprite columns
 		(const unsigned int *)PyramidIds //SpriteIdList
+	},
+	{ // -------- LEVEL -----------
+		98, //StartX
+		15, //StartY
+		171, //HomeX
+		47, //HomeY
+		24, //Time In Multiple Of 10 seconds
+		9, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		9, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		10, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15) (high value = slow)
+		2, //Nb of available Walker
+		1, //Nb of available Blocker
+		0, //Nb of available Bomber
+		0, //Nb of available Diagonal Digger
+		0, //Nb of available Horizontal Digger
+		2, //Nb of available Vertical Digger
+		9, //Nb of available Stair Builder
+		1, //Nb of available Climber
+		0, //Nb of available Parachuter
+		(const unsigned char *)BrickLoca, //SpriteLocalization
+		sizeof(BrickLoca), //size of the Map in number of sprite columns
+		(const unsigned int *)BrickIds //SpriteIdList
 	},
 };
 
