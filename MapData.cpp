@@ -32,8 +32,8 @@ const unsigned char MapData::MapSprite[][8] PROGMEM = {
 /*
  * The various map localization and id list
  */
-const unsigned char Map01Loca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x80, 0x80, 0x80, 0x0, 0x40, 0x60, 0xE0, 0x60, 0x60, 0x60, 0xE0, 0x60, 0x40, };
-const unsigned int Map01IdList[] PROGMEM = {
+const unsigned char TutoLoca[] PROGMEM = { 0xE0, 0xC0, 0x80, 0x80, 0x80, 0xF0, 0x80, 0x80, 0xE0, 0x80, 0x80, 0x80, 0x80, 0x0, 0x40, 0x60, 0xE0, 0x60, 0x60, 0x60, 0xE0, 0x60, 0x40, };
+const unsigned int TutoIds[] PROGMEM = {
 	ID(0,2,31), ID(2,31,30), ID(31,31,0), ID(1,2,31), ID(29,31,3), ID(2,31,31), ID(30,31,27), ID(5,27,4), ID(31,6,1), ID(31,4,31),
 	ID(4,31,4), ID(31,6,1), ID(27,4,5), MIRROR(10304), MIRROR(8464), MIRROR(80)};
 
@@ -57,10 +57,6 @@ const unsigned int PyramidIds[] PROGMEM = {
 	ID(6,13,12), ID(30,4,13), ID(12,12,4), ID(14,13,12), ID(4,12,14), ID(13,4,12), ID(14,4,14), ID(4,13,4), ID(13,12,6), ID(13,12,14),
 	ID(4,13,12), ID(14,4,13), ID(12,14,4), ID(13,12,14), ID(4,14,13), ID(12,14,4), ID(14,13,12), ID(14,4,13), ID(12,6,13), ID(4,5,0), MIRROR(8841), MIRROR(37810), MIRROR(576), MIRROR(557), MIRROR(18498), MIRROR(8705), MIRROR(12554), MIRROR(82)};
 
-const unsigned char MapTest[] PROGMEM = { 0x0, 0x3C, 0x3C, 0x30, 0x30, 0x30, 0x30, 0x3C, 0x3C, };
-const unsigned int MapTestIdList[] PROGMEM = {
-	ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), ID(31,31,31), MIRROR(0), MIRROR(0)};
-
 /*
  * The various maps
  */
@@ -70,11 +66,11 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		37, //StartY
 		147, //HomeX
 		39, //HomeY
-		20, //Time In Multiple Of 10 seconds
-		1, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
-		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
-		1, //Nb of available Walker
+		18, //Time In Multiple Of 10 seconds
+		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		2, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		5, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		0, //Nb of available Walker
 		1, //Nb of available Blocker
 		0, //Nb of available Bomber
 		0, //Nb of available Diagonal Digger
@@ -83,19 +79,19 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		2, //Nb of available Stair Builder
 		1, //Nb of available Climber
 		1, //Nb of available Parachuter
-		(const unsigned char *)Map01Loca, //SpriteLocalization
-		sizeof(Map01Loca), //size of the Map in number of sprite columns
-		(const unsigned int *)Map01IdList //SpriteIdList
+		(const unsigned char *)TutoLoca, //SpriteLocalization
+		sizeof(TutoLoca), //size of the Map in number of sprite columns
+		(const unsigned int *)TutoIds //SpriteIdList
 	},
 	{ // -------- LEVEL -----------
 		32, //StartX
 		5, //StartY
 		162, //HomeX
 		55, //HomeY
-		12, //Time In Multiple Of 10 seconds
-		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
-		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		18, //Time In Multiple Of 10 seconds
+		10, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		8, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		15, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 1 to 15) (high value = slow)
 		0, //Nb of available Walker
 		5, //Nb of available Blocker
 		0, //Nb of available Bomber
@@ -104,7 +100,7 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		0, //Nb of available Vertical Digger
 		9, //Nb of available Stair Builder
 		0, //Nb of available Climber
-		4, //Nb of available Parachuter
+		9, //Nb of available Parachuter
 		(const unsigned char *)TempleLoca, //SpriteLocalization
 		sizeof(TempleLoca), //size of the Map in number of sprite columns
 		(const unsigned int *)TempleIds //SpriteIdList
@@ -115,13 +111,13 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		20, //HomeX
 		61, //HomeY
 		20, //Time In Multiple Of 10 seconds
-		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
-		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		3, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		2, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 1 to 15) (high value = slow)
 		4, //Nb of available Walker
 		4, //Nb of available Blocker
-		4, //Nb of available Bomber
-		3, //Nb of available Diagonal Digger
+		2, //Nb of available Bomber
+		2, //Nb of available Diagonal Digger
 		1, //Nb of available Horizontal Digger
 		2, //Nb of available Vertical Digger
 		9, //Nb of available Stair Builder
@@ -137,9 +133,9 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		175, //HomeX
 		55, //HomeY
 		12, //Time In Multiple Of 10 seconds
-		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
-		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		10, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
+		6, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
+		6, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
+		10, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 1 to 15) (high value = slow)
 		0, //Nb of available Walker
 		0, //Nb of available Blocker
 		9, //Nb of available Bomber
@@ -152,28 +148,6 @@ const MapData::MapDescription MapData::AllMaps[] PROGMEM = {
 		(const unsigned char *)PyramidLoca, //SpriteLocalization
 		sizeof(PyramidLoca), //size of the Map in number of sprite columns
 		(const unsigned int *)PyramidIds //SpriteIdList
-	},
-	{ // -------- LEVEL -----------
-		33, //StartX
-		16, //StartY
-		20, //HomeX
-		61, //HomeY
-		20, //Time In Multiple Of 10 seconds
-		2, //Available Lem Count in multiple of 5 (from 0 to 15 max!!)
-		1, //RequiredLemCount in multiple of 5 (obviously less or equals than the previous number)
-		6, //Min Drop Speed in rough seconds (more precisely in multiple of 27 frames) (from 0 to 15)
-		9, //Nb of available Walker
-		9, //Nb of available Blocker
-		9, //Nb of available Bomber
-		9, //Nb of available Diagonal Digger
-		9, //Nb of available Horizontal Digger
-		9, //Nb of available Vertical Digger
-		9, //Nb of available Stair Builder
-		9, //Nb of available Climber
-		9, //Nb of available Parachuter
-		(const unsigned char *)MapTest, //SpriteLocalization
-		sizeof(MapTest), //size of the Map in number of sprite columns
-		(const unsigned int *)MapTestIdList //SpriteIdList
 	},
 };
 
