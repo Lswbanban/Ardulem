@@ -28,7 +28,7 @@ Finally you have an option to turn on/off the Music (which is also saved in the 
 
 The screen is split in two parts, on the left you have your HUD or toolbar, providing you usefull information, and including the command bar, to give orders to your Lems. And on the right side, you have the level, that can scroll left and right with your cursor (there's no vertical scrolling).
 
-Your cursor is a blinking cross (that changes to a square when hovering a Lem) in the middle of the map. You can use the **arrow keys** to move the cursor. The goal of the game is to move the cursor over the Lems and press the **B button** to give them orders to lead them to the exit door which has a moving flag on top. If you succeed to save at least as much Lems than the required number for the level, then you won that level, and you can move on the next one.
+Your cursor is a blinking cross (that changes to a square when hovering a Lem) just under the Lem's drop hatch. You can use the **arrow keys** to move the cursor. The goal of the game is to move the cursor over the Lems and press the **B button** to give them orders to lead them to the exit door which has a moving flag on top. If you succeed to save at least as much Lems than the required number for the level, then you won that level, and you can move on the next one.
 
 To order your Lems, you need to first select your command in the left toolbar. The tool drawn in white is the current selected tool. To navigate in the toolbar, you can simply press the **A button** to select the next tool. Alternatively, if you want to navigate more precisely, **Hold A** and use the **arrow keys** at the same time.
 

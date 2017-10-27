@@ -91,8 +91,8 @@ void HUD::Init(int timeInSecond)
 	FrameNumberOfTheGameEnd = arduboy.frameCount + (timeInSecond * NORMAL_SPEED_FPS); // multiply by the FPS
 	LemDropBarCursorInPixel = 15;
 	SelectedButton = Button::TIMER;
-	mCursor.X = HUD_WIDTH + ((WIDTH - HUD_WIDTH)/2);
-	mCursor.Y = HEIGHT/2;
+	mCursor.X = MapManager::ConvertToScreenCoord(MapManager::GetStartX() + 8);
+	mCursor.Y = (MapManager::GetStartY() + 8) % 63;
 	mCursor.IsSquared = 0;
 	mCursor.Direction = 0;
 	mWasArrowButtonUsedInHUD = false;
