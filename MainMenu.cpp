@@ -51,7 +51,7 @@ void MainMenu::UpdateInput()
 	{
 		// update the input (up/down)
 		if (Input::IsJustPressed(UP_BUTTON))
-			CurrentGameState = (GameState)((CurrentGameState - 1) % GameState::RESULT_PAGE);
+			CurrentGameState = (GameState)((CurrentGameState + GameState::RESULT_PAGE - 1) % GameState::RESULT_PAGE);
 		else if (Input::IsJustPressed(DOWN_BUTTON))
 			CurrentGameState = (GameState)((CurrentGameState + 1) % GameState::RESULT_PAGE);
 	}
