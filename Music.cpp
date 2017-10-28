@@ -24,7 +24,7 @@ const unsigned char PROGMEM score [] = {
 void Music::SwitchMusicStatus()
 {
 	unsigned char currentValue = EEPROM.read(EEPROM_AUDIO_ON_OFF);
-	EEPROM.write(EEPROM_AUDIO_ON_OFF, !currentValue);
+	EEPROM.update(EEPROM_AUDIO_ON_OFF, !currentValue);
 }
 
 bool Music::IsMusicEnabled()

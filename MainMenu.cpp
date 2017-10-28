@@ -94,7 +94,7 @@ void MainMenu::UpdateInput()
 				if (LemManager::GetInLemPercentage() >= MapManager::GetRequiredLemPercentage())
 				{
 					MapManager::CurrentMapId = ((int)MapManager::CurrentMapId + 1) % MapData::GetMapCount();
-					EEPROM.write(PROGRESSION_SAVE_ADDRESS, MapManager::CurrentMapId);
+					EEPROM.update(PROGRESSION_SAVE_ADDRESS, MapManager::CurrentMapId);
 				}
 				// change state to go back to menu
 				CurrentGameState = GameState::MENU_PLAY;

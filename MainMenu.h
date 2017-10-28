@@ -7,7 +7,7 @@
 namespace MainMenu
 {
 	// an address in the EEPROM to save the progression (the last level played and successful)
-	const int PROGRESSION_SAVE_ADDRESS = 10;
+	const int PROGRESSION_SAVE_ADDRESS = 16;
 	
 	enum GameState
 	{
