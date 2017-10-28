@@ -107,7 +107,7 @@ void MainMenu::UpdateInput()
 void MainMenu::ResetSavedProgression()
 {
 	MapManager::CurrentMapId = 0;
-	EEPROM.write(MainMenu::PROGRESSION_SAVE_ADDRESS, 0);
+	EEPROM.update(MainMenu::PROGRESSION_SAVE_ADDRESS, 0);
 }
 
 void MainMenu::PrintNumber(int x, int y, int number)
