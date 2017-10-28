@@ -7,7 +7,18 @@ This is my first game on Arduboy, which I did to learn that console, so please b
 
 ## Installation Guide
 Ardulemn is hosted on `bitbucket` at this URL [https://bitbucket.org/banban/ardulem](https://bitbucket.org/banban/ardulem).
-It doesn't need the Arduboy library, because I've included and modified it directly in the project for optimization reasons.
+
+### Using the .arduboy file.
+
+You can find a `Ardulem.arduboy` packaged version of the game, in the `Release` folder. then you can use a game loader program like the [ArduboyManager](https://community.arduboy.com/t/arduboy-manager-2-0-released/2809) (by crait) to load the game in your Arduboy. However, the packaged version is updated less often than the full repository.
+
+1. Download the Release\Ardulem.arduboy file.
+2. Import it in ArduboyManager
+3. Select "Ardulem" in the list and click on the Transfert button.
+
+### Using the Arduboy IDE
+
+Ardulem doesn't need the Arduboy library, because I've included and modified it directly in the project for optimization reasons.
 
 1. Clone or [download](https://bitbucket.org/banban/ardulem/downloads/) a zip of the the repository.
 2. Connect your Arduboy on your computer and launch the Arduino IDE.
