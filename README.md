@@ -84,8 +84,9 @@ Or if you prefer to see what each button does:
 ## Level Editor
 This game comes with a level editor written in C# (with very standard C#, no fancy stuff). I've developed it on Windows, but you wouldn't probably have too much difficulties to make it run on Linux or Mac with Mono.
 
-The Editor code can be found in the sub-folder named `ArdulemEditor`. If you launch the editor in that folder:
-`ArdulemEditor/ArdulemEditor/bin/Release` it will normally find the sprite images, otherwise modify the path to those images in the Editor code.
+There's a compiled version of the Editor in the `Release` folder. The Editor needs the 3 png images (`Home.png`, `MapSprite.png` and `Start.png`) in the same folder as the exe file, so you should also copy them if you move the `ArdulemEditor.exe` file elsewhere.
+
+The Editor code can be found in the sub-folder named `ArdulemEditor`, just in case you want to modify it.
 
 The editor use the clipboard to load/save the data that you want to edit. The data should be pasted into the `MapData.cpp` file of the Ardulem project, before recompiling/reuploading the game to the Arduboy.
 

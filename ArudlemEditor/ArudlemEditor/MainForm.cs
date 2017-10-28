@@ -50,7 +50,7 @@ namespace ArudlemEditor
         private void LoadMapSpriteImage()
         {
             // get the original image
-            string mapSpritePath = Application.StartupPath + @"/../../../../Assets/Maps/MapSprite.png";
+            string mapSpritePath = Application.StartupPath + @"/MapSprite.png";
             Bitmap originalMapSpriteImage = new Bitmap(mapSpritePath);
 			m_MapSpriteImage = new Bitmap(originalMapSpriteImage.Size.Width * IMAGE_ZOOM_SCALE, originalMapSpriteImage.Size.Height * IMAGE_ZOOM_SCALE);
 			Graphics gc = Graphics.FromImage(m_MapSpriteImage);
@@ -66,7 +66,7 @@ namespace ArudlemEditor
             DrawMapSprite();
 
 			// get the START
-			string startSpritePath = Application.StartupPath + @"/../../../../Assets/Start.png";
+			string startSpritePath = Application.StartupPath + @"/Start.png";
 			Bitmap startSpriteImage = new Bitmap(startSpritePath);
 			//draw only the last frame of the start and mirror it
 			Bitmap lastFrameImage = new Bitmap(8,8);
@@ -88,7 +88,7 @@ namespace ArudlemEditor
 			m_StartImage.MakeTransparent(Color.Black);
 
 			// get the HOME
-			string homeSpritePath = Application.StartupPath + @"/../../../../Assets/Home.png";
+			string homeSpritePath = Application.StartupPath + @"/Home.png";
 			Bitmap homeSpriteImage = new Bitmap(homeSpritePath);
 			// get the bottom and top parts
 			Bitmap homeBottomImage = new Bitmap(15, 8);
